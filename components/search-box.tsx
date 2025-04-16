@@ -103,7 +103,7 @@ export default function SearchBox({ songs, aliases, onSelect, disabled = false }
       {showResults && results.length > 0 && (
         <div
           ref={resultsRef}
-          className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg max-h-60 overflow-auto"
+          className="z-10 mt-1 w-full bg-white border rounded-md shadow-lg max-h-60 overflow-auto"
         >
           {results.map((song) => {
             const coverImageUrl = `https://www.diving-fish.com/covers/${String(song.id).padStart(5, "0")}.png`
