@@ -69,8 +69,8 @@ export default function HelpModal({ onClose }: HelpModalProps) {
               <li>版本范围 - 限制歌曲的版本范围</li>
               <li>流派选择 - 限制歌曲的音乐类型</li>
               <li>Master等级范围 - 限制歌曲的难度范围</li>
-              <li>猜测次数 - 设置每局游戏的最大猜测次数（5-15次）</li>
-              <li>时间限制 - 设置每局游戏的时间限制（无限制、15秒、30秒、1分钟）</li>
+              <li>猜测次数 - 设置每局游戏的最大猜测次数</li>
+              <li>时间限制 - 设置每局游戏的时间限制</li>
             </ul>
           </div>
 

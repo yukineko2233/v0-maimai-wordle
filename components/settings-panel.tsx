@@ -88,7 +88,7 @@ export default function SettingsPanel({ settings, onApply, onClose }: SettingsPa
     "maimai でらっくす BUDDiES",
   ]
 
-  const genres = ["流行&动漫", "niconico & VOCALOID", "东方Project", "音击&中二节奏", "其他游戏", "舞萌", "宴会場"]
+  const genres = ["流行&动漫", "niconico & VOCALOID", "东方Project", "音击&中二节奏", "其他游戏", "舞萌"]
 
   const levels = [
     "1",
@@ -315,8 +315,8 @@ export default function SettingsPanel({ settings, onApply, onClose }: SettingsPa
                     <Slider
                       value={[currentSettings.timeLimit]}
                       min={0}
-                      max={60}
-                      step={15}
+                      max={120}
+                      step={30}
                       onValueChange={(value) =>
                         setCurrentSettings({
                           ...currentSettings,
@@ -326,7 +326,7 @@ export default function SettingsPanel({ settings, onApply, onClose }: SettingsPa
                       className="mt-2"
                     />
                     <div className="text-xs text-gray-500 mt-1">
-                      0 = 无限制, 15 = 15秒, 30 = 30秒, 45 = 45秒, 60 = 1分钟
+                      0 = 无限制
                     </div>
                   </div>
                 </div>

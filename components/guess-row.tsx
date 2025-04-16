@@ -41,7 +41,7 @@ export default function GuessRow({ guess }: GuessRowProps) {
             }}
           />
           <div className={`flex-1 p-3 rounded border ${getCellClass(result.title)}`}>
-            <div className="font-medium truncate">{song.title}</div>
+            <div className="font-medium">{song.title}</div>
           </div>
         </div>
 
@@ -103,7 +103,7 @@ export default function GuessRow({ guess }: GuessRowProps) {
         {/* Version */}
         <div className={`p-2 rounded border ${getCellClass(result.version.value)}`}>
           <div className="text-xs text-gray-500">稼动版本</div>
-          <div className="flex items-center gap-1 truncate">
+          <div className="items-center gap-1">
             {song.version} {!result.version.value && getVersionDirectionIcon(result.version.direction)}
           </div>
         </div>

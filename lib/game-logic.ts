@@ -5,7 +5,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
     min: "maimai",
     max: "maimai でらっくす BUDDiES",
   },
-  genres: ["流行&动漫", "niconico & VOCALOID", "东方Project", "音击&中二节奏", "其他游戏", "舞萌", "宴会場"],
+  genres: ["流行&动漫", "niconico & VOCALOID", "东方Project", "音击&中二节奏", "其他游戏", "舞萌"],
   masterLevelRange: {
     min: "1",
     max: "14+",

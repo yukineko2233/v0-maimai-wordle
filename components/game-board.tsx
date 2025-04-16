@@ -392,7 +392,7 @@ export default function GameBoard() {
         <Button variant="ghost" size="icon" onClick={() => setShowHelp(true)} className="text-white hover:bg-white/20">
           <HelpCircle className="h-5 w-5" />
         </Button>
-        <h1 className="text-2xl font-bold text-center">Maimai 猜歌游戏</h1>
+        <h1 className="text-2xl font-bold text-center">舞萌猜歌之潘一把</h1>
         <Button
           variant="ghost"
           size="icon"
@@ -420,7 +420,6 @@ export default function GameBoard() {
             )}
             {settings.timeLimit === 0 && (
               <div>
-                <span className="font-medium">时间限制: </span>
                 <span>无限制</span>
               </div>
             )}
