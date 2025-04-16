@@ -133,7 +133,7 @@ export default function SettingsPanel({ settings, onApply, onClose }: SettingsPa
 
         <div className="p-4">
           <Tabs value={activeTab} onValueChange={handleTabChange}>
-            <TabsList className="grid grid-cols-3 md:grid-cols-7 mb-4">
+            <TabsList className="flex flex-wrap items-start gap-2 p-2 h-auto">
               <TabsTrigger value="custom">自定义</TabsTrigger>
               <TabsTrigger value="beginner">入门</TabsTrigger>
               <TabsTrigger value="anime">二次元高手</TabsTrigger>
