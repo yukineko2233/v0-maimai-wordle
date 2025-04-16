@@ -17,13 +17,11 @@ export default function GuessRow({ guess }: GuessRowProps) {
   const getDirectionIcon = (direction: "higher" | "lower" | "equal") => {
     if (direction === "higher") return <ArrowDown className="h-4 w-4 text-red-500" />
     if (direction === "lower") return <ArrowUp className="h-4 w-4 text-blue-500" />
-    return <Check className="h-4 w-4 text-green-500" />
   }
 
   const getVersionDirectionIcon = (direction: "newer" | "older" | "equal") => {
     if (direction === "newer") return <ArrowDown className="h-4 w-4 text-red-500" />
     if (direction === "older") return <ArrowUp className="h-4 w-4 text-blue-500" />
-    return <Check className="h-4 w-4 text-green-500" />
   }
 
   // Update the cover image URL to use diving-fish.com
