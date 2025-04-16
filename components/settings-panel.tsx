@@ -88,7 +88,7 @@ export default function SettingsPanel({ settings, onApply, onClose }: SettingsPa
     "maimai でらっくす BUDDiES",
   ]
 
-  const genres = ["流行&动漫", "niconico & VOCALOID", "东方Project", "音击&中二节奏", "其他游戏", "maimai", "宴会场"]
+  const genres = ["流行&动漫", "niconico & VOCALOID", "东方Project", "音击&中二节奏", "其他游戏", "舞萌", "宴会場"]
 
   const levels = [
     "1",
