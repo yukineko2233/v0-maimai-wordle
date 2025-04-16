@@ -335,7 +335,7 @@ export default function GameBoard() {
       const guessValue = Number.parseFloat(guess.replace("+", ".7"))
       const targetValue = Number.parseFloat(target.replace("+", ".7"))
 
-      return Math.abs(guessValue - targetValue) <= 0.3
+      return Math.abs(guessValue - targetValue) <= 0.7
     } catch (error) {
       console.error("Error checking if values are close:", error, { guess, target })
       return false
