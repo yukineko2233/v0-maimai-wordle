@@ -91,25 +91,6 @@ export default function SettingsPanel({ settings, onApply, onClose }: SettingsPa
   const genres = ["流行&动漫", "niconico & VOCALOID", "东方Project", "音击&中二节奏", "其他游戏", "舞萌"]
 
   const levels = [
-    "1",
-    "1+",
-    "2",
-    "2+",
-    "3",
-    "3+",
-    "4",
-    "4+",
-    "5",
-    "5+",
-    "6",
-    "6+",
-    "7",
-    "7+",
-    "8",
-    "8+",
-    "9",
-    "9+",
-    "10",
     "10+",
     "11",
     "11+",
@@ -203,7 +184,7 @@ export default function SettingsPanel({ settings, onApply, onClose }: SettingsPa
               </div>
 
               <div>
-                <h3 className="text-lg font-medium mb-2">流派</h3>
+                <h3 className="text-lg font-medium mb-2">流派（全部未选中视为全部包括）</h3>
                 <div className="grid grid-cols-2 gap-2">
                   {genres.map((genre) => (
                     <div key={genre} className="flex items-center space-x-2">
@@ -325,9 +306,6 @@ export default function SettingsPanel({ settings, onApply, onClose }: SettingsPa
                       }
                       className="mt-2"
                     />
-                    <div className="text-xs text-gray-500 mt-1">
-                      0 = 无限制
-                    </div>
                   </div>
                 </div>
               </div>
@@ -335,49 +313,37 @@ export default function SettingsPanel({ settings, onApply, onClose }: SettingsPa
 
             <TabsContent value="beginner">
               <div className="p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-medium">入门预设</h3>
                 <p className="text-sm text-gray-600 mt-1">Master等级：14至14+</p>
-                <p className="text-sm text-gray-600">适合想要挑战高难度歌曲的玩家</p>
               </div>
             </TabsContent>
 
             <TabsContent value="anime">
               <div className="p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-medium">二次元高手预设</h3>
                 <p className="text-sm text-gray-600 mt-1">流派：niconico & VOCALOID</p>
-                <p className="text-sm text-gray-600">适合喜欢V家和niconico歌曲的玩家</p>
               </div>
             </TabsContent>
 
             <TabsContent value="touhou">
               <div className="p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-medium">车万人预设</h3>
                 <p className="text-sm text-gray-600 mt-1">流派：东方Project</p>
-                <p className="text-sm text-gray-600">适合东方Project爱好者</p>
               </div>
             </TabsContent>
 
             <TabsContent value="casual">
               <div className="p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-medium">小歌高手预设</h3>
-                <p className="text-sm text-gray-600 mt-1">Master等级：8+至13+</p>
-                <p className="text-sm text-gray-600">适合中等难度歌曲爱好者</p>
+                <p className="text-sm text-gray-600 mt-1">Master等级：10+至13+</p>
               </div>
             </TabsContent>
 
             <TabsContent value="old">
               <div className="p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-medium">仅旧框预设</h3>
                 <p className="text-sm text-gray-600 mt-1">版本：从maimai到maimai FiNALE</p>
-                <p className="text-sm text-gray-600">适合怀旧玩家</p>
               </div>
             </TabsContent>
 
             <TabsContent value="dx">
               <div className="p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-medium">仅DX框预设</h3>
                 <p className="text-sm text-gray-600 mt-1">版本：从maimai でらっくす到maimai でらっくす BUDDiES</p>
-                <p className="text-sm text-gray-600">适合新版本玩家</p>
               </div>
             </TabsContent>
           </Tabs>
@@ -387,7 +353,7 @@ export default function SettingsPanel({ settings, onApply, onClose }: SettingsPa
           <Button variant="outline" onClick={onClose}>
             取消
           </Button>
-          <Button onClick={handleApply}>应用设置</Button>
+          <Button onClick={handleApply}>应用设置（点击新游戏生效）</Button>
         </div>
       </div>
     </div>
