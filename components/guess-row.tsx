@@ -33,15 +33,15 @@ export default function GuessRow({ guess }: GuessRowProps) {
         {/* Cover and Title - increased size */}
         <div className="flex items-center gap-3 col-span-2">
           <img
-            src={coverImageUrl || "/placeholder.svg"}
+            src={coverImageUrl || "/placeholder.png"}
             alt={song.title}
             className="w-20 h-20 object-cover rounded" /* Increased from w-12 h-12 */
             onError={(e) => {
-              ;(e.target as HTMLImageElement).src = "/placeholder.svg?height=80&width=80"
+              ;(e.target as HTMLImageElement).src = "/placeholder.png?height=80&width=80"
             }}
           />
           <div className={`flex-1 p-3 rounded border ${getCellClass(result.title)}`}>
-            <div className="font-medium truncate">{song.title}</div>
+            <div className="font-medium">{song.title}</div>
           </div>
         </div>
 
@@ -101,9 +101,9 @@ export default function GuessRow({ guess }: GuessRowProps) {
         </div>
 
         {/* Version */}
-        <div className={`p-2 rounded border col-span-2 ${getCellClass(result.version.value)}`}>
+        <div className={`p-2 rounded border col-span-2 ${getCellClass(result.version.value, result.version.close)}`}>
           <div className="text-xs text-gray-500">稼动版本</div>
-          <div className="flex items-center gap-1 truncate">
+          <div className="flex items-center gap-1">
             {song.version} {!result.version.value && getVersionDirectionIcon(result.version.direction)}
           </div>
         </div>

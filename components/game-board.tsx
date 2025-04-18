@@ -15,6 +15,36 @@ import { useToast } from "@/components/ui/use-toast"
 import LoadingScreen from "@/components/loading-screen"
 import HelpModal from "@/components/help-modal"
 
+// Add this function after the imports
+function getVersionValue(version: string): number {
+  const versionMap: Record<string, number> = {
+    "maimai": 1,
+    "maimai PLUS": 2,
+    "maimai GreeN": 3,
+    "maimai GreeN PLUS": 4,
+    "maimai ORANGE": 5,
+    "maimai ORANGE PLUS": 6,
+    "maimai PiNK": 7,
+    "maimai PiNK PLUS": 8,
+    "maimai MURASAKi": 9,
+    "maimai MURASAKi PLUS": 10,
+    "maimai MiLK": 11,
+    "maimai MiLK PLUS": 12,
+    "maimai FiNALE": 13,
+    "maimai でらっくす": 14,
+    "maimai でらっくす PLUS": 15,
+    "maimai でらっくす Splash": 16,
+    "maimai でらっくす Splash PLUS": 17,
+    "maimai でらっくす UNiVERSE": 18,
+    "maimai でらっくす UNiVERSE PLUS": 19,
+    "maimai でらっくす FESTiVAL": 20,
+    "maimai でらっくす FESTiVAL PLUS": 21,
+    "maimai でらっくす BUDDiES": 22,
+  }
+
+  return versionMap[version] || 0
+}
+
 export default function GameBoard() {
   const [songs, setSongs] = useState<Song[]>([])
   const [songAliases, setSongAliases] = useState<Record<number, string[]>>({})
@@ -60,82 +90,11 @@ export default function GameBoard() {
     if (songs.length > 0) {
       const filtered = songs.filter((song) => {
         // Filter by version
-        const versionIndex = [
-          "maimai",
-          "maimai PLUS",
-          "maimai GreeN",
-          "maimai GreeN PLUS",
-          "maimai ORANGE",
-          "maimai ORANGE PLUS",
-          "maimai PiNK",
-          "maimai PiNK PLUS",
-          "maimai MURASAKi",
-          "maimai MURASAKi PLUS",
-          "maimai MiLK",
-          "maimai MiLK PLUS",
-          "maimai FiNALE",
-          "maimai でらっくす",
-          "maimai でらっくす PLUS",
-          "maimai でらっくす Splash",
-          "maimai でらっくす Splash PLUS",
-          "maimai でらっくす UNiVERSE",
-          "maimai でらっくす UNiVERSE PLUS",
-          "maimai でらっくす FESTiVAL",
-          "maimai でらっくす FESTiVAL PLUS",
-          "maimai でらっくす BUDDiES",
-        ].indexOf(song.version)
+        const versionValue = getVersionValue(song.version)
+        const minVersionValue = getVersionValue(settings.versionRange.min)
+        const maxVersionValue = getVersionValue(settings.versionRange.max)
 
-        const minVersionIndex = [
-          "maimai",
-          "maimai PLUS",
-          "maimai GreeN",
-          "maimai GreeN PLUS",
-          "maimai ORANGE",
-          "maimai ORANGE PLUS",
-          "maimai PiNK",
-          "maimai PiNK PLUS",
-          "maimai MURASAKi",
-          "maimai MURASAKi PLUS",
-          "maimai MiLK",
-          "maimai MiLK PLUS",
-          "maimai FiNALE",
-          "maimai でらっくす",
-          "maimai でらっくす PLUS",
-          "maimai でらっくす Splash",
-          "maimai でらっくす Splash PLUS",
-          "maimai でらっくす UNiVERSE",
-          "maimai でらっくす UNiVERSE PLUS",
-          "maimai でらっくす FESTiVAL",
-          "maimai でらっくす FESTiVAL PLUS",
-          "maimai でらっくす BUDDiES",
-        ].indexOf(settings.versionRange.min)
-
-        const maxVersionIndex = [
-          "maimai",
-          "maimai PLUS",
-          "maimai GreeN",
-          "maimai GreeN PLUS",
-          "maimai ORANGE",
-          "maimai ORANGE PLUS",
-          "maimai PiNK",
-          "maimai PiNK PLUS",
-          "maimai MURASAKi",
-          "maimai MURASAKi PLUS",
-          "maimai MiLK",
-          "maimai MiLK PLUS",
-          "maimai FiNALE",
-          "maimai でらっくす",
-          "maimai でらっくす PLUS",
-          "maimai でらっくす Splash",
-          "maimai でらっくす Splash PLUS",
-          "maimai でらっくす UNiVERSE",
-          "maimai でらっくす UNiVERSE PLUS",
-          "maimai でらっくす FESTiVAL",
-          "maimai でらっくす FESTiVAL PLUS",
-          "maimai でらっくす BUDDiES",
-        ].indexOf(settings.versionRange.max)
-
-        if (versionIndex < minVersionIndex || versionIndex > maxVersionIndex) {
+        if (versionValue < minVersionValue || versionValue > maxVersionValue) {
           return false
         }
 
@@ -237,8 +196,8 @@ export default function GameBoard() {
 
     // Compare BPM values
     const compareBPM = (
-      guessBPM: string,
-      targetBPM: string,
+        guessBPM: string,
+        targetBPM: string,
     ): {
       value: boolean
       direction: "higher" | "lower" | "equal"
@@ -255,7 +214,7 @@ export default function GameBoard() {
         return {
           value: guessValue === targetValue,
           direction: guessValue > targetValue ? "higher" : guessValue < targetValue ? "lower" : "equal",
-          close: Math.abs(guessValue - targetValue) <= 10, // BPM within 10 is considered close
+          close: Math.abs(guessValue - targetValue) <= 20, // BPM within 20 is considered close
         }
       } catch (error) {
         console.error("Error comparing BPM values:", error, { guessBPM, targetBPM })
@@ -264,6 +223,8 @@ export default function GameBoard() {
     }
 
     const bpmResult = compareBPM(song.bpm, gameState.targetSong.bpm)
+
+    const versionResult = compareVersions(song.version, gameState.targetSong.version)
 
     const newGuess: Guess = {
       song,
@@ -287,8 +248,8 @@ export default function GameBoard() {
         remasterDesigner: song.charts.remaster?.designer === gameState.targetSong.charts.remaster?.designer,
         version: {
           value: song.version === gameState.targetSong.version,
-          direction: compareVersions(song.version, gameState.targetSong.version),
-          close: false,
+          direction: versionResult.direction,
+          close: versionResult.close,
         },
       },
     }
@@ -335,45 +296,25 @@ export default function GameBoard() {
       const guessValue = Number.parseFloat(guess.replace("+", ".7"))
       const targetValue = Number.parseFloat(target.replace("+", ".7"))
 
-      return Math.abs(guessValue - targetValue) <= 0.3
+      return Math.abs(guessValue - targetValue) <= 0.7
     } catch (error) {
       console.error("Error checking if values are close:", error, { guess, target })
       return false
     }
   }
 
-  const compareVersions = (guess: string, target: string): "newer" | "older" | "equal" => {
-    const versions = [
-      "maimai",
-      "maimai PLUS",
-      "maimai GreeN",
-      "maimai GreeN PLUS",
-      "maimai ORANGE",
-      "maimai ORANGE PLUS",
-      "maimai PiNK",
-      "maimai PiNK PLUS",
-      "maimai MURASAKi",
-      "maimai MURASAKi PLUS",
-      "maimai MiLK",
-      "maimai MiLK PLUS",
-      "maimai FiNALE",
-      "maimai でらっくす",
-      "maimai でらっくす PLUS",
-      "maimai でらっくす Splash",
-      "maimai でらっくす Splash PLUS",
-      "maimai でらっくす UNiVERSE",
-      "maimai でらっくす UNiVERSE PLUS",
-      "maimai でらっくす FESTiVAL",
-      "maimai でらっくす FESTiVAL PLUS",
-      "maimai でらっくす BUDDiES",
-    ]
+  const compareVersions = (
+      guess: string,
+      target: string,
+  ): { direction: "newer" | "older" | "equal"; close: boolean } => {
+    const guessValue = getVersionValue(guess)
+    const targetValue = getVersionValue(target)
 
-    const guessIndex = versions.indexOf(guess)
-    const targetIndex = versions.indexOf(target)
+    const isClose = Math.abs(guessValue - targetValue) === 1
 
-    if (guessIndex > targetIndex) return "newer"
-    if (guessIndex < targetIndex) return "older"
-    return "equal"
+    if (guessValue > targetValue) return { direction: "newer", close: isClose }
+    if (guessValue < targetValue) return { direction: "older", close: isClose }
+    return { direction: "equal", close: false }
   }
 
   const applySettings = (newSettings: GameSettings) => {
@@ -387,81 +328,80 @@ export default function GameBoard() {
   }
 
   return (
-    <div className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-      <div className="p-5 bg-gradient-to-r from-pink-500 to-purple-500 text-white flex justify-between items-center">
-        <Button variant="ghost" size="icon" onClick={() => setShowHelp(true)} className="text-white hover:bg-white/20">
-          <HelpCircle className="h-5 w-5" />
-        </Button>
-        <h1 className="text-2xl font-bold text-center">Maimai 猜歌游戏</h1>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setShowSettings(true)}
-          className="text-white hover:bg-white/20"
-        >
-          <Settings className="h-5 w-5" />
-        </Button>
-      </div>
+      <div className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="p-5 bg-gradient-to-r from-pink-500 to-purple-500 text-white flex justify-between items-center">
+          <Button variant="ghost" size="icon" onClick={() => setShowHelp(true)} className="text-white hover:bg-white/20">
+            <HelpCircle className="h-5 w-5" />
+          </Button>
+          <h1 className="text-2xl font-bold text-center">舞萌猜歌之潘一把</h1>
+          <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowSettings(true)}
+              className="text-white hover:bg-white/20"
+          >
+            <Settings className="h-5 w-5" />
+          </Button>
+        </div>
 
-      <div className="p-6">
-        {gameState.targetSong && (
-          <div className="mb-6 flex justify-between items-center">
-            <div>
-              <span className="font-medium">已猜测: </span>
-              <span>
+        <div className="p-6">
+          {gameState.targetSong && (
+              <div className="mb-6 flex justify-between items-center">
+                <div>
+                  <span className="font-medium">已猜测: </span>
+                  <span>
                 {gameState.guesses.length}/{settings.maxGuesses}
               </span>
-            </div>
-            {settings.timeLimit > 0 && (
-              <div>
-                <span className="font-medium">剩余时间: </span>
-                <span>{gameState.remainingTime}秒</span>
+                </div>
+                {settings.timeLimit > 0 && (
+                    <div>
+                      <span className="font-medium">剩余时间: </span>
+                      <span>{gameState.remainingTime}秒</span>
+                    </div>
+                )}
+                {settings.timeLimit === 0 && (
+                    <div>
+                      <span>无限制</span>
+                    </div>
+                )}
+                <Button variant="outline" size="sm" onClick={() => startNewGame()} className="flex items-center gap-1">
+                  <RefreshCw className="h-4 w-4" />
+                  新游戏
+                </Button>
               </div>
-            )}
-            {settings.timeLimit === 0 && (
-              <div>
-                <span className="font-medium">时间限制: </span>
-                <span>无限制</span>
+          )}
+
+          {/* Fixed: Move search box above result screen to ensure it's visible */}
+          {!gameState.gameOver && gameState.targetSong && (
+              <div className="mb-5">
+                <SearchBox songs={songs} aliases={songAliases} onSelect={makeGuess} disabled={gameState.gameOver} />
               </div>
-            )}
-            <Button variant="outline" size="sm" onClick={() => startNewGame()} className="flex items-center gap-1">
-              <RefreshCw className="h-4 w-4" />
-              新游戏
-            </Button>
+          )}
+
+          {gameState.gameOver && gameState.targetSong && (
+              <ResultScreen
+                  won={gameState.won}
+                  targetSong={gameState.targetSong}
+                  guessCount={gameState.guesses.length}
+                  maxGuesses={settings.maxGuesses}
+                  onNewGame={() => startNewGame()}
+              />
+          )}
+
+          <div className="mt-5 space-y-3">
+            {gameState.guesses.map((guess, index) => (
+                <GuessRow key={index} guess={guess} />
+            ))}
           </div>
-        )}
-
-        {/* Fixed: Move search box above result screen to ensure it's visible */}
-        {!gameState.gameOver && gameState.targetSong && (
-          <div className="mb-5">
-            <SearchBox songs={songs} aliases={songAliases} onSelect={makeGuess} disabled={gameState.gameOver} />
-          </div>
-        )}
-
-        {gameState.gameOver && gameState.targetSong && (
-          <ResultScreen
-            won={gameState.won}
-            targetSong={gameState.targetSong}
-            guessCount={gameState.guesses.length}
-            maxGuesses={settings.maxGuesses}
-            onNewGame={() => startNewGame()}
-          />
-        )}
-
-        <div className="mt-5 space-y-3">
-          {gameState.guesses.map((guess, index) => (
-            <GuessRow key={index} guess={guess} />
-          ))}
         </div>
+
+        {showSettings && (
+            <SettingsPanel settings={settings} onApply={applySettings} onClose={() => setShowSettings(false)} />
+        )}
+
+        {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
+
+        <Toaster />
       </div>
-
-      {showSettings && (
-        <SettingsPanel settings={settings} onApply={applySettings} onClose={() => setShowSettings(false)} />
-      )}
-
-      {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
-
-      <Toaster />
-    </div>
   )
 }

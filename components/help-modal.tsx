@@ -31,10 +31,10 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                 <span className="font-medium">绿色</span> - 表示该属性完全正确
               </li>
               <li>
-                <span className="font-medium">黄色</span> - 表示该属性接近正确（适用于BPM、Master等级和Re:Master等级）
+                <span className="font-medium">黄色</span> - 表示该属性接近正确（BPM±20、半个Master&Re:Master等级差、一个版本差）
               </li>
               <li>
-                <span className="font-medium">箭头</span> - 对于数值类属性（BPM、Master等级、Re:Master等级和版本）：
+                <span className="font-medium">箭头</span> - （BPM、Master等级、Re:Master等级和版本）：
                 <ul className="list-disc pl-5 mt-1">
                   <li>
                     <span className="text-blue-500">↑</span> - 目标值比你猜的更高
@@ -48,42 +48,31 @@ export default function HelpModal({ onClose }: HelpModalProps) {
           </div>
 
           <div>
-            <h3 className="text-lg font-medium mb-2">游戏属性</h3>
+            <h3 className="text-lg font-medium mb-2">关于此项目</h3>
             <ul className="list-disc pl-5 space-y-1">
-              <li>曲绘 - 歌曲封面图片</li>
-              <li>标题 - 歌曲名称</li>
-              <li>类型 - 歌曲类型</li>
-              <li>曲师 - 歌曲作者</li>
-              <li>BPM - 歌曲速度</li>
-              <li>Master等级 & Master谱师 - 歌曲Master难度等级和谱面设计师</li>
-              <li>Re:Master等级 & Re:Master谱师 - 歌曲Re:Master难度等级和谱面设计师</li>
-              <li>流派 - 歌曲所属的音乐类型</li>
-              <li>稼动版本 - 歌曲首次出现的游戏版本</li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium mb-2">游戏设置</h3>
-            <p>你可以通过设置面板调整游戏参数，包括：</p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>版本范围 - 限制歌曲的版本范围</li>
-              <li>流派选择 - 限制歌曲的音乐类型</li>
-              <li>Master等级范围 - 限制歌曲的难度范围</li>
-              <li>猜测次数 - 设置每局游戏的最大猜测次数（5-15次）</li>
-              <li>时间限制 - 设置每局游戏的时间限制（无限制、15秒、30秒、1分钟）</li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium mb-2">预设模式</h3>
-            <p>游戏提供了多种预设模式，适合不同类型的玩家：</p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>入门 - Master等级：14至14+</li>
-              <li>二次元高手 - 流派：niconico & VOCALOID</li>
-              <li>车万人 - 流派：东方Project</li>
-              <li>小歌高手 - Master等级：8+至13+</li>
-              <li>仅旧框 - 版本：从maimai到maimai FiNALE</li>
-              <li>仅DX框 - 版本：从maimai でらっくす到maimai でらっくす BUDDiES</li>
+              <li>
+                <a href="https://github.com/yukineko2233/v0-maimai-wordle" target="_blank" className="text-blue-500" rel="noopener noreferrer">
+                  https://github.com/yukineko2233/v0-maimai-wordle
+                </a>
+              </li>
+              <li>
+                此项目基于v0.dev AI生成，基于React编写。
+              </li>
+              <li>
+                感谢Diving-Fish提供的
+                <a href="https://github.com/Diving-Fish/maimaidx-prober/blob/main/database/zh-api-document.md" target="_blank" className="text-blue-500" rel="noopener noreferrer">
+                  曲目数据库
+                </a>
+              </li>
+              <li>
+                感谢Yuri-YuzuChaN提供的
+                <a href="https://github.com/Yuri-YuzuChaN/SakuraBotDocs/blob/main/docs/api/maimaiDX.md" target="_blank" className="text-blue-500" rel="noopener noreferrer">
+                  别名数据库
+                </a>
+              </li>
+              <li>
+                这是我第一次接触web开发，如果可以提交PR帮我修bug，非常感谢！
+              </li>
             </ul>
           </div>
         </div>

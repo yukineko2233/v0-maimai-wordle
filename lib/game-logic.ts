@@ -5,9 +5,9 @@ export const DEFAULT_SETTINGS: GameSettings = {
     min: "maimai",
     max: "maimai でらっくす BUDDiES",
   },
-  genres: ["流行&动漫", "niconico & VOCALOID", "东方Project", "音击&中二节奏", "其他游戏", "maimai"],
+  genres: ["流行&动漫", "niconico & VOCALOID", "东方Project", "音击&中二节奏", "其他游戏", "舞萌"],
   masterLevelRange: {
-    min: "1",
+    min: "10+",
     max: "14+",
   },
   maxGuesses: 10,
@@ -36,7 +36,7 @@ export const TOUHOU_PRESET: GameSettings = {
 export const CASUAL_PRESET: GameSettings = {
   ...DEFAULT_SETTINGS,
   masterLevelRange: {
-    min: "8+",
+    min: "10+",
     max: "13+",
   },
 }
