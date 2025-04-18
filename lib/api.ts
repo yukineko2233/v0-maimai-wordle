@@ -8,6 +8,7 @@ export async function fetchSongs(): Promise<Song[]> {
     return response.data.map((song: any) => {
       // 获取原始 genre
       let genre = song.basic_info?.genre || "Unknown"
+      let version = song.basic_info?.from || "Unknown"
 
       // maimai
       if (genre === "maimai") {
@@ -39,6 +40,11 @@ export async function fetchSongs(): Promise<Song[]> {
         genre = "\u5176\u4ed6\u6e38\u620f"
       }
 
+      // MiLK PLUS
+      if (version === "MiLK PLUS") {
+        version = "maimai MiLK PLUS"
+      }
+
       // Ensure all required properties exist
       return {
         id: song.id || 0,
@@ -47,7 +53,7 @@ export async function fetchSongs(): Promise<Song[]> {
         artist: song.basic_info?.artist || "Unknown",
         genre: genre,
         bpm: song.basic_info?.bpm || "0",
-        version: song.basic_info?.from || "Unknown",
+        version: version,
         level_master: song.level && song.level.length > 3 ? song.level[3] : "0",
         level_remaster: song.level && song.level.length > 4 ? song.level[4] : "",
         charts: {
