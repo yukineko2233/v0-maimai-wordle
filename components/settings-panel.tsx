@@ -126,7 +126,7 @@ export default function SettingsPanel({ settings, onApply, onClose }: SettingsPa
 
             <TabsContent value="custom" className="space-y-4">
               <div>
-                <h3 className="text-lg font-medium mb-2">版本范围</h3>
+                <h3 className="text-lg font-medium mb-2">版本范围（国服）</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>最低版本</Label>
