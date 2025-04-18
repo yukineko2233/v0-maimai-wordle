@@ -107,6 +107,8 @@ export default function SearchBox({ songs, aliases, onSelect, disabled = false }
         >
           {results.map((song) => {
             const coverImageUrl = `https://www.diving-fish.com/covers/${String(song.id).padStart(5, "0")}.png`
+            const songAliases = aliases[song.id] || [];
+            const aliasText = songAliases.join(", ");
 
             return (
               <div
@@ -122,9 +124,10 @@ export default function SearchBox({ songs, aliases, onSelect, disabled = false }
                     ;(e.target as HTMLImageElement).src = "/placeholder.png?height=64&width=64"
                   }}
                 />
-                <div>
+                <div className="flex flex-col min-w-0">
                   <div className="font-medium">{song.title}</div>
                   <div className="text-xs text-gray-500">{song.artist}</div>
+                  <div className="text-xs text-gray-500 truncate w-full min-w-0">{aliasText}</div>
                 </div>
               </div>
             )
