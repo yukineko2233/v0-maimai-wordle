@@ -31,10 +31,10 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                 <span className="font-medium">绿色</span> - 表示该属性完全正确
               </li>
               <li>
-                <span className="font-medium">黄色</span> - 表示该属性接近正确（适用于BPM、Master等级和Re:Master等级）
+                <span className="font-medium">黄色</span> - （BPM、Master等级、Re:Master等级和版本）
               </li>
               <li>
-                <span className="font-medium">箭头</span> - 对于数值类属性（BPM、Master等级、Re:Master等级和版本）：
+                <span className="font-medium">箭头</span> - （BPM、Master等级、Re:Master等级和版本）：
                 <ul className="list-disc pl-5 mt-1">
                   <li>
                     <span className="text-blue-500">↑</span> - 猜高了
