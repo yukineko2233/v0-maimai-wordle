@@ -39,11 +39,11 @@ export default function ResultScreen({ won, targetSong, guessCount, maxGuesses, 
           {" "}
           {/* Increased spacing */}
           <img
-            src={coverImageUrl || "/placeholder.svg"}
+            src={coverImageUrl || "/placeholder.png"}
             alt={targetSong.title}
             className="w-40 h-40 object-cover rounded-lg shadow-md" /* Increased from w-24 h-24 */
             onError={(e) => {
-              ;(e.target as HTMLImageElement).src = "/placeholder.svg?height=160&width=160"
+              ;(e.target as HTMLImageElement).src = "/placeholder.png?height=160&width=160"
             }}
           />
           <div className="text-left">

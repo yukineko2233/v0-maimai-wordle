@@ -115,11 +115,11 @@ export default function SearchBox({ songs, aliases, onSelect, disabled = false }
                 onClick={() => handleSelect(song)}
               >
                 <img
-                  src={coverImageUrl || "/placeholder.svg"}
+                  src={coverImageUrl || "/placeholder.png"}
                   alt={song.title}
                   className="w-16 h-16 object-cover rounded"
                   onError={(e) => {
-                    ;(e.target as HTMLImageElement).src = "/placeholder.svg?height=64&width=64"
+                    ;(e.target as HTMLImageElement).src = "/placeholder.png?height=64&width=64"
                   }}
                 />
                 <div>
