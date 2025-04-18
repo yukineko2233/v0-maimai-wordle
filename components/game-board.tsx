@@ -18,7 +18,7 @@ import HelpModal from "@/components/help-modal"
 // Add this function after the imports
 function getVersionValue(version: string): number {
   const versionMap: Record<string, number> = {
-    maimai: 1,
+    "maimai": 1,
     "maimai PLUS": 2,
     "maimai GreeN": 3,
     "maimai GreeN PLUS": 4,
@@ -214,7 +214,7 @@ export default function GameBoard() {
         return {
           value: guessValue === targetValue,
           direction: guessValue > targetValue ? "higher" : guessValue < targetValue ? "lower" : "equal",
-          close: Math.abs(guessValue - targetValue) <= 10, // BPM within 10 is considered close
+          close: Math.abs(guessValue - targetValue) <= 20, // BPM within 20 is considered close
         }
       } catch (error) {
         console.error("Error comparing BPM values:", error, { guessBPM, targetBPM })
