@@ -37,10 +37,10 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                 <span className="font-medium">箭头</span> - 对于数值类属性（BPM、Master等级、Re:Master等级和版本）：
                 <ul className="list-disc pl-5 mt-1">
                   <li>
-                    <span className="text-blue-500">↑</span> - 目标值比你猜的更高
+                    <span className="text-blue-500">↑</span> - 猜高了
                   </li>
                   <li>
-                    <span className="text-red-500">↓</span> - 目标值比你猜的更低
+                    <span className="text-red-500">↓</span> - 猜低了
                   </li>
                 </ul>
               </li>
