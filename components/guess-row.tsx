@@ -1,5 +1,5 @@
 import type { Guess } from "@/types/game"
-import { ArrowDown, ArrowUp, Check } from "lucide-react"
+import { ArrowDown, ArrowUp } from "lucide-react"
 
 interface GuessRowProps {
   guess: Guess

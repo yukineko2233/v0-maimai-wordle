@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import type { GameSettings } from "@/types/game"
 import { Button } from "@/components/ui/button"

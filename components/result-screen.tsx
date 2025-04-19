@@ -1,5 +1,3 @@
-"use client"
-
 import type { Song } from "@/types/game"
 import { Button } from "@/components/ui/button"
 import { RefreshCw } from "lucide-react"
