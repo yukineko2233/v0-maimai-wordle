@@ -331,8 +331,8 @@ export default function GameBoard() {
             <HelpCircle className="h-5 w-5" />
           </Button>
           <div className="flex items-center justify-center relative">
-            <h1 className="text-2xl font-bold text-center">舞萌猜歌之潘一把</h1>
-            <div className="absolute -right-11 -top-1 bg-white/20 text-white text-xs px-2 py-0.5 rounded-md font-medium">
+            <h1 className="text-xl font text-center">舞萌猜歌之潘一把</h1>
+            <div className="absolute -right-9 -top-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-md font-medium">
               Beta
             </div>
           </div>
