@@ -171,7 +171,7 @@ export default function GameBoard() {
     }
 
     const target = getRandomSong(songList)
-    console.log("Target song:", target.title) // For debugging
+    console.log("Target song:", target.id) // For debugging
 
     setGameState({
       targetSong: target,
