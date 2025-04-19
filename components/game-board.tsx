@@ -222,8 +222,6 @@ export default function GameBoard() {
       }
     }
 
-    const bpmResult = compareBPM(song.bpm, gameState.targetSong.bpm)
-
     const versionResult = compareVersions(song.version, gameState.targetSong.version)
 
     const newGuess: Guess = {
@@ -232,7 +230,7 @@ export default function GameBoard() {
         title: song.title === gameState.targetSong.title,
         type: song.type === gameState.targetSong.type,
         artist: song.artist === gameState.targetSong.artist,
-        bpm: bpmResult,
+        bpm: compareBPM(song.bpm, gameState.targetSong.bpm),
         genre: song.genre === gameState.targetSong.genre,
         masterLevel: {
           value: song.level_master === gameState.targetSong.level_master,
@@ -374,7 +372,7 @@ export default function GameBoard() {
           {/* Fixed: Move search box above result screen to ensure it's visible */}
           {!gameState.gameOver && gameState.targetSong && (
               <div className="mb-5">
-                <SearchBox songs={songs} aliases={songAliases} onSelect={makeGuess} disabled={gameState.gameOver} />
+                <SearchBox songs={filteredSongs} aliases={songAliases} onSelect={makeGuess} disabled={gameState.gameOver} />
               </div>
           )}
 
