@@ -10,7 +10,6 @@ import { fetchSongs, fetchAliases } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Settings, RefreshCw, HelpCircle } from "lucide-react"
 import { getRandomSong, isGuessCorrect, DEFAULT_SETTINGS } from "@/lib/game-logic"
-import { Toaster } from "@/components/ui/toaster"
 import { useToast } from "@/components/ui/use-toast"
 import LoadingScreen from "@/components/loading-screen"
 import HelpModal from "@/components/help-modal"
@@ -403,8 +402,7 @@ export default function GameBoard() {
         )}
 
         {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
-
-        <Toaster />
+          
       </div>
   )
 }
