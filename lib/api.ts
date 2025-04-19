@@ -31,7 +31,7 @@ export async function fetchSongs(): Promise<Song[]> {
       }
 
       // 音击中二
-      if (genre === "\u97f3\u51fb&\u4e2d\u4e8c\u8282\u594f") {
+      if (genre === "\u30aa\u30f3\u30b2\u30adCHUNITHM") {
         genre = "\u97f3\u51fb&\u4e2d\u4e8c\u8282\u594f"
       }
 
