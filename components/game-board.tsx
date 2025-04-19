@@ -332,7 +332,7 @@ export default function GameBoard() {
           </Button>
           <div className="flex items-center justify-center relative">
             <h1 className="text-xl font text-center">舞萌猜歌之潘一把</h1>
-            <div className="absolute -right-9 -top-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-md font-medium">
+            <div className="absolute -right-10 -top-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-md font-medium">
               Beta
             </div>
           </div>
