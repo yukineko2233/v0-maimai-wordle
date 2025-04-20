@@ -39,7 +39,7 @@ export default function ResultScreen({ won, targetSong, guessCount, maxGuesses, 
           <img
             src={coverImageUrl || "/placeholder.png"}
             alt={targetSong.title}
-            className="w-40 h-40 object-cover rounded-lg shadow-md" /* Increased from w-24 h-24 */
+            className="w-24 h-24 object-cover rounded-lg shadow-md" /* Increased from w-24 h-24 */
             onError={(e) => {
               ;(e.target as HTMLImageElement).src = "/placeholder.png?height=160&width=160"
             }}
@@ -48,15 +48,14 @@ export default function ResultScreen({ won, targetSong, guessCount, maxGuesses, 
             <div className="text-xl font-bold">{targetSong.title}</div>
             <div className="text-gray-600">{targetSong.artist}</div>
             <div className="text-sm mt-1">
-              <span className="font-medium">类型:</span> {targetSong.type} |<span className="font-medium"> 流派:</span>{" "}
-              {targetSong.genre}
+              {targetSong.type} | {targetSong.genre} | <span className="font-medium">BPM: </span> {targetSong.bpm}
             </div>
             <div className="text-sm">
               <span className="font-medium">Master:</span> {targetSong.level_master} |
               <span className="font-medium"> Re:Master:</span> {targetSong.level_remaster || "无"}
             </div>
             <div className="text-sm">
-              <span className="font-medium">版本:</span> {targetSong.version}
+              {targetSong.version}
             </div>
           </div>
         </div>
