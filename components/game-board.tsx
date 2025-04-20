@@ -317,7 +317,13 @@ export default function GameBoard() {
   const applySettings = (newSettings: GameSettings) => {
     setSettings(newSettings)
     setShowSettings(false)
-    startNewGame()
+    setGameState({
+      targetSong: null,
+      guesses: [],
+      gameOver: false,
+      won: false,
+      remainingTime: newSettings.timeLimit,
+    })
   }
 
   if (loading) {
