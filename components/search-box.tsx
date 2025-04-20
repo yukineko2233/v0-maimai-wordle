@@ -123,7 +123,9 @@ export default function SearchBox({ songs, aliases, onSelect, disabled = false }
                   }}
                 />
                 <div className="flex flex-col min-w-0">
-                  <div className="font-medium">{song.title}</div>
+                  <div className="font-medium flex items-center gap-2">
+                    <span>{song.title}</span>{song.type && (<span className="text-sm text-blue-500">{song.type}</span>)}
+                  </div>
                   <div className="text-xs text-gray-500">{song.artist}</div>
                   <div className="text-xs text-gray-500 truncate w-full min-w-0">{aliasText}</div>
                 </div>
