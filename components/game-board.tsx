@@ -8,7 +8,7 @@ import SettingsPanel from "@/components/settings-panel"
 import ResultScreen from "@/components/result-screen"
 import { fetchSongs, fetchAliases } from "@/lib/api"
 import { Button } from "@/components/ui/button"
-import { Settings, RefreshCw, HelpCircle } from "lucide-react"
+import { Settings, RefreshCw, HelpCircle, Flag } from "lucide-react"
 import { getRandomSong, isGuessCorrect, DEFAULT_SETTINGS } from "@/lib/game-logic"
 import { useToast } from "@/components/ui/use-toast"
 import LoadingScreen from "@/components/loading-screen"
@@ -340,7 +340,9 @@ export default function GameBoard() {
           <div className="flex justify-center">
             <div className="relative inline-block">
               <h1 className="text-xl font text-center pr-5">舞萌猜歌之潘一把</h1>
-              <span className="absolute top-1 right-0 -translate-y-1/3 translate-x-1/3 bg-white/20 text-white text-[8px] px-1 py-0.5 rounded-md font">Beta</span>
+              <span className="absolute top-1 right-0 -translate-y-1/3 translate-x-1/3 bg-white/20 text-white text-[8px] px-1 py-0.5 rounded-md font">
+              Beta
+            </span>
             </div>
           </div>
 
@@ -356,29 +358,51 @@ export default function GameBoard() {
 
         <div className="p-6">
           {gameState.targetSong && (
-              <div className="mb-6 flex justify-between items-center">
-                <div>
-                  <span className="font-medium">已猜测: </span>
-                  <span>
-                {gameState.guesses.length}/{settings.maxGuesses}
-              </span>
+              <>
+                <div className="mb-3 flex justify-center gap-4 items-center">
+                  <div className="flex-1 text-center">
+                    <span className="font-medium">已猜测: </span>
+                    <span>
+                  {gameState.guesses.length}/{settings.maxGuesses}
+                </span>
+                  </div>
+                  <div className="flex-1 text-center">
+                    {settings.timeLimit > 0 ? (
+                        <>
+                          <span className="font-medium">剩余时间: </span>
+                          <span>{gameState.remainingTime}秒</span>
+                        </>
+                    ) : (
+                        <span>无限制</span>
+                    )}
+                  </div>
                 </div>
-                {settings.timeLimit > 0 && (
-                    <div>
-                      <span className="font-medium">剩余时间: </span>
-                      <span>{gameState.remainingTime}秒</span>
-                    </div>
-                )}
-                {settings.timeLimit === 0 && (
-                    <div>
-                      <span>无限制</span>
-                    </div>
-                )}
-                <Button variant="outline" size="sm" onClick={() => startNewGame()} className="flex items-center gap-1">
-                  <RefreshCw className="h-4 w-4" />
-                  新游戏
-                </Button>
-              </div>
+                <div className="mb-6 flex justify-center gap-4">
+                  <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => startNewGame()}
+                      className="flex-1 flex items-center justify-center gap-1 max-w-40"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                    新游戏
+                  </Button>
+                  <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                          setGameState((prev) => ({
+                            ...prev,
+                            gameOver: true,
+                          }))
+                      }
+                      className="flex-1 flex items-center justify-center gap-1 max-w-40"
+                  >
+                    <Flag className="h-4 w-4" />
+                    投降
+                  </Button>
+                </div>
+              </>
           )}
 
           {/* Fixed: Move search box above result screen to ensure it's visible */}
@@ -410,7 +434,6 @@ export default function GameBoard() {
         )}
 
         {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
-          
       </div>
   )
 }
