@@ -373,7 +373,7 @@ export default function GameBoard() {
                           <span>{gameState.remainingTime}秒</span>
                         </>
                     ) : (
-                        <span>无限制</span>
+                        <span>无限时间</span>
                     )}
                   </div>
                 </div>
