@@ -333,7 +333,7 @@ export default function GameBoard() {
 
           <div className="flex justify-center">
             <div className="relative inline-block">
-              <h1 className="text-xl font text-center pr-4">舞萌猜歌之潘一把</h1>
+              <h1 className="text-xl font text-center pr-5">舞萌猜歌之潘一把</h1>
               <span className="absolute top-1 right-0 -translate-y-1/3 translate-x-1/3 bg-white/20 text-white text-[8px] px-1 py-0.5 rounded-md font">Beta</span>
             </div>
           </div>
