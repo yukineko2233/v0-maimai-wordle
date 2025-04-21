@@ -155,15 +155,15 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
     const isMatchFinished = room.status === "finished"
 
     return (
-        <Card className="w-full max-w-6xl mx-auto">
+        <Card className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
             <CardHeader className="bg-gradient-to-r from-pink-500 to-purple-500 text-white p-4">
                 <div className="flex justify-between items-center">
                     <Button variant="ghost" size="sm" onClick={exitGame} className="text-white hover:bg-white/20">
                         <ArrowLeft className="mr-2 h-4 w-4" />
-                        退出游戏
+                        退出
                     </Button>
                     <div className="text-center">
-                        <h2 className="text-xl font-bold">
+                        <h2 className="text-xl font-medium">
                             BO{room.maxRounds} - 第{room.currentRound}轮
                         </h2>
                         <div className="text-sm">
@@ -228,9 +228,33 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
                         <h3 className="text-xl font-bold mb-2">
                             {currentPlayer.currentRound.won ? "你赢了这一轮！" : "你输了这一轮"}
                         </h3>
-                        <p className="mb-4">
-                            正确答案是: <span className="font-bold">{room.targetSong.title}</span>
-                        </p>
+                        <h3 className="font-medium mb-3">正确答案是：</h3>
+                        <div className="flex items-center gap-5 mb-5">
+                            {" "}
+                            {/* Increased spacing */}
+                            <img
+                                src={`https://www.diving-fish.com/covers/${String(room.targetSong.id).padStart(5, "0")}.png` || "/placeholder.png"}
+                                alt={room.targetSong.title}
+                                className="w-24 h-24 object-cover rounded-lg shadow-md" /* Increased from w-24 h-24 */
+                                onError={(e) => {
+                                    ;(e.target as HTMLImageElement).src = "/placeholder.png?height=160&width=160"
+                                }}
+                            />
+                            <div className="text-left flex-1 min-w-0"> {/* 新增宽度控制 */}
+                                <div className="text-xl font-bold break-words">{room.targetSong.title}</div> {/* 允许单词换行 */}
+                                <div className="text-gray-600 truncate">{room.targetSong.artist}</div> {/* 长文本截断 */}
+                                <div className="text-sm mt-1 whitespace-normal"> {/* 强制换行 */}
+                                    {room.targetSong.type} | {room.targetSong.genre} | <span className="font-medium">BPM: </span> {room.targetSong.bpm}
+                                </div>
+                                <div className="text-sm break-all"> {/* 允许任意位置换行 */}
+                                    <span className="font-medium">Master:</span> {room.targetSong.level_master} |
+                                    <span className="font-medium"> Re:Master:</span> {room.targetSong.level_remaster || "无"}
+                                </div>
+                                <div className="text-sm break-words"> {/* 保持单词完整性换行 */}
+                                    {room.targetSong.version}
+                                </div>
+                            </div>
+                        </div>
                         <Button
                             onClick={readyForNextRound}
                             disabled={currentPlayer.readyForNextRound}

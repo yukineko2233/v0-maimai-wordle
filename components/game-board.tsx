@@ -8,11 +8,10 @@ import SettingsPanel from "@/components/settings-panel"
 import ResultScreen from "@/components/result-screen"
 import { fetchSongs, fetchAliases } from "@/lib/api"
 import { Button } from "@/components/ui/button"
-import { Settings, RefreshCw, HelpCircle, Flag, ArrowLeft } from "lucide-react"
+import { Settings, RefreshCw, Flag, ArrowLeft } from "lucide-react"
 import { getRandomSong, isGuessCorrect, DEFAULT_SETTINGS } from "@/lib/game-logic"
 import { useToast } from "@/components/ui/use-toast"
 import LoadingScreen from "@/components/loading-screen"
-import HelpModal from "@/components/help-modal"
 
 // Add this function after the imports
 function getVersionValue(version: string): number {
@@ -54,7 +53,6 @@ export default function GameBoard({ onBack }: GameBoardProps) {
   const [loading, setLoading] = useState(true)
   const [settings, setSettings] = useState<GameSettings>(DEFAULT_SETTINGS)
   const [showSettings, setShowSettings] = useState(false)
-  const [showHelp, setShowHelp] = useState(false)
   const [gameState, setGameState] = useState<GameState>({
     targetSong: null,
     guesses: [],
@@ -337,24 +335,13 @@ export default function GameBoard({ onBack }: GameBoardProps) {
   return (
       <div className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="p-5 bg-gradient-to-r from-pink-500 to-purple-500 text-white flex justify-between items-center">
-          {onBack ? (
-              <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20">
+          <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20">
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-          ) : (
-              <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowHelp(true)}
-                  className="text-white hover:bg-white/20"
-              >
-                <HelpCircle className="h-5 w-5" />
-              </Button>
-          )}
 
           <div className="flex justify-center">
             <div className="relative inline-block">
-              <h1 className="text-xl font text-center pr-5">舞萌猜歌之潘一把</h1>
+              <h1 className="text-xl font-medium text-center pr-5">单人模式</h1>
               <span className="absolute top-1 right-0 -translate-y-1/3 translate-x-1/3 bg-white/20 text-white text-[8px] px-1 py-0.5 rounded-md font">
               Beta
             </span>
@@ -447,8 +434,6 @@ export default function GameBoard({ onBack }: GameBoardProps) {
         {showSettings && (
             <SettingsPanel settings={settings} onApply={applySettings} onClose={() => setShowSettings(false)} />
         )}
-
-        {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
       </div>
   )
 }
