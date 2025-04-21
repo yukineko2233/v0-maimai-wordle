@@ -351,7 +351,7 @@ export default function SettingsPanel({ settings, onApply, onClose }: SettingsPa
           <Button variant="outline" onClick={onClose}>
             取消
           </Button>
-          <Button onClick={handleApply}>应用设置并开始新游戏</Button>
+          <Button onClick={handleApply}>应用设置</Button>
         </div>
       </div>
     </div>

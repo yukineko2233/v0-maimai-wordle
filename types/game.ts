@@ -73,3 +73,33 @@ export interface GameState {
   won: boolean
   remainingTime: number
 }
+
+// New interfaces for multiplayer
+
+export interface PlayerState {
+  id: string
+  nickname: string
+  score: number
+  currentRound: {
+    guesses: Guess[]
+    gameOver: boolean
+    won: boolean
+    remainingTime: number
+  }
+  readyForNextRound?: boolean
+}
+
+export interface MultiplayerRoom {
+  id: string
+  host: string
+  players: Record<string, PlayerState>
+  settings: GameSettings
+  bestOf: number
+  currentRound: number
+  maxRounds: number
+  roundsWon: Record<string, number>
+  targetSong: Song
+  filteredSongs: Song[]
+  status: "waiting" | "playing" | "finished"
+  winner?: string
+}
