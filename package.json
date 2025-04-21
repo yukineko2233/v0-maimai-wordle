@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "server": "node server/index.ts",
+    "server": "ts-node server/index.ts",
     "dev:server": "nodemon server/index.ts"
   },
   "dependencies": {
