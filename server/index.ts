@@ -18,13 +18,35 @@ const io = new Server(server, {
 
 // Store rooms data
 const rooms: Record<string, MultiplayerRoom> = {}
+// Function to get active room count
+function getActiveRoomCount() {
+    return Object.keys(rooms).length
+}
+
+// Function to broadcast room count to all clients
+function broadcastRoomCount() {
+    io.emit("room_count_update", { count: getActiveRoomCount() })
+}
 
 // Socket.IO connection handling
 io.on("connection", (socket) => {
     console.log("User connected:", socket.id)
+    // Send current room count to newly connected client
+    socket.emit("room_count_update", { count: getActiveRoomCount() })
+
+    // Client can request room count update
+    socket.on("get_room_count", () => {
+        socket.emit("room_count_update", { count: getActiveRoomCount() })
+    })
 
     // Create a new room
     socket.on("create_room", ({ nickname, settings, bestOf, songs }) => {
+        // Check if we've reached the room limit
+        if (getActiveRoomCount() >= 100) {
+            socket.emit("room_error", { message: "服务器房间已满，请稍后再试。" })
+            return
+        }
+
         const roomId = generateRoomId()
         const filteredSongs = filterSongs(songs, settings)
 
@@ -64,6 +86,9 @@ io.on("connection", (socket) => {
         socket.join(roomId)
         socket.emit("room_created", { roomId, room: rooms[roomId] })
         console.log(`Room created: ${roomId} by ${nickname}`)
+
+        // Broadcast updated room count
+        broadcastRoomCount()
     })
 
     // Join an existing room

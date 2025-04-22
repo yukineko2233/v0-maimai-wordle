@@ -15,3 +15,8 @@ socket.on("disconnect", () => {
 socket.on("connect_error", (error) => {
     console.error("Connection error:", error)
 })
+
+// Request room count update when connected
+socket.on("connect", () => {
+    socket.emit("get_room_count")
+})

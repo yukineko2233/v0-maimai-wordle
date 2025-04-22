@@ -12,6 +12,7 @@ import type { MultiplayerRoom, Song } from "@/types/game"
 import LoadingScreen from "@/components/loading-screen"
 import HelpModal from "@/components/help-modal"
 import { useToast } from "@/components/ui/use-toast"
+import RoomStatus from "@/components/room-status"
 
 export default function Home() {
     const [mode, setMode] = useState<"menu" | "singleplayer" | "multiplayer-lobby" | "multiplayer-game">("menu")
@@ -165,6 +166,9 @@ export default function Home() {
                                 双人模式
                             </Button>
                         </div>
+
+                        {/* 实时房间状态显示 */}
+                        <RoomStatus />
                     </div>
                 )}
 
