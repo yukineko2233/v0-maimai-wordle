@@ -533,9 +533,42 @@ function leaveRoom(socket: any, roomId: string) {
         return
     }
 
+    // Store player info before removing them
+    const leavingPlayer = room.players[socket.id]
+    const isInProgress = room.status === "playing"
+
     // Remove player from room
     delete room.players[socket.id]
     socket.leave(roomId)
+
+    // If the game was in progress, end it and declare the remaining player as winner
+    if (isInProgress) {
+        const remainingPlayers = Object.keys(room.players)
+
+        if (remainingPlayers.length > 0) {
+            // Get the remaining player's ID
+            const remainingPlayerId = remainingPlayers[0]
+
+            // Set the remaining player as the winner
+            room.status = "finished"
+            room.winner = remainingPlayerId
+
+            // Update the score for the remaining player
+            room.roundsWon[remainingPlayerId] = Math.ceil(room.maxRounds / 2) // Enough to win
+            room.players[remainingPlayerId].score = Math.ceil(room.maxRounds / 2)
+
+            // Notify the remaining player
+            io.to(roomId).emit("round_ended", {
+                room,
+                roundWinner: remainingPlayerId,
+                matchWinner: remainingPlayerId,
+                forfeit: true,
+                message: `${leavingPlayer.nickname} 已离开游戏，你获得了胜利！`,
+            })
+
+            return
+        }
+    }
 
     // If host left, assign a new host or close the room
     if (socket.id === room.host) {
@@ -553,11 +586,6 @@ function leaveRoom(socket: any, roomId: string) {
 
     // Notify remaining players
     io.to(roomId).emit("player_left", { room })
-
-    // If game was in progress, end the current round
-    if (room.status === "playing") {
-        checkRoundEnd(room)
-    }
 }
 
 // Start the server

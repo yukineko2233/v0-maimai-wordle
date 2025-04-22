@@ -14,6 +14,7 @@ export default function MultiplayerResultScreen({ room, currentPlayerId, onExit 
     const isWinner = room.winner === currentPlayerId
     const winner = room.players[room.winner || ""]
     const players = Object.values(room.players)
+    const isForfeit = Object.keys(room.players).length < 2 // Check if there's only one player left
 
     // Get scores
     const playerScores = players.map((player) => ({
@@ -23,6 +24,22 @@ export default function MultiplayerResultScreen({ room, currentPlayerId, onExit 
         isCurrentPlayer: player.id === currentPlayerId,
         isWinner: player.id === room.winner,
     }))
+
+    // Add the opponent who left if this was a forfeit
+    if (isForfeit) {
+        // Find the missing player's ID by checking which player ID is in roundsWon but not in players
+        const opponentIds = Object.keys(room.roundsWon).filter((id) => !room.players[id])
+
+        if (opponentIds.length > 0) {
+            playerScores.push({
+                id: "opponent-left",
+                nickname: "对手 (已离开)",
+                score: 0,
+                isCurrentPlayer: false,
+                isWinner: false,
+            })
+        }
+    }
 
     // Sort by score (highest first)
     playerScores.sort((a, b) => b.score - a.score)
@@ -36,10 +53,14 @@ export default function MultiplayerResultScreen({ room, currentPlayerId, onExit 
                 <h2 className="text-2xl font-bold mb-2">
                     {isWinner ? "恭喜你赢得了比赛！" : `${winner?.nickname || "对手"} 赢得了比赛！`}
                 </h2>
-                <p className="text-gray-600">
-                    最终比分: {playerScores[0].nickname} {playerScores[0].score} : {playerScores[1].score}{" "}
-                    {playerScores[1].nickname}
-                </p>
+                {isForfeit && isWinner ? (
+                    <p className="text-gray-600">对手已离开游戏，你获得了胜利！</p>
+                ) : (
+                    <p className="text-gray-600">
+                        最终比分: {playerScores[0].nickname} {playerScores[0].score} : {playerScores[1]?.score || 0}{" "}
+                        {playerScores[1]?.nickname || "对手 (已离开)"}
+                    </p>
+                )}
             </div>
 
             <div className="mb-6">
@@ -59,6 +80,8 @@ export default function MultiplayerResultScreen({ room, currentPlayerId, onExit 
                             <div className="text-right">
                                 {player.isWinner ? (
                                     <span className="text-green-600 font-medium">胜利</span>
+                                ) : player.id === "opponent-left" ? (
+                                    <span className="text-red-500">已离开</span>
                                 ) : (
                                     <span className="text-gray-500">失败</span>
                                 )}

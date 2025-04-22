@@ -32,10 +32,15 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
             setRoom(room)
         })
 
-        socket.on("round_ended", ({ room, roundWinner, matchWinner }) => {
+        socket.on("round_ended", ({ room, roundWinner, matchWinner, forfeit, message }) => {
             setRoom(room)
 
-            if (roundWinner) {
+            if (forfeit) {
+                toast({
+                    title: "对手已离开",
+                    description: message || "对手已离开游戏，你获得了胜利！",
+                })
+            } else if (roundWinner) {
                 const winnerName = room.players[roundWinner].nickname
                 toast({
                     title: `第${room.currentRound}轮结束`,
