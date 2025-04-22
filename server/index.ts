@@ -2,7 +2,6 @@ import express from "express"
 import http from "http"
 import { Server } from "socket.io"
 import cors from "cors"
-import { fetchSongs, fetchAliases } from "../lib/api"
 import { getRandomSong } from "../lib/game-logic"
 import type { GameSettings, Song, Guess, MultiplayerRoom } from "../types/game"
 
@@ -19,100 +18,15 @@ const io = new Server(server, {
 
 // Store rooms data
 const rooms: Record<string, MultiplayerRoom> = {}
-let songs: Song[] = []
-let songAliases: Record<number, string[]> = {}
-
-// Load songs and aliases when server starts
-async function loadGameData() {
-    try {
-        songs = await fetchSongs()
-        songAliases = await fetchAliases()
-        console.log("Game data loaded successfully")
-    } catch (error) {
-        console.error("Failed to load game data:", error)
-    }
-}
-
-loadGameData()
-
-// Helper function to filter songs based on settings
-function filterSongs(settings: GameSettings): Song[] {
-    return songs.filter((song) => {
-        // Filter by version
-        const versionValue = getVersionValue(song.version)
-        const minVersionValue = getVersionValue(settings.versionRange.min)
-        const maxVersionValue = getVersionValue(settings.versionRange.max)
-
-        if (versionValue < minVersionValue || versionValue > maxVersionValue) {
-            return false
-        }
-
-        // Filter by genre
-        if (settings.genres.length > 0 && !settings.genres.includes(song.genre)) {
-            return false
-        }
-
-        // Safely handle level_master that might be undefined
-        if (!song.level_master) {
-            return false
-        }
-
-        // Filter by master level
-        try {
-            const masterLevel = Number.parseFloat(song.level_master.replace("+", ".7"))
-            const minMasterLevel = Number.parseFloat(settings.masterLevelRange.min.replace("+", ".7"))
-            const maxMasterLevel = Number.parseFloat(settings.masterLevelRange.max.replace("+", ".7"))
-
-            if (masterLevel < minMasterLevel || masterLevel > maxMasterLevel) {
-                return false
-            }
-        } catch (error) {
-            console.error("Error parsing master level:", error, song)
-            return false
-        }
-
-        return true
-    })
-}
-
-// Helper function to get version value
-function getVersionValue(version: string): number {
-    const versionMap: Record<string, number> = {
-        maimai: 1,
-        "maimai PLUS": 2,
-        "maimai GreeN": 3,
-        "maimai GreeN PLUS": 4,
-        "maimai ORANGE": 5,
-        "maimai ORANGE PLUS": 6,
-        "maimai PiNK": 7,
-        "maimai PiNK PLUS": 8,
-        "maimai MURASAKi": 9,
-        "maimai MURASAKi PLUS": 10,
-        "maimai MiLK": 11,
-        "maimai MiLK PLUS": 12,
-        "maimai FiNALE": 13,
-        "maimai でらっくす": 14,
-        "maimai でらっくす PLUS": 15,
-        "maimai でらっくす Splash": 16,
-        "maimai でらっくす Splash PLUS": 17,
-        "maimai でらっくす UNiVERSE": 18,
-        "maimai でらっくす UNiVERSE PLUS": 19,
-        "maimai でらっくす FESTiVAL": 20,
-        "maimai でらっくす FESTiVAL PLUS": 21,
-        "maimai でらっくす BUDDiES": 22,
-    }
-
-    return versionMap[version] || 0
-}
 
 // Socket.IO connection handling
 io.on("connection", (socket) => {
     console.log("User connected:", socket.id)
 
     // Create a new room
-    socket.on("create_room", ({ nickname, settings, bestOf }) => {
+    socket.on("create_room", ({ nickname, settings, bestOf, songs }) => {
         const roomId = generateRoomId()
-        const filteredSongs = filterSongs(settings)
+        const filteredSongs = filterSongs(songs, settings)
 
         if (filteredSongs.length === 0) {
             socket.emit("room_error", { message: "当前设置下没有可用的歌曲，请调整设置。" })
@@ -317,6 +231,76 @@ io.on("connection", (socket) => {
         })
     })
 })
+
+// Helper function to filter songs based on settings
+function filterSongs(songs: Song[], settings: GameSettings): Song[] {
+    return songs.filter((song) => {
+        // Filter by version
+        const versionValue = getVersionValue(song.version)
+        const minVersionValue = getVersionValue(settings.versionRange.min)
+        const maxVersionValue = getVersionValue(settings.versionRange.max)
+
+        if (versionValue < minVersionValue || versionValue > maxVersionValue) {
+            return false
+        }
+
+        // Filter by genre
+        if (settings.genres.length > 0 && !settings.genres.includes(song.genre)) {
+            return false
+        }
+
+        // Safely handle level_master that might be undefined
+        if (!song.level_master) {
+            return false
+        }
+
+        // Filter by master level
+        try {
+            const masterLevel = Number.parseFloat(song.level_master.replace("+", ".7"))
+            const minMasterLevel = Number.parseFloat(settings.masterLevelRange.min.replace("+", ".7"))
+            const maxMasterLevel = Number.parseFloat(settings.masterLevelRange.max.replace("+", ".7"))
+
+            if (masterLevel < minMasterLevel || masterLevel > maxMasterLevel) {
+                return false
+            }
+        } catch (error) {
+            console.error("Error parsing master level:", error, song)
+            return false
+        }
+
+        return true
+    })
+}
+
+// Helper function to get version value
+function getVersionValue(version: string): number {
+    const versionMap: Record<string, number> = {
+        "maimai": 1,
+        "maimai PLUS": 2,
+        "maimai GreeN": 3,
+        "maimai GreeN PLUS": 4,
+        "maimai ORANGE": 5,
+        "maimai ORANGE PLUS": 6,
+        "maimai PiNK": 7,
+        "maimai PiNK PLUS": 8,
+        "maimai MURASAKi": 9,
+        "maimai MURASAKi PLUS": 10,
+        "maimai MiLK": 11,
+        "maimai MiLK PLUS": 12,
+        "maimai FiNALE": 13,
+        "maimai でらっくす": 14,
+        "maimai でらっくす PLUS": 15,
+        "maimai でらっくす Splash": 16,
+        "maimai でらっくす Splash PLUS": 17,
+        "maimai でらっくす UNiVERSE": 18,
+        "maimai でらっくす UNiVERSE PLUS": 19,
+        "maimai でらっくす FESTiVAL": 20,
+        "maimai でらっくす FESTiVAL PLUS": 21,
+        "maimai でらっくす BUDDiES": 22,
+    }
+
+    return versionMap[version] || 0
+}
 
 // Helper function to generate a room ID
 function generateRoomId(): string {

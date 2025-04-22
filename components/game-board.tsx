@@ -6,7 +6,6 @@ import SearchBox from "@/components/search-box"
 import GuessRow from "@/components/guess-row"
 import SettingsPanel from "@/components/settings-panel"
 import ResultScreen from "@/components/result-screen"
-import { fetchSongs, fetchAliases } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Settings, RefreshCw, Flag, ArrowLeft } from "lucide-react"
 import { getRandomSong, isGuessCorrect, DEFAULT_SETTINGS } from "@/lib/game-logic"
@@ -45,12 +44,14 @@ function getVersionValue(version: string): number {
 
 interface GameBoardProps {
   onBack?: () => void
+  initialSongs: Song[]
+  initialAliases: Record<number, string[]>
 }
 
-export default function GameBoard({ onBack }: GameBoardProps) {
-  const [songs, setSongs] = useState<Song[]>([])
-  const [songAliases, setSongAliases] = useState<Record<number, string[]>>({})
-  const [loading, setLoading] = useState(true)
+export default function GameBoard({ onBack, initialSongs, initialAliases }: GameBoardProps) {
+  const [songs] = useState<Song[]>(initialSongs)
+  const [songAliases] = useState<Record<number, string[]>>(initialAliases)
+  const [loading, setLoading] = useState(false)
   const [settings, setSettings] = useState<GameSettings>(DEFAULT_SETTINGS)
   const [showSettings, setShowSettings] = useState(false)
   const [gameState, setGameState] = useState<GameState>({
@@ -62,29 +63,6 @@ export default function GameBoard({ onBack }: GameBoardProps) {
   })
   const [filteredSongs, setFilteredSongs] = useState<Song[]>([])
   const { toast } = useToast()
-
-  // Load songs and aliases on mount
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const songsData = await fetchSongs()
-        const aliasesData = await fetchAliases()
-
-        setSongs(songsData)
-        setSongAliases(aliasesData)
-        setLoading(false)
-      } catch (error) {
-        console.error("Failed to load game data:", error)
-        toast({
-          title: "加载失败",
-          description: "无法加载游戏数据，请刷新页面重试。",
-          variant: "destructive",
-        })
-      }
-    }
-
-    loadData()
-  }, [toast])
 
   // Filter songs based on settings and start new game
   useEffect(() => {
@@ -336,8 +314,8 @@ export default function GameBoard({ onBack }: GameBoardProps) {
       <div className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="p-5 bg-gradient-to-r from-pink-500 to-purple-500 text-white flex justify-between items-center">
           <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20">
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
 
           <div className="flex justify-center">
             <div className="relative inline-block">

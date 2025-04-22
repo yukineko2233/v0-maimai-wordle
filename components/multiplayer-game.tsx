@@ -229,7 +229,7 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
                             {currentPlayer.currentRound.won ? "你赢了这一轮！" : "你输了这一轮"}
                         </h3>
                         <h3 className="font-medium mb-3">正确答案是：</h3>
-                        <div className="flex items-center gap-5 mb-5">
+                        <div className="flex items-center gap-5 mb-5 w-full justify-center">
                             {" "}
                             {/* Increased spacing */}
                             <img
@@ -240,17 +240,17 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
                                     ;(e.target as HTMLImageElement).src = "/placeholder.png?height=160&width=160"
                                 }}
                             />
-                            <div className="text-left flex-1 min-w-0"> {/* 新增宽度控制 */}
-                                <div className="text-xl font-bold break-words">{room.targetSong.title}</div> {/* 允许单词换行 */}
-                                <div className="text-gray-600 truncate">{room.targetSong.artist}</div> {/* 长文本截断 */}
-                                <div className="text-sm mt-1 whitespace-normal"> {/* 强制换行 */}
+                            <div className="text-left">
+                                <div className="text-xl font-bold">{room.targetSong.title}</div>
+                                <div className="text-gray-600">{room.targetSong.artist}</div>
+                                <div className="text-sm mt-1">
                                     {room.targetSong.type} | {room.targetSong.genre} | <span className="font-medium">BPM: </span> {room.targetSong.bpm}
                                 </div>
-                                <div className="text-sm break-all"> {/* 允许任意位置换行 */}
+                                <div className="text-sm">
                                     <span className="font-medium">Master:</span> {room.targetSong.level_master} |
                                     <span className="font-medium"> Re:Master:</span> {room.targetSong.level_remaster || "无"}
                                 </div>
-                                <div className="text-sm break-words"> {/* 保持单词完整性换行 */}
+                                <div className="text-sm">
                                     {room.targetSong.version}
                                 </div>
                             </div>

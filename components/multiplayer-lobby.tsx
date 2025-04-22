@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader} from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Settings, Users, Copy, ArrowRight, Crown, ArrowLeft } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
-import type { MultiplayerRoom, GameSettings } from "@/types/game"
+import type { MultiplayerRoom, GameSettings, Song } from "@/types/game"
 import { DEFAULT_SETTINGS } from "@/lib/game-logic"
 import SettingsPanel from "@/components/settings-panel"
 import { socket } from "@/lib/socket"
@@ -16,9 +16,10 @@ import { socket } from "@/lib/socket"
 interface MultiplayerLobbyProps {
     onStartGame: (room: MultiplayerRoom) => void
     onBack: () => void
+    initialSongs: Song[]
 }
 
-export default function MultiplayerLobby({ onStartGame, onBack }: MultiplayerLobbyProps) {
+export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: MultiplayerLobbyProps) {
     const [nickname, setNickname] = useState("")
     const [roomId, setRoomId] = useState("")
     const [bestOf, setBestOf] = useState("3")
@@ -114,6 +115,7 @@ export default function MultiplayerLobby({ onStartGame, onBack }: MultiplayerLob
             nickname,
             settings,
             bestOf: Number.parseInt(bestOf),
+            songs: initialSongs, // Pass the songs to the server
         })
     }
 
@@ -180,27 +182,16 @@ export default function MultiplayerLobby({ onStartGame, onBack }: MultiplayerLob
         return (
             <Card className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
                 <CardHeader className="relative bg-gradient-to-r from-pink-500 to-purple-500 text-white p-5 flex items-center justify-center">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={onBack}
-                        className="absolute left-4 text-white hover:bg-white/20"
-                    >
+                    <Button variant="ghost" size="icon" onClick={onBack} className="absolute left-4 text-white hover:bg-white/20">
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
 
                     <h1 className="text-xl font-medium">双人模式房间</h1>
-
                 </CardHeader>
                 <CardContent className="p-6">
                     <div className="mb-3">
                         <span className="text-lg font-medium mb-1">房间号: {room.id}</span>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={copyRoomId}
-                            className="text-black hover:bg-black/20 ml-1"
-                        >
+                        <Button variant="ghost" size="icon" onClick={copyRoomId} className="text-black hover:bg-black/20 ml-1">
                             <Copy className="h-4 w-4" />
                         </Button>
                     </div>
@@ -269,12 +260,7 @@ export default function MultiplayerLobby({ onStartGame, onBack }: MultiplayerLob
     return (
         <Card className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
             <CardHeader className="relative p-5 bg-gradient-to-r from-pink-500 to-purple-500 text-white flex items-center justify-center">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={onBack}
-                    className="absolute left-4 text-white hover:bg-white/20"
-                >
+                <Button variant="ghost" size="icon" onClick={onBack} className="absolute left-4 text-white hover:bg-white/20">
                     <ArrowLeft className="h-5 w-5" />
                 </Button>
 
