@@ -11,7 +11,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
     max: "14+",
   },
   maxGuesses: 10,
-  timeLimit: 0, // 0 means no time limit
+  timeLimit: 60,
 }
 
 export const BEGINNER_PRESET: GameSettings = {
