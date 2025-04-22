@@ -49,11 +49,6 @@ export default function HelpModal({ onClose }: HelpModalProps) {
             <h3 className="text-lg font-medium mb-2">关于此项目</h3>
             <ul className="list-disc pl-5 space-y-1">
               <li>
-                <a href="https://github.com/yukineko2233/v0-maimai-wordle" target="_blank" className="text-blue-500" rel="noopener noreferrer">
-                  https://github.com/yukineko2233/v0-maimai-wordle
-                </a>
-              </li>
-              <li>
                 此项目基于v0.dev AI生成，基于React编写。
               </li>
               <li>
