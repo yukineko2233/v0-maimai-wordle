@@ -201,8 +201,12 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                             {players.map((player) => (
                                 <div key={player.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                                            {player.nickname.charAt(0).toUpperCase()}
+                                        <div className="w-12 h-12 rounded-full overflow-hidden shrink-0">
+                                            <img
+                                                src={player.id === room.host ? "/chara01.png" : "/chara02.png"}
+                                                alt="avatar"
+                                                className="w-full h-full object-cover"
+                                            />
                                         </div>
                                         <div>
                                             <div className="font-medium flex items-center gap-1">
