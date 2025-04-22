@@ -28,7 +28,7 @@ export default function RoomStatus() {
 
     if (isLoading) {
         return (
-            <div className="text-center text-gray-500 text-sm mt-4">
+            <div className="text-center text-gray-500 text-sm mb-6">
                 <Users className="inline h-4 w-4 mr-1" />
                 加载房间数据中...
             </div>
