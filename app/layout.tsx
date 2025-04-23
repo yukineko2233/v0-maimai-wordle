@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import "./globals.css"
 import ClientLayout from "./ClientLayout"
+import { Analytics } from "@vercel/analytics/react"
 
 export const metadata: Metadata = {
     title: "舞萌猜歌之潘一把",
@@ -18,5 +19,8 @@ export default function RootLayout({
                                    }: Readonly<{
     children: React.ReactNode
 }>) {
-    return <ClientLayout>{children}</ClientLayout>
+    return <ClientLayout>
+        {children}
+        <Analytics />
+    </ClientLayout>
 }
