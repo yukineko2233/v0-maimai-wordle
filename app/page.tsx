@@ -13,6 +13,7 @@ import LoadingScreen from "@/components/loading-screen"
 import HelpModal from "@/components/help-modal"
 import { useToast } from "@/components/ui/use-toast"
 import RoomStatus from "@/components/room-status"
+import FixedBg from "@/components/fixed-bg";
 
 export default function Home() {
     const [mode, setMode] = useState<"menu" | "singleplayer" | "multiplayer-lobby" | "multiplayer-game">("menu")
@@ -23,6 +24,17 @@ export default function Home() {
     const [showHelp, setShowHelp] = useState(false)
     const [refreshing, setRefreshing] = useState(false)
     const { toast } = useToast()
+
+    useEffect(() => {
+        const setVH = () => {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        };
+        setVH();
+        window.addEventListener('resize', setVH);
+        return () => window.removeEventListener('resize', setVH);
+    }, []);
+
 
     // Load data only once on mount
     useEffect(() => {
@@ -90,17 +102,23 @@ export default function Home() {
     }
 
     if (loading) {
+
         return (
-            <main className="min-h-screen py-12 px-6 bg-[url('/bg.png')] bg-cover bg-center bg-fixed bg-no-repeat flex flex-col items-center justify-center">
+        <>
+            <FixedBg />
+            <main className="min-h-[calc(var(--vh)*100)] py-12 px-6 bg-transparent flex flex-col items-center justify-center">
                 <div className="w-full max-w-6xl">
                     <LoadingScreen />
                 </div>
             </main>
+        </>
         )
     }
 
     return (
-        <main className="min-h-screen py-16 px-6 bg-[url('/bg.png')] bg-cover bg-center bg-fixed bg-no-repeat flex flex-col items-center justify-center">
+        <>
+        <FixedBg />
+        <main className="min-h-[calc(var(--vh)*100)] py-16 px-6 bg-transparent flex flex-col items-center justify-center">
             <div className="w-full max-w-6xl">
                 {mode === "menu" && (
                     <div className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
@@ -222,5 +240,6 @@ export default function Home() {
             </div>
             {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
         </main>
+    </>
     )
 }
