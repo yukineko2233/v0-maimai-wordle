@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import type { MultiplayerRoom, Song } from "@/types/game"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { RefreshCw, Flag, ArrowLeft } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import SearchBox from "@/components/search-box"
@@ -161,7 +161,7 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
 
     return (
         <Card className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-pink-500 to-purple-500 text-white p-4">
+            <div className="bg-gradient-to-r from-pink-500 to-purple-500 text-white p-4">
                 <div className="flex justify-between items-center">
                     <Button variant="ghost" size="sm" onClick={exitGame} className="text-white hover:bg-white/20">
                         <ArrowLeft className="mr-2 h-4 w-4" />
@@ -169,7 +169,7 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
                     </Button>
                     <div className="text-center">
                         <h2 className="text-xl font-medium">
-                            BO{room.maxRounds} - 第{room.currentRound}轮
+                            第{room.currentRound}轮
                         </h2>
                         <div className="text-sm">
                             {currentPlayer.nickname} {currentPlayer.score} : {opponent?.score || 0}{" "}
@@ -178,7 +178,7 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
                     </div>
                     <div className="w-24"></div> {/* Spacer for alignment */}
                 </div>
-            </CardHeader>
+            </div>
             <CardContent className="p-6">
                 {/* Game status */}
                 <div className="mb-4 flex justify-center gap-4 items-center">

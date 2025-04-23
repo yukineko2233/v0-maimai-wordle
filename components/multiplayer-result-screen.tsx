@@ -45,7 +45,7 @@ export default function MultiplayerResultScreen({ room, currentPlayerId, onExit 
     playerScores.sort((a, b) => b.score - a.score)
 
     return (
-        <div className="p-6 bg-gray-50 rounded-lg mb-5 text-center">
+        <div className="p-2 bg-gray-50 rounded-lg mb-5 text-center">
             <div className="mb-6">
                 <div className="w-20 h-20 mx-auto bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center mb-4">
                     <Trophy className="h-10 w-10 text-white" />

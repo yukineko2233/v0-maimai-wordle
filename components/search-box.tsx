@@ -84,12 +84,12 @@ export default function SearchBox({ songs, aliases, onSelect, disabled = false }
           <Input
             ref={inputRef}
             type="text"
-            placeholder="输入歌曲名称或别名..."
+            placeholder="输入歌曲以开始..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setShowResults(true)}
             disabled={disabled}
-            className="pr-10"
+            className="pr-8"
           />
           <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         </div>

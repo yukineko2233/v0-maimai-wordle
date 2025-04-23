@@ -308,20 +308,11 @@ export default function GameBoard({ onBack, initialSongs, initialAliases }: Game
 
   return (
       <div className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="p-5 bg-gradient-to-r from-pink-500 to-purple-500 text-white flex justify-between items-center">
+        <div className="p-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white flex justify-between items-center">
           <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-
-          <div className="flex justify-center">
-            <div className="relative inline-block">
-              <h1 className="text-xl font-medium text-center pr-5">单人模式</h1>
-              <span className="absolute top-1 right-0 -translate-y-1/3 translate-x-1/3 bg-white/20 text-white text-[8px] px-1 py-0.5 rounded-md font">
-              Beta
-            </span>
-            </div>
-          </div>
-
+          <h1 className="text-xl font-medium text-center">单人模式</h1>
           <Button
               variant="ghost"
               size="icon"

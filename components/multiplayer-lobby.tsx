@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Settings, Users, Copy, ArrowRight, House, ArrowLeft } from "lucide-react"
@@ -181,13 +181,12 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
 
         return (
             <Card className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-                <CardHeader className="relative bg-gradient-to-r from-pink-500 to-purple-500 text-white p-5 flex items-center justify-center">
+                <div className="relative bg-gradient-to-r from-pink-500 to-purple-500 text-white p-5 flex items-center justify-center">
                     <Button variant="ghost" size="icon" onClick={onBack} className="absolute left-4 text-white hover:bg-white/20">
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
-
                     <h1 className="text-xl font-medium">双人模式房间</h1>
-                </CardHeader>
+                </div>
                 <CardContent className="p-6">
                     <div className="mb-3">
                         <span className="text-lg font-medium mb-1">房间号: {room.id}</span>
@@ -281,20 +280,12 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
 
     return (
         <Card className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-            <CardHeader className="relative p-5 bg-gradient-to-r from-pink-500 to-purple-500 text-white flex items-center justify-center">
+            <div className="relative p-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white flex items-center justify-center">
                 <Button variant="ghost" size="icon" onClick={onBack} className="absolute left-4 text-white hover:bg-white/20">
                     <ArrowLeft className="h-5 w-5" />
                 </Button>
-
-                <div className="flex justify-center">
-                    <div className="relative inline-block">
-                        <h1 className="text-xl font-medium text-center pr-6">双人模式</h1>
-                        <span className="absolute top-1 right-0 -translate-y-1/3 translate-x-1/3 bg-white/20 text-white text-[8px] px-1 py-0.5 rounded-md font">
-              Alpha
-            </span>
-                    </div>
-                </div>
-            </CardHeader>
+                <h1 className="text-xl font-medium text-center">双人模式</h1>
+            </div>
             <CardContent className="p-6">
                 <div className="mb-6">
                     <Label htmlFor="nickname" className="mb-2 block">
