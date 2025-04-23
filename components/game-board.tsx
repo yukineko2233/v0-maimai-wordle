@@ -62,8 +62,9 @@ export default function GameBoard({ onBack, initialSongs, initialAliases }: Game
 
   // Filter songs based on settings and start new game
   useEffect(() => {
-    if (songs.length > 0) {
-      const filtered = songs.filter((song) => {
+    if (songs.length === 0) return
+
+    const filtered = songs.filter(song => {
         // Filter by version
         const versionValue = getVersionValue(song.version)
         const minVersionValue = getVersionValue(settings.versionRange.min)
@@ -100,12 +101,11 @@ export default function GameBoard({ onBack, initialSongs, initialAliases }: Game
         return true
       })
 
-      setFilteredSongs(filtered)
+    setFilteredSongs(filtered)
 
-      // Start a new game if we don't have one yet
-      if (!gameState.targetSong && filtered.length > 0) {
-        startNewGame(filtered)
-      }
+    // 只要当前没有 targetSong，就「尝试」启动新一局
+    if (!gameState.targetSong) {
+      startNewGame(filtered)
     }
   }, [songs, settings, gameState.targetSong])
 
@@ -333,6 +333,12 @@ export default function GameBoard({ onBack, initialSongs, initialAliases }: Game
         </div>
 
         <div className="p-6">
+          {filteredSongs.length === 0 && !gameState.targetSong ? (
+              <div className="text-center text-gray-500 py-10">
+                当前设置下没有可用的歌曲，请调整设置。
+              </div>
+          ) : (
+              <>
           {gameState.targetSong && (
               <>
                 <div className="mb-3 flex justify-center gap-4 items-center">
@@ -403,6 +409,8 @@ export default function GameBoard({ onBack, initialSongs, initialAliases }: Game
                 <GuessRow key={index} guess={guess} />
             ))}
           </div>
+              </>
+          )}
         </div>
 
         {showSettings && (
