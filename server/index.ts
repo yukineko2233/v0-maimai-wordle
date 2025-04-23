@@ -178,11 +178,27 @@ io.on("connection", (socket) => {
 
         player.currentRound.guesses.push(guess)
 
-        if (correct || player.currentRound.guesses.length >= room.settings.maxGuesses) {
+        // If the guess is correct, immediately end the round and declare this player the winner
+        if (correct) {
             player.currentRound.gameOver = true
-            player.currentRound.won = correct
+            player.currentRound.won = true
 
-            // Check if round is over (both players finished)
+            // End the round for all other players
+            Object.values(room.players).forEach((p) => {
+                if (p.id !== player.id) {
+                    p.currentRound.gameOver = true
+                    p.currentRound.won = false
+                }
+            })
+
+            // Check round end will handle scoring and notifications
+            checkRoundEnd(room)
+        } else if (player.currentRound.guesses.length >= room.settings.maxGuesses) {
+            // If player runs out of guesses
+            player.currentRound.gameOver = true
+            player.currentRound.won = false
+
+            // Check if round is over
             checkRoundEnd(room)
         }
 
@@ -300,7 +316,7 @@ function filterSongs(songs: Song[], settings: GameSettings): Song[] {
 // Helper function to get version value
 function getVersionValue(version: string): number {
     const versionMap: Record<string, number> = {
-        "maimai": 1,
+        maimai: 1,
         "maimai PLUS": 2,
         "maimai GreeN": 3,
         "maimai GreeN PLUS": 4,
@@ -482,25 +498,16 @@ function checkRoundEnd(room: MultiplayerRoom) {
     const allFinished = players.every((player) => player.currentRound.gameOver)
 
     if (allFinished) {
-        // Determine round winner
+        // Determine round winner - the player who guessed correctly wins
+        // If no one guessed correctly, there's no winner for this round
         let roundWinner: string | null = null
 
-        // First check if anyone won
+        // Find the player who guessed correctly (should be at most one with the new system)
         const winners = players.filter((player) => player.currentRound.won)
 
-        if (winners.length === 1) {
-            // One player won
+        if (winners.length > 0) {
+            // The player who guessed correctly is the winner
             roundWinner = winners[0].id
-        } else if (winners.length > 1) {
-            // Both won, compare number of guesses
-            winners.sort((a, b) => a.currentRound.guesses.length - b.currentRound.guesses.length)
-
-            if (winners[0].currentRound.guesses.length < winners[1].currentRound.guesses.length) {
-                roundWinner = winners[0].id
-            } else if (winners[0].currentRound.guesses.length === winners[1].currentRound.guesses.length) {
-                // If same number of guesses, it's a tie - no winner for this round
-                roundWinner = null
-            }
         }
 
         // Update scores
