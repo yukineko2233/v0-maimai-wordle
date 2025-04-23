@@ -34,6 +34,15 @@ export default function Home() {
                 setSongs(songsData)
                 setSongAliases(aliasesData)
                 setLoading(false)
+
+                // Check if this is the first visit
+                const hasVisitedBefore = localStorage.getItem("hasVisitedBefore")
+                if (!hasVisitedBefore) {
+                    // Set flag for future visits
+                    localStorage.setItem("hasVisitedBefore", "true")
+                    // Show help modal for first-time visitors
+                    setShowHelp(true)
+                }
             } catch (error) {
                 console.error("Failed to load game data:", error)
                 toast({
