@@ -59,6 +59,14 @@ export default function GameBoard({ onBack, initialSongs, initialAliases }: Game
   })
   const [filteredSongs, setFilteredSongs] = useState<Song[]>([])
   const { toast } = useToast()
+  const [spinKey, setSpinKey] = useState(0);
+
+  const handleClick = () => {
+    // 先启动新游戏
+    startNewGame();
+    // 然后自增 key，触发图标重渲染和动画
+    setSpinKey((k) => k + 1);
+  };
 
   // Filter songs based on settings and start new game
   useEffect(() => {
@@ -354,10 +362,13 @@ export default function GameBoard({ onBack, initialSongs, initialAliases }: Game
                   <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => startNewGame()}
+                      onClick={handleClick}
                       className="flex-1 flex items-center justify-center gap-1 max-w-40"
                   >
-                    <RefreshCw className="h-4 w-4" />
+                    <RefreshCw
+                        key={spinKey}
+                        className="h-4 w-4 animate-[spin_1s_linear_1]"
+                    />
                     新游戏
                   </Button>
                   <Button
