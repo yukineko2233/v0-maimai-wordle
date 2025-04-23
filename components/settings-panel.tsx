@@ -2,10 +2,10 @@ import { useState } from "react"
 import type { GameSettings } from "@/types/game"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-import { X } from "lucide-react"
+import { X, RefreshCw } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   BEGINNER_PRESET,
@@ -14,50 +14,34 @@ import {
   CASUAL_PRESET,
   OLD_VERSION_PRESET,
   DX_VERSION_PRESET,
+  DEFAULT_SETTINGS,
+  MULTIPLAYER_DEFAULT_SETTINGS,
+  applyPresetSettings,
 } from "@/lib/game-logic"
 
 interface SettingsPanelProps {
   settings: GameSettings
   onApply: (settings: GameSettings) => void
   onClose: () => void
+  isMultiplayer: boolean
 }
 
-export default function SettingsPanel({ settings, onApply, onClose }: SettingsPanelProps) {
+export default function SettingsPanel({ settings, onApply, onClose, isMultiplayer = false }: SettingsPanelProps) {
   const [currentSettings, setCurrentSettings] = useState<GameSettings>({ ...settings })
-  const [activeTab, setActiveTab] = useState<string>("custom")
 
   const handleApply = () => {
     onApply(currentSettings)
   }
 
-  const applyPreset = (preset: GameSettings) => {
-    setCurrentSettings(preset)
+  const applyPreset = (preset: any) => {
+    setCurrentSettings(applyPresetSettings(currentSettings, preset))
   }
 
-  const handleTabChange = (value: string) => {
-    setActiveTab(value)
-
-    switch (value) {
-      case "beginner":
-        applyPreset(BEGINNER_PRESET)
-        break
-      case "anime":
-        applyPreset(ANIME_EXPERT_PRESET)
-        break
-      case "touhou":
-        applyPreset(TOUHOU_PRESET)
-        break
-      case "casual":
-        applyPreset(CASUAL_PRESET)
-        break
-      case "old":
-        applyPreset(OLD_VERSION_PRESET)
-        break
-      case "dx":
-        applyPreset(DX_VERSION_PRESET)
-        break
-      default:
-        break
+  const restoreDefaults = () => {
+    if (isMultiplayer) {
+      setCurrentSettings({ ...MULTIPLAYER_DEFAULT_SETTINGS })
+    } else {
+      setCurrentSettings({ ...DEFAULT_SETTINGS })
     }
   }
 
@@ -111,18 +95,90 @@ export default function SettingsPanel({ settings, onApply, onClose }: SettingsPa
         </div>
 
         <div className="p-4">
-          <Tabs value={activeTab} onValueChange={handleTabChange}>
-            <TabsList className="flex flex-wrap items-start gap-2 p-2 h-auto">
-              <TabsTrigger value="custom">自定义</TabsTrigger>
-              <TabsTrigger value="beginner">入门</TabsTrigger>
-              <TabsTrigger value="anime">二次元高手</TabsTrigger>
-              <TabsTrigger value="touhou">车万人</TabsTrigger>
-              <TabsTrigger value="casual">小歌高手</TabsTrigger>
-              <TabsTrigger value="old">仅旧框</TabsTrigger>
-              <TabsTrigger value="dx">仅DX框</TabsTrigger>
-            </TabsList>
+          <div className="mb-4">
+            <h3 className="text-lg font-medium mb-2">预设</h3>
+            <div className="flex flex-wrap gap-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" size="sm" onClick={() => applyPreset(BEGINNER_PRESET)}>
+                      入门
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Master等级：14至14+</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
 
-            <TabsContent value="custom" className="space-y-4">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" size="sm" onClick={() => applyPreset(ANIME_EXPERT_PRESET)}>
+                      二次元高手
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>流派：niconico & VOCALOID</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" size="sm" onClick={() => applyPreset(TOUHOU_PRESET)}>
+                      车万人
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>流派：东方Project</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" size="sm" onClick={() => applyPreset(CASUAL_PRESET)}>
+                      小歌高手
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Master等级：10+至13+</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" size="sm" onClick={() => applyPreset(OLD_VERSION_PRESET)}>
+                      仅旧框
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>版本：从maimai到maimai FiNALE</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" size="sm" onClick={() => applyPreset(DX_VERSION_PRESET)}>
+                      仅DX框
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>版本：从maimai でらっくす到maimai でらっくす BUDDiES</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </div>
+
+          <div className="space-y-6">
               <div>
                 <h3 className="text-lg font-medium mb-2">版本范围（国服）</h3>
                 <div className="grid grid-cols-2 gap-4">
@@ -294,7 +350,7 @@ export default function SettingsPanel({ settings, onApply, onClose }: SettingsPa
                     <Slider
                       value={[currentSettings.timeLimit]}
                       min={0}
-                      max={120}
+                      max={180}
                       step={30}
                       onValueChange={(value) =>
                         setCurrentSettings({
@@ -307,47 +363,14 @@ export default function SettingsPanel({ settings, onApply, onClose }: SettingsPa
                   </div>
                 </div>
               </div>
-            </TabsContent>
-
-            <TabsContent value="beginner">
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600 mt-1">Master等级：14至14+</p>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="anime">
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600 mt-1">流派：niconico & VOCALOID</p>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="touhou">
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600 mt-1">流派：东方Project</p>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="casual">
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600 mt-1">Master等级：10+至13+</p>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="old">
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600 mt-1">版本：从maimai到maimai FiNALE</p>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="dx">
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600 mt-1">版本：从maimai でらっくす到maimai でらっくす BUDDiES</p>
-              </div>
-            </TabsContent>
-          </Tabs>
+            </div>
         </div>
 
         <div className="p-4 border-t flex justify-end gap-2">
+          <Button variant="outline" onClick={restoreDefaults}>
+            <RefreshCw className="h-3.5 w-3.5" />
+            恢复默认
+          </Button>
           <Button variant="outline" onClick={onClose}>
             取消
           </Button>

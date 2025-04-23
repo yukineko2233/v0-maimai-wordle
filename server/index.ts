@@ -476,7 +476,7 @@ function isGuessCorrect(guess: Guess): boolean {
     )
 }
 
-// Check if the round is over and update scores
+// Fix the checkRoundEnd function to properly handle scoring
 function checkRoundEnd(room: MultiplayerRoom) {
     const players = Object.values(room.players)
     const allFinished = players.every((player) => player.currentRound.gameOver)
@@ -498,9 +498,8 @@ function checkRoundEnd(room: MultiplayerRoom) {
             if (winners[0].currentRound.guesses.length < winners[1].currentRound.guesses.length) {
                 roundWinner = winners[0].id
             } else if (winners[0].currentRound.guesses.length === winners[1].currentRound.guesses.length) {
-                // If same number of guesses, compare time (not implemented here)
-                // For now, just pick the first player
-                roundWinner = winners[0].id
+                // If same number of guesses, it's a tie - no winner for this round
+                roundWinner = null
             }
         }
 
@@ -511,11 +510,17 @@ function checkRoundEnd(room: MultiplayerRoom) {
         }
 
         // Check if match is over
-        const matchWinner = Object.entries(room.roundsWon).find(([_, wins]) => wins >= Math.ceil(room.maxRounds / 2))
+        let matchWinner = null
+        for (const [playerId, wins] of Object.entries(room.roundsWon)) {
+            if (wins >= Math.ceil(room.maxRounds / 2)) {
+                matchWinner = playerId
+                break
+            }
+        }
 
         if (matchWinner) {
             room.status = "finished"
-            room.winner = matchWinner[0]
+            room.winner = matchWinner
         }
 
         // Reset readyForNextRound for all players
@@ -531,7 +536,7 @@ function checkRoundEnd(room: MultiplayerRoom) {
     }
 }
 
-// Start the next round
+// Fix the startNextRound function to ensure proper round initialization
 function startNextRound(room: MultiplayerRoom) {
     room.currentRound += 1
 

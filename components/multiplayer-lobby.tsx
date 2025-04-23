@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Settings, Users, Copy, ArrowRight, Crown, ArrowLeft } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import type { MultiplayerRoom, GameSettings, Song } from "@/types/game"
-import { DEFAULT_SETTINGS } from "@/lib/game-logic"
+import { MULTIPLAYER_DEFAULT_SETTINGS } from "@/lib/game-logic"
 import SettingsPanel from "@/components/settings-panel"
 import { socket } from "@/lib/socket"
 
@@ -24,7 +24,7 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
     const [roomId, setRoomId] = useState("")
     const [bestOf, setBestOf] = useState("3")
     const [showSettings, setShowSettings] = useState(false)
-    const [settings, setSettings] = useState<GameSettings>(DEFAULT_SETTINGS)
+    const [settings, setSettings] = useState<GameSettings>(MULTIPLAYER_DEFAULT_SETTINGS)
     const [room, setRoom] = useState<MultiplayerRoom | null>(null)
     const [isHost, setIsHost] = useState(false)
     const { toast } = useToast()
@@ -343,7 +343,12 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
             </CardContent>
 
             {showSettings && (
-                <SettingsPanel settings={settings} onApply={applySettings} onClose={() => setShowSettings(false)} />
+                <SettingsPanel
+                    settings={settings}
+                    onApply={applySettings}
+                    onClose={() => setShowSettings(false)}
+                    isMultiplayer={true} // Specify that this is multiplayer mode
+                />
             )}
         </Card>
     )

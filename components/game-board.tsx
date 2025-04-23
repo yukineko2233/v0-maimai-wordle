@@ -410,7 +410,12 @@ export default function GameBoard({ onBack, initialSongs, initialAliases }: Game
         </div>
 
         {showSettings && (
-            <SettingsPanel settings={settings} onApply={applySettings} onClose={() => setShowSettings(false)} />
+            <SettingsPanel
+                settings={settings}
+                onApply={applySettings}
+                onClose={() => setShowSettings(false)}
+                isMultiplayer={false} // Specify that this is single player mode
+            />
         )}
       </div>
   )
