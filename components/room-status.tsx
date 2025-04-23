@@ -28,7 +28,7 @@ export default function RoomStatus() {
 
     if (isLoading) {
         return (
-            <div className="text-center text-gray-500 text-sm mb-6">
+            <div className="text-center text-gray-500 text-sm mb-6 ml-2 mr-2">
                 <Users className="inline h-4 w-4 mr-1" />
                 加载房间数据中，若无响应请等待1分钟左右...
             </div>
@@ -38,7 +38,7 @@ export default function RoomStatus() {
     const isFull = roomCount !== null && roomCount >= 200
 
     return (
-        <div className="text-center text-sm mb-6">
+        <div className="text-center text-sm mb-2">
             <Users className="inline h-4 w-4 mr-1" />
             {isFull ? (
                 <span className="text-red-500 font-medium">服务器房间已满，请稍后再试</span>

@@ -53,7 +53,7 @@ export const BEGINNER_PRESET = {
   genres: [], // All genres
 }
 
-export const ANIME_EXPERT_PRESET = {
+export const VOCALOID_EXPERT_PRESET = {
   ...PRESET_BASE,
   genres: ["niconico & VOCALOID"],
 }

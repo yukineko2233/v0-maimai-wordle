@@ -10,7 +10,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-lg max-w-2xl w-full max-h-[90vh] overflow-auto">
         <div className="p-4 border-b flex justify-between items-center">
-          <h2 className="text-xl font-bold">游戏规则</h2>
+          <h2 className="text-xl font-bold">帮助</h2>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-5 w-5" />
           </Button>
@@ -18,22 +18,49 @@ export default function HelpModal({ onClose }: HelpModalProps) {
 
         <div className="p-6 space-y-4">
           <div>
-            <h3 className="text-lg font-medium mb-2">游戏目标</h3>
-            <p>在有限次数内猜出目标maimai歌曲。每次猜测后，游戏会给出提示，帮助你缩小范围。</p>
+            <h3 className="text-lg font-medium mb-2">游戏玩法</h3>
+            <ul className="list-disc pl-5 space-y-2">
+              <li>
+                <span className="font-medium">调整设置</span>：太难了？先点击设置按钮调下难度；你可以选择一个预设。
+              </li>
+              <li>
+                <span className="font-medium">开始游戏</span>：根据你的设置，系统会从 maimai 曲库中随机选定一首歌曲作为答案。
+              </li>
+              <li>
+                <span className="font-medium">输入猜测</span>：你可以输入任意一首 maimai 歌曲名称（或别名）来进行猜测。
+              </li>
+              <li>
+                <span className="font-medium">获得提示</span>：每次提交猜测后，系统会针对几个属性给出反馈，帮助你缩小范围。
+                </li>
+              <li>
+                <span className="font-medium">继续猜测</span>：根据提示调整下一次的猜测，用完所有机会、计时结束或猜中目标。
+              </li>
+            </ul>
           </div>
 
           <div>
-            <h3 className="text-lg font-medium mb-2">猜测提示</h3>
+            <h3 className="text-lg font-medium mb-2">提示说明</h3>
             <ul className="list-disc pl-5 space-y-2">
               <li>
-                <span className="font-medium">绿色</span> - 表示该属性完全正确
+                <span className="font-medium text-green-500">绿色</span> - 该属性与你猜的完全一致。
               </li>
               <li>
-                <span className="font-medium">黄色</span> - 表示该属性接近正确（BPM±20、半个Master&Re:Master等级差、一个版本差）
+                <span className="font-medium text-yellow-500">黄色</span> - 该属性与你猜的“接近”：
+                <ul className="list-none pl-5 mt-1">
+                  <li>
+                    BPM 相差在 ±20 范围内；
+                  </li>
+                  <li>
+                    Master 难度或 Re:Master 难度相差半级（即一个 + 号）；
+                  </li>
+                  <li>
+                    版本相差一个世代（例如 maimai → maimai PLUS）。
+                  </li>
+                </ul>
               </li>
               <li>
-                <span className="font-medium">箭头</span> - （BPM、Master等级、Re:Master等级和版本）：
-                <ul className="list-disc pl-5 mt-1">
+                <span className="font-medium">箭头</span>：
+                <ul className="list-none pl-5 mt-1">
                   <li>
                     <span className="text-blue-500">↑</span> - 目标值比你猜的更高
                   </li>
@@ -49,7 +76,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
             <h3 className="text-lg font-medium mb-2">关于此项目</h3>
             <ul className="list-disc pl-5 space-y-1">
               <li>
-                此项目基于v0.dev AI生成，基于React编写。
+                本项目使用 v0.dev AI 生成，前端基于 Next.js 开发。
               </li>
               <li>
                 感谢Diving-Fish提供的
@@ -64,7 +91,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                 </a>
               </li>
               <li>
-                这是我第一次接触web开发，如果可以提交PR帮我修bug，非常感谢！
+                这是作者的第一次 Web 开发尝试，非常欢迎提交 Pull Request 来修复 BUG 或优化体验！
               </li>
             </ul>
           </div>

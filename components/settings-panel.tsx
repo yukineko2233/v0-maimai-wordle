@@ -9,7 +9,7 @@ import { X, RefreshCw } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   BEGINNER_PRESET,
-  ANIME_EXPERT_PRESET,
+  VOCALOID_EXPERT_PRESET,
   TOUHOU_PRESET,
   CASUAL_PRESET,
   OLD_VERSION_PRESET,
@@ -110,8 +110,8 @@ export default function SettingsPanel({ settings, onApply, onClose, isMultiplaye
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="outline" size="sm" onClick={() => applyPreset(ANIME_EXPERT_PRESET)}>
-                      二次元高手
+                    <Button variant="outline" size="sm" onClick={() => applyPreset(VOCALOID_EXPERT_PRESET)}>
+                      术力口高手
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -137,7 +137,7 @@ export default function SettingsPanel({ settings, onApply, onClose, isMultiplaye
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button variant="outline" size="sm" onClick={() => applyPreset(CASUAL_PRESET)}>
-                      小歌高手
+                      只猜小歌
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
