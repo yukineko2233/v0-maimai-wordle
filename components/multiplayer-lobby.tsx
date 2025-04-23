@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
-import { Settings, Users, Copy, ArrowRight, Crown, ArrowLeft } from "lucide-react"
+import { Settings, Users, Copy, ArrowRight, House, ArrowLeft } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import type { MultiplayerRoom, GameSettings, Song } from "@/types/game"
 import { MULTIPLAYER_DEFAULT_SETTINGS } from "@/lib/game-logic"
@@ -211,7 +211,7 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                                         <div>
                                             <div className="font-medium flex items-center gap-1">
                                                 {player.nickname}
-                                                {player.id === room.host && <Crown className="h-4 w-4 text-yellow-500" />}
+                                                {player.id === room.host && <House className="h-4 w-4 text-yellow-500" />}
                                             </div>
                                             <div className="text-sm text-muted-foreground">{player.id === socket.id ? "你" : "对手"}</div>
                                         </div>
@@ -227,6 +227,24 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                             <div>
                                 <Label>比赛模式</Label>
                                 <div className="font-medium">BO{room.bestOf}</div>
+                            </div>
+                            <div>
+                                <Label>版本范围</Label>
+                                <div className="font-medium">{room.settings.versionRange.min} - {room.settings.versionRange.max}</div>
+                            </div>
+                            <div>
+                                <Label>流派</Label>
+                                <div className="font-medium">
+                                    {room.settings.genres.length === 0 ||
+                                    ["舞萌", "音击&中二节奏", "niconico & VOCALOID", "流行&动漫", "东方Project", "其他游戏"]
+                                        .every(p => room.settings.genres.includes(p))
+                                        ? "全部"
+                                        : `${room.settings.genres.join(", ")}`}
+                                </div>
+                            </div>
+                            <div>
+                                <Label>Master等级范围</Label>
+                                <div className="font-medium">{room.settings.masterLevelRange.min} - {room.settings.masterLevelRange.max}</div>
                             </div>
                             <div>
                                 <Label>最大猜测次数</Label>
@@ -303,10 +321,10 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                                     <SelectValue placeholder="选择比赛模式" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="1">BO1 (1局)</SelectItem>
-                                    <SelectItem value="3">BO3 (3局)</SelectItem>
-                                    <SelectItem value="5">BO5 (5局)</SelectItem>
-                                    <SelectItem value="7">BO7 (7局)</SelectItem>
+                                    <SelectItem value="1">BO1 (1轮)</SelectItem>
+                                    <SelectItem value="3">BO3 (3轮)</SelectItem>
+                                    <SelectItem value="5">BO5 (5轮)</SelectItem>
+                                    <SelectItem value="7">BO7 (7轮)</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -331,7 +349,6 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                                 placeholder="输入房间号..."
                                 value={roomId}
                                 onChange={(e) => setRoomId(e.target.value.toUpperCase())}
-                                className="mb-4"
                             />
                         </div>
                         <Button onClick={joinRoom} className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white">
