@@ -59,15 +59,11 @@ export default function SettingsPanel({ settings, onApply, onClose, isMultiplaye
     "maimai MiLK",
     "maimai MiLK PLUS",
     "maimai FiNALE",
-    "maimai でらっくす",
-    "maimai でらっくす PLUS",
-    "maimai でらっくす Splash",
-    "maimai でらっくす Splash PLUS",
-    "maimai でらっくす UNiVERSE",
-    "maimai でらっくす UNiVERSE PLUS",
-    "maimai でらっくす FESTiVAL",
-    "maimai でらっくす FESTiVAL PLUS",
-    "maimai でらっくす BUDDiES",
+    "舞萌DX",
+    "舞萌DX 2021",
+    "舞萌DX 2022",
+    "舞萌DX 2023",
+    "舞萌DX 2024",
   ]
 
   const genres = ["流行&动漫", "niconico & VOCALOID", "东方Project", "音击&中二节奏", "其他游戏", "舞萌"]
@@ -171,7 +167,7 @@ export default function SettingsPanel({ settings, onApply, onClose, isMultiplaye
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>版本：从maimai でらっくす到maimai でらっくす BUDDiES</p>
+                    <p>版本：从 舞萌DX 到 舞萌DX 2024</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>

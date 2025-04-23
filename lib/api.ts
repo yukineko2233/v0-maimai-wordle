@@ -126,6 +126,26 @@ async function refreshSongsCache(): Promise<Song[]> {
         version = "maimai MiLK PLUS"
       }
 
+      if (version === "maimai でらっくす") {
+        version = "舞萌DX"
+      }
+
+      if (version === "maimai でらっくす Splash") {
+        version = "舞萌DX 2021"
+      }
+
+      if (version === "maimai でらっくす UNiVERSE") {
+        version = "舞萌DX 2022"
+      }
+
+      if (version === "maimai でらっくす FESTiVAL") {
+        version = "舞萌DX 2023"
+      }
+
+      if (version === "maimai でらっくす BUDDiES") {
+        version = "舞萌DX 2024"
+      }
+
       // Ensure all required properties exist
       return {
         id: song.id || 0,
