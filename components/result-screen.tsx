@@ -15,24 +15,27 @@ export default function ResultScreen({ won, targetSong, guessCount, maxGuesses, 
   const coverImageUrl = `https://www.diving-fish.com/covers/${String(targetSong.id).padStart(5, "0")}.png`
 
   return (
-    <div className="p-6 bg-gray-50 rounded-lg mb-5 text-center">
+    <div className="p-3 bg-gray-50 rounded-lg mb-5 text-center">
       {" "}
       {/* Increased padding */}
       {won ? (
         <div>
           <h2 className="text-xl font-bold text-green-600 mb-2">恭喜你猜对了！</h2>
-          <p className="mb-2">
+          <p className="mb-1">
             你用了 {guessCount}/{maxGuesses} 次猜出了正确答案
           </p>
         </div>
       ) : (
         <div>
           <h2 className="text-xl font-bold text-red-600 mb-2">游戏结束</h2>
-          <p className="mb-2">很遗憾，你没有猜出正确答案</p>
+          <p className="mb-1">很遗憾，你没有猜出正确答案,正确答案是：</p>
         </div>
       )}
-      <div className="mt-4 flex flex-col items-center">
-        <h3 className="font-medium mb-3">正确答案是：</h3>
+      <div className="mt-2 flex flex-col items-center">
+        <div className="mb-2">
+          <div className="text-lg font-bold">{targetSong.title}</div>
+          <div className="text-sm text-gray-600">{targetSong.artist}</div>
+        </div>
         <div className="flex items-center gap-5 mb-5">
           {" "}
           {/* Increased spacing */}
@@ -45,8 +48,6 @@ export default function ResultScreen({ won, targetSong, guessCount, maxGuesses, 
             }}
           />
           <div className="text-left">
-            <div className="text-xl font-bold">{targetSong.title}</div>
-            <div className="text-gray-600">{targetSong.artist}</div>
             <div className="text-sm mt-1">
               {targetSong.type} | {targetSong.genre} | <span className="font-medium">BPM: </span> {targetSong.bpm}
             </div>

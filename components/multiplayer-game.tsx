@@ -229,11 +229,15 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
 
                 {/* Round result */}
                 {isRoundOver && !isMatchFinished && (
-                    <div className="mb-6 p-4 bg-gray-50 rounded-lg text-center">
+                    <div className="mb-5 p-3 bg-gray-50 rounded-lg text-center">
                         <h3 className="text-xl font-bold mb-2">
                             {currentPlayer.currentRound.won ? "你赢了这一轮！" : "你输了这一轮"}
                         </h3>
-                        <h3 className="font-medium mb-3">正确答案是：</h3>
+                        <h3 className="font-medium mb-1">正确答案是：</h3>
+                        <div className="mb-2">
+                            <div className="text-lg font-bold">{room.targetSong.title}</div>
+                            <div className="text-sm text-gray-600">{room.targetSong.artist}</div>
+                        </div>
                         <div className="flex items-center gap-5 mb-5 w-full justify-center">
                             {" "}
                             {/* Increased spacing */}
@@ -246,8 +250,6 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
                                 }}
                             />
                             <div className="text-left">
-                                <div className="text-xl font-bold">{room.targetSong.title}</div>
-                                <div className="text-gray-600">{room.targetSong.artist}</div>
                                 <div className="text-sm mt-1">
                                     {room.targetSong.type} | {room.targetSong.genre} | <span className="font-medium">BPM: </span> {room.targetSong.bpm}
                                 </div>
