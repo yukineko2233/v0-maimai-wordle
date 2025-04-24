@@ -51,7 +51,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                     BPM 相差在 ±20 范围内；
                   </li>
                   <li>
-                    Master 难度或 Re:Master 难度相差半级（即一个 + 号）；
+                    <span className="text-purple-800">Master</span> 难度或 <span className="text-purple-400">Re:Master</span> 难度相差半级（即一个 + 号）；
                   </li>
                   <li>
                     版本相差一个世代（例如 maimai → maimai PLUS）。
@@ -66,6 +66,17 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                   </li>
                   <li>
                     <span className="text-red-500">↓</span> - 目标值比你猜的更低
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <span className="font-medium">标签</span>：
+                <ul className="list-none pl-5 mt-1">
+                  <li>
+                    显示您猜测的曲目的 <span className="text-purple-800">Master</span> 难度的配置、难度和评价标签。当标签与目标曲目重叠时，标签颜色会变为绿色。
+                  </li>
+                  <li>
+                    注意，有些曲目可能未添加标签。
                   </li>
                 </ul>
               </li>
@@ -88,6 +99,12 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                 感谢Yuri-YuzuChaN提供的
                 <a href="https://github.com/Yuri-YuzuChaN/SakuraBotDocs/blob/main/docs/api/maimaiDX.md" target="_blank" className="text-blue-500" rel="noopener noreferrer">
                   别名数据库
+                </a>
+              </li>
+              <li>
+                感谢DXRating.net提供的
+                <a href="https://dxrating.net/" target="_blank" className="text-blue-500" rel="noopener noreferrer">
+                   标签数据库
                 </a>
               </li>
               <li>
