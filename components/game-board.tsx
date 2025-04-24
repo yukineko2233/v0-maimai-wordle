@@ -408,7 +408,7 @@ export default function GameBoard({ onBack, initialSongs, initialAliases }: Game
 
           <div className="mt-5 space-y-3">
             {gameState.guesses.map((guess, index) => (
-                <GuessRow key={index} guess={guess} />
+                <GuessRow key={index} guess={guess} targetSong={gameState.targetSong} />
             ))}
           </div>
               </>

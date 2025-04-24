@@ -1,11 +1,13 @@
 import axios from "axios"
 import type { Song } from "@/types/game"
+import type { Tag, TagGroup, TagSong } from "@/types/game"
 
 // Cache for songs and aliases data
 let songsCache: Song[] | null = null
 let aliasesCache: Record<number, string[]> | null = null
 let songsEtag: string | null = null
 let aliasesEtag: string | null = null
+let tagsCache: { tags: Tag[]; tagGroups: TagGroup[]; tagSongs: TagSong[] } | null = null
 
 // Function to load data from localStorage on app initialization
 export function initializeCache() {
@@ -28,6 +30,35 @@ export function initializeCache() {
   } catch (error) {
     console.error("Error loading cache from localStorage:", error)
     // If there's an error, we'll just fetch fresh data
+  }
+}
+
+// Add this function after the initializeCache function
+export function loadTagsData() {
+  try {
+    if (tagsCache) {
+      return tagsCache
+    }
+
+    // In browser environment, fetch the tags data
+    if (typeof window !== "undefined") {
+      return fetch("/combined-tags.json")
+          .then((response) => response.json())
+          .then((data) => {
+            tagsCache = data
+            return data
+          })
+          .catch((error) => {
+            console.error("Error loading tags data:", error)
+            return { tags: [], tagGroups: [], tagSongs: [] }
+          })
+    }
+
+    // In server environment, read the file directly
+    return { tags: [], tagGroups: [], tagSongs: [] }
+  } catch (error) {
+    console.error("Error loading tags data:", error)
+    return { tags: [], tagGroups: [], tagSongs: [] }
   }
 }
 
@@ -277,4 +308,57 @@ export function clearCache() {
   localStorage.removeItem("songsEtag")
   localStorage.removeItem("aliasesEtag")
   console.log("Cache cleared")
+}
+
+// Add this function to get tags for a song
+export function getSongTags(
+    songTitle: string,
+    songType: string,
+    tagsData: { tags: Tag[]; tagGroups: TagGroup[]; tagSongs: TagSong[] },
+) {
+  if (!tagsData || !tagsData.tagSongs) {
+    return []
+  }
+
+  // Convert song type to match the format in tagSongs
+  const normalizedType = songType.toLowerCase() === "sd" ? "std" : songType.toLowerCase()
+
+  // Find all tag IDs for this song's master difficulty
+  const tagIds = tagsData.tagSongs
+      .filter(
+          (tagSong) =>
+              tagSong.song_id === songTitle &&
+              tagSong.sheet_type.toLowerCase() === normalizedType &&
+              tagSong.sheet_difficulty === "master",
+      )
+      .map((tagSong) => tagSong.tag_id)
+
+  // Get the full tag objects for these IDs
+  return tagsData.tags
+      .filter((tag) => tagIds.includes(tag.id))
+      .map((tag) => ({
+        ...tag,
+        groupColor: tagsData.tagGroups.find((group) => group.id === tag.group_id)?.color || "#cccccc",
+      }))
+}
+
+// Add this function to compare tags between two songs
+export function getSharedTags(
+    guessSongTitle: string,
+    guessSongType: string,
+    targetSongTitle: string,
+    targetSongType: string,
+    tagsData: { tags: Tag[]; tagGroups: TagGroup[]; tagSongs: TagSong[] },
+) {
+  const guessTags = getSongTags(guessSongTitle, guessSongType, tagsData)
+  const targetTags = getSongTags(targetSongTitle, targetSongType, tagsData)
+
+  const guessTagIds = guessTags.map((tag) => tag.id)
+  const targetTagIds = targetTags.map((tag) => tag.id)
+
+  // Mark tags as shared if they exist in both songs
+  return guessTags.map((tag) => ({
+    ...tag,
+    shared: targetTagIds.includes(tag.id),
+  }))
 }

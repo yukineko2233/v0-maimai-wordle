@@ -1,12 +1,35 @@
-import type { Guess } from "@/types/game"
+import type { Guess, Song, Tag } from "@/types/game"
 import { ArrowDown, ArrowUp } from "lucide-react"
+import { useState, useEffect } from "react"
+import { loadTagsData, getSharedTags } from "@/lib/api"
+import SongTags from "@/components/song-tags"
 
 interface GuessRowProps {
   guess: Guess
+  targetSong?: Song
 }
 
-export default function GuessRow({ guess }: GuessRowProps) {
+export default function GuessRow({ guess, targetSong }: GuessRowProps) {
   const { song, result } = guess
+  const [songTags, setSongTags] = useState<Tag[]>([])
+
+  useEffect(() => {
+    // Load tags data and process song tags
+    const loadTags = async () => {
+      const tagsData = await loadTagsData()
+
+      if (targetSong) {
+        // If we have a target song, get shared tags
+        const sharedTags = getSharedTags(song.title, song.type, targetSong.title, targetSong.type, tagsData)
+        setSongTags(sharedTags)
+      } else {
+        // If no target song (shouldn't happen), just get the song's tags
+        setSongTags([])
+      }
+    }
+
+    loadTags()
+  }, [song, targetSong])
 
   const getCellClass = (correct: boolean, close?: boolean) => {
     if (correct) return "bg-green-100 text-green-800 border-green-300"
@@ -129,6 +152,13 @@ export default function GuessRow({ guess }: GuessRowProps) {
             {versionshort[song.version]} {!result.version.value && <span className="shrink-0">{getVersionDirectionIcon(result.version.direction)}</span>}
           </div>
         </div>
+
+        {/* Tags - New section */}
+        <div className="p-2 rounded border col-span-4">
+          <div className="text-xs text-gray-500 mb-1">Master 标签</div>
+          <SongTags tags={songTags} />
+        </div>
+
       </div>
     </div>
   )

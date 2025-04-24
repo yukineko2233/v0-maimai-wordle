@@ -279,7 +279,7 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
                 {/* Guesses */}
                 <div className="mt-5 space-y-3">
                     {currentPlayer.currentRound.guesses.map((guess, index) => (
-                        <GuessRow key={index} guess={guess} />
+                        <GuessRow key={index} guess={guess} targetSong={room.targetSong} />
                     ))}
                 </div>
 

@@ -103,3 +103,31 @@ export interface MultiplayerRoom {
   status: "waiting" | "playing" | "finished"
   winner?: string
 }
+
+export interface Tag {
+  id: number
+  localized_name: {
+    [key: string]: string
+  }
+  localized_description: {
+    [key: string]: string
+  }
+  group_id: number
+  groupColor?: string
+  shared?: boolean
+}
+
+export interface TagGroup {
+  id: number
+  localized_name: {
+    [key: string]: string
+  }
+  color: string
+}
+
+export interface TagSong {
+  song_id: string
+  sheet_type: string
+  sheet_difficulty: string
+  tag_id: number
+}
