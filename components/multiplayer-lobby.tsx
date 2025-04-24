@@ -182,7 +182,7 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
         return (
             <Card className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
                 <div className="relative bg-gradient-to-r from-pink-500 to-purple-500 text-white p-5 flex items-center justify-center">
-                    <Button variant="ghost" size="icon" onClick={onBack} className="absolute left-4 text-white hover:bg-white/20">
+                    <Button variant="ghost" size="icon" onClick={leaveRoom} className="absolute left-4 text-white hover:bg-white/20">
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
                     <h1 className="text-xl font-medium">双人模式房间</h1>
