@@ -73,7 +73,10 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                 <span className="font-medium">标签</span>：
                 <ul className="list-none pl-5 mt-1">
                   <li>
-                    显示您猜测的曲目的 <span className="text-purple-800">Master</span> 难度的配置、难度和评价标签。当标签与目标曲目重叠时，标签颜色会变为绿色。
+                    显示您猜测的曲目的 <span className="text-purple-800">Master</span> 难度的配置、难度和评价标签。
+                  </li>
+                  <li>
+                    当一个标签与目标曲目的属性一致时，该标签会变为<span className="text-green-500">绿色</span>。
                   </li>
                   <li>
                     注意，有些曲目可能未添加标签。
