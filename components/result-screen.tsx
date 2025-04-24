@@ -28,7 +28,7 @@ export default function ResultScreen({ won, targetSong, guessCount, maxGuesses, 
       ) : (
         <div>
           <h2 className="text-xl font-bold text-red-600 mb-2">游戏结束</h2>
-          <p className="mb-1">很遗憾，你没有猜出正确答案,正确答案是：</p>
+          <p className="mb-1">很遗憾，你没有猜出正确答案，正确答案是：</p>
         </div>
       )}
       <div className="mt-2 flex flex-col items-center">
