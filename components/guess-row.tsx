@@ -119,7 +119,7 @@ export default function GuessRow({ guess }: GuessRowProps) {
         {/* Genre */}
         <div className={`p-2 rounded border col-span-2 ${getCellClass(result.genre)}`}>
           <div className="text-xs text-gray-500">流派</div>
-          <div className="truncate">{song.genre}</div>
+          {song.genre}
         </div>
 
         {/* Version */}
