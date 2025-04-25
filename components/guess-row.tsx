@@ -85,7 +85,7 @@ export default function GuessRow({ guess, targetSong }: GuessRowProps) {
               ;(e.target as HTMLImageElement).src = "/placeholder.png?height=80&width=80"
             }}
           />
-          <div className={`flex-1 p-3 col-span-3 rounded border min-w-0 ${getCellClass(result.title)}`}>
+          <div className={`flex-1 p-3 h-14 col-span-3 flex items-center rounded border min-w-0 ${getCellClass(result.title)}`}>
             <div className="font-medium truncate">{song.title}</div>
           </div>
         </div>
