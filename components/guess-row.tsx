@@ -154,7 +154,7 @@ export default function GuessRow({ guess, targetSong }: GuessRowProps) {
         </div>
 
         {/* Tags - New section */}
-        <div className="p-2 rounded border col-span-4 bg-gray-100 text-gray-800 border-gray-300">
+        <div className="p-2 rounded border col-span-4">
           <div className="text-xs text-purple-800 mb-1">Master 标签</div>
           <SongTags tags={songTags} />
         </div>
