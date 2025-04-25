@@ -146,9 +146,11 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
     }
 
     const exitGame = () => {
-        socket.emit("leave_room", {
-            roomId: room.id,
-        })
+        if (room && room.id) {
+            socket.emit("leave_room", {
+                roomId: room.id,
+            })
+        }
         onExit()
     }
 

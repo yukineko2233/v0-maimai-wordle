@@ -44,6 +44,12 @@ export default function MultiplayerResultScreen({ room, currentPlayerId, onExit 
     // Sort by score (highest first)
     playerScores.sort((a, b) => b.score - a.score)
 
+    // 确保点击按钮时正确调用onExit
+    const handleExit = () => {
+        // 明确调用退出函数
+        onExit()
+    }
+
     return (
         <div className="p-2 bg-gray-50 rounded-lg mb-5 text-center">
             <div className="mb-6">
@@ -63,7 +69,7 @@ export default function MultiplayerResultScreen({ room, currentPlayerId, onExit 
                 )}
             </div>
 
-            <Button onClick={onExit} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white">
+            <Button onClick={handleExit} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white">
                 <Home className="mr-2 h-4 w-4" />
                 返回主页
             </Button>
