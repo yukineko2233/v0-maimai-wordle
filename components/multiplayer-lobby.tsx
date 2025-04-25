@@ -307,22 +307,24 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                             <Label htmlFor="bestOf" className="mb-2 block">
                                 比赛模式
                             </Label>
-                            <Select value={bestOf} onValueChange={setBestOf}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="选择比赛模式" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="1">BO1 (1轮)</SelectItem>
-                                    <SelectItem value="3">BO3 (3轮)</SelectItem>
-                                    <SelectItem value="5">BO5 (5轮)</SelectItem>
-                                    <SelectItem value="7">BO7 (7轮)</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <div className='grid md:grid-cols-2 gap-2'>
+                                <Select value={bestOf} onValueChange={setBestOf}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="选择比赛模式" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="1">BO1 (1轮)</SelectItem>
+                                        <SelectItem value="3">BO3 (3轮)</SelectItem>
+                                        <SelectItem value="5">BO5 (5轮)</SelectItem>
+                                        <SelectItem value="7">BO7 (7轮)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <Button onClick={() => setShowSettings(true)} variant="outline" className="w-full">
+                                    <Settings className="mr-2 h-4 w-4" />
+                                    游戏设置
+                                </Button>
+                            </div>
                         </div>
-                        <Button onClick={() => setShowSettings(true)} variant="outline" className="w-full">
-                            <Settings className="mr-2 h-4 w-4" />
-                            游戏设置
-                        </Button>
                         <Button onClick={createRoom} className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white">
                             <Users className="mr-2 h-4 w-4" />
                             创建房间
