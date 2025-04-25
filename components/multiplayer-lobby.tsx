@@ -302,7 +302,10 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
 
                 <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-4">
-                        <h3 className="text-lg font-medium">创建房间</h3>
+                        <div className="flex items-center gap-2">
+                            <House className="h-6 w-6" />
+                            <h3 className="text-lg font-medium">创建房间</h3>
+                        </div>
                         <div>
                             <Label htmlFor="bestOf" className="mb-2 block">
                                 比赛模式
@@ -330,7 +333,10 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                     </div>
 
                     <div className="space-y-4">
-                        <h3 className="text-lg font-medium">加入房间</h3>
+                        <div className="flex items-center gap-2">
+                            <ArrowRight className="h-6 w-6"/>
+                            <h3 className="text-lg font-medium">加入房间</h3>
+                        </div>
                         <div>
                             <Label htmlFor="roomId" className="mb-2 block">
                                 房间号
