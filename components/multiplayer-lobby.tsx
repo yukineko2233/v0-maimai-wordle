@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Settings, Users, Copy, ArrowRight, House, ArrowLeft } from "lucide-react"
@@ -180,14 +179,14 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
         const canStart = isHost && players.length === 2
 
         return (
-            <Card className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
                 <div className="relative bg-gradient-to-r from-pink-500 to-purple-500 text-white p-5 flex items-center justify-center">
                     <Button variant="ghost" size="icon" onClick={leaveRoom} className="absolute left-4 text-white hover:bg-white/20">
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
                     <h1 className="text-xl font-medium">双人模式房间</h1>
                 </div>
-                <CardContent className="p-6">
+                <div className="p-6">
                     <div className="mb-3">
                         <span className="text-lg font-medium mb-1">房间号: {room.id}</span>
                         <Button variant="ghost" size="icon" onClick={copyRoomId} className="text-black hover:bg-black/20 ml-1">
@@ -273,20 +272,20 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                             </Button>
                         )}
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
         )
     }
 
     return (
-        <Card className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
             <div className="relative p-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white flex items-center justify-center">
                 <Button variant="ghost" size="icon" onClick={onBack} className="absolute left-4 text-white hover:bg-white/20">
                     <ArrowLeft className="h-5 w-5" />
                 </Button>
                 <h1 className="text-xl font-medium text-center">双人模式</h1>
             </div>
-            <CardContent className="p-6">
+            <div className="p-6">
                 <div className="mb-6">
                     <Label htmlFor="nickname" className="mb-2 block">
                         你的昵称
@@ -310,7 +309,7 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                             <Label htmlFor="bestOf" className="mb-2 block">
                                 比赛模式
                             </Label>
-                            <div className='grid md:grid-cols-2 gap-2'>
+                            <div className='grid md:grid-cols-2 gap-4'>
                                 <Select value={bestOf} onValueChange={setBestOf}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="选择比赛模式" />
@@ -356,7 +355,7 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                         </Button>
                     </div>
                 </div>
-            </CardContent>
+            </div>
 
             {showSettings && (
                 <SettingsPanel
@@ -366,6 +365,6 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                     isMultiplayer={true} // Specify that this is multiplayer mode
                 />
             )}
-        </Card>
+        </div>
     )
 }

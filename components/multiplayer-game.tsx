@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import type { MultiplayerRoom, Song } from "@/types/game"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { RefreshCw, Flag, ArrowLeft } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import SearchBox from "@/components/search-box"
@@ -160,7 +159,7 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
     const isMatchFinished = room.status === "finished"
 
     return (
-        <Card className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
             <div className="bg-gradient-to-r from-pink-500 to-purple-500 text-white p-4">
                 <div className="flex justify-between items-center">
                     <Button variant="ghost" size="sm" onClick={exitGame} className="text-white hover:bg-white/20">
@@ -179,7 +178,7 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
                     <div className="w-24"></div> {/* Spacer for alignment */}
                 </div>
             </div>
-            <CardContent className="p-6">
+            <div className="p-6">
                 {/* Game status */}
                 <div className="mb-4 flex justify-center gap-4 items-center">
                     <div className="flex-1 text-center">
@@ -302,7 +301,7 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
                         </div>
                     </div>
                 )}
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     )
 }
