@@ -85,7 +85,7 @@ io.on("connection", (socket) => {
 
         socket.join(roomId)
         socket.emit("room_created", { roomId, room: rooms[roomId] })
-        console.log(`Room created: ${roomId} by ${nickname}`)
+        console.log(`multiplayer: Room created: ${roomId} by ${nickname}`)
 
         // Broadcast updated room count
         broadcastRoomCount()
@@ -126,7 +126,7 @@ io.on("connection", (socket) => {
         socket.join(roomId)
         socket.emit("room_joined", { room })
         io.to(roomId).emit("player_joined", { room })
-        console.log(`Player ${nickname} joined room: ${roomId}`)
+        console.log(`multiplayer: Player ${nickname} joined room: ${roomId}`)
     })
 
     // Start the game
@@ -150,7 +150,7 @@ io.on("connection", (socket) => {
 
         room.status = "playing"
         io.to(roomId).emit("game_started", { room })
-        console.log(`Game started in room: ${roomId}`)
+        console.log(`multiplayer: Game started in room: ${roomId}`)
     })
 
     // Make a guess
