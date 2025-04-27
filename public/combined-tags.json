@@ -25567,6 +25567,84 @@
             "sheet_type": "dx",
             "sheet_difficulty": "master",
             "tag_id": 4
+        },
+        {
+            "song_id": "Southern Cross",
+            "sheet_type": "dx",
+            "sheet_difficulty": "remaster",
+            "tag_id": 23
+        },
+        {
+            "song_id": "Strange Bar",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 6
+        },
+        {
+            "song_id": "Strange Bar",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 10
+        },
+        {
+            "song_id": "回レ！雪月花",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 3
+        },
+        {
+            "song_id": "回レ！雪月花",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 3
+        },
+        {
+            "song_id": "回レ！雪月花",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 6
+        },
+        {
+            "song_id": "回レ！雪月花",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 24
+        },
+        {
+            "song_id": "四月の雨",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 8
+        },
+        {
+            "song_id": "Rodeo Machine",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 1
+        },
+        {
+            "song_id": "[X]",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 19
+        },
+        {
+            "song_id": "Tricolor⁂circuS",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 15
+        },
+        {
+            "song_id": "Credits",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 15
+        },
+        {
+            "song_id": "演劇",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 13
         }
     ]
 }
