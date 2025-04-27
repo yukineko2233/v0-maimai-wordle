@@ -410,7 +410,8 @@ function leaveRoom(socket: any, roomId: string) {
 
 // 获取公开房间数量
 function getPublicRoomCount() {
-    return Object.values(rooms).filter((room) => room.isPublic).length
+    // 只计算状态为"waiting"的公开房间
+    return Object.values(rooms).filter((room) => room.isPublic && room.status === "waiting").length
 }
 // Function to get active room count
 function getActiveRoomCount() {
@@ -433,7 +434,10 @@ io.on("connection", (socket) => {
 
     // Client can request room count update
     socket.on("get_room_count", () => {
-        socket.emit("room_count_update", { count: getActiveRoomCount() })
+        socket.emit("room_count_update", {
+            count: getActiveRoomCount(),
+            publicCount: getPublicRoomCount(),
+        })
     })
 
     // Create a new room
@@ -545,6 +549,9 @@ io.on("connection", (socket) => {
         socket.emit("room_joined", { room })
         io.to(roomId).emit("player_joined", { room, playerId: socket.id })
         console.log(`multiplayer: Player ${nickname} joined room: ${roomId}`)
+
+        // 添加：广播更新房间数量
+        broadcastRoomCount()
     })
 
     // 添加随机加入公开房间的处理函数
@@ -591,6 +598,9 @@ io.on("connection", (socket) => {
         socket.emit("room_joined", { room: randomRoom })
         io.to(randomRoom.id).emit("player_joined", { room: randomRoom, playerId: socket.id })
         console.log(`multiplayer: Player ${nickname} randomly joined room: ${randomRoom.id}`)
+
+        // 添加：广播更新房间数量
+        broadcastRoomCount()
     })
 
     // 添加玩家准备状态切换的处理函数
@@ -679,6 +689,9 @@ io.on("connection", (socket) => {
 
         io.to(roomId).emit("game_started", { room })
         console.log(`multiplayer: Game started in room: ${roomId}`)
+
+        // 添加：广播更新房间数量，因为游戏开始后公开房间数量会减少
+        broadcastRoomCount()
     })
 
     // Make a guess
