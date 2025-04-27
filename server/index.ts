@@ -234,6 +234,19 @@ function isGuessCorrect(guess: Guess): boolean {
     )
 }
 
+// 更新玩家在allParticipants中的信息
+function updateParticipantInfo(room: MultiplayerRoom, playerId: string) {
+    if (!room.players[playerId]) return
+
+    const player = room.players[playerId]
+    room.allParticipants[playerId] = {
+        id: player.id,
+        nickname: player.nickname,
+        score: player.score,
+        avatarId: room.playerAvatars[playerId] || 1,
+    }
+}
+
 // Fix the checkRoundEnd function to properly handle scoring
 function checkRoundEnd(room: MultiplayerRoom) {
     const players = Object.values(room.players)
@@ -255,6 +268,9 @@ function checkRoundEnd(room: MultiplayerRoom) {
         if (roundWinner) {
             room.roundsWon[roundWinner] = (room.roundsWon[roundWinner] || 0) + 1
             room.players[roundWinner].score += 1
+
+            // 更新allParticipants中的信息
+            updateParticipantInfo(room, roundWinner)
         }
 
         // 检查比赛是否结束
@@ -269,6 +285,11 @@ function checkRoundEnd(room: MultiplayerRoom) {
         if (matchWinner) {
             room.status = "finished"
             room.winner = matchWinner
+
+            // 确保所有玩家的最终分数都被记录
+            Object.keys(room.players).forEach((playerId) => {
+                updateParticipantInfo(room, playerId)
+            })
         }
 
         // 重置所有玩家的准备状态
@@ -315,12 +336,16 @@ function leaveRoom(socket: any, roomId: string) {
     const leavingPlayer = room.players[socket.id]
     if (!leavingPlayer) return
 
+    // 如果游戏正在进行或已结束，确保将离开的玩家信息保存到allParticipants
+    if (room.status === "playing" || room.status === "finished") {
+        updateParticipantInfo(room, socket.id)
+    }
+
     const playerName = leavingPlayer.nickname
     const isInProgress = room.status === "playing"
 
     // 从房间中移除玩家
     delete room.players[socket.id]
-    delete room.playerAvatars[socket.id]
     socket.leave(roomId)
 
     // 获取剩余玩家列表
@@ -339,6 +364,9 @@ function leaveRoom(socket: any, roomId: string) {
             // 更新剩余玩家的分数
             room.roundsWon[remainingPlayerId] = Math.ceil(room.maxRounds / 2) // 足够获胜的分数
             room.players[remainingPlayerId].score = Math.ceil(room.maxRounds / 2)
+
+            // 更新allParticipants中的信息
+            updateParticipantInfo(room, remainingPlayerId)
 
             // 通知剩余玩家
             io.to(roomId).emit("round_ended", {
@@ -458,6 +486,7 @@ io.on("connection", (socket) => {
             status: "waiting", // waiting, playing, finished
             isPublic: isPublic || false, // 新增：是否为公开房间
             playerAvatars, // 新增：玩家头像映射
+            allParticipants: {}, // 初始化所有参与者记录
         }
 
         socket.join(roomId)
@@ -642,6 +671,12 @@ io.on("connection", (socket) => {
         }
 
         room.status = "playing"
+
+        // 游戏开始时，将所有玩家添加到allParticipants
+        Object.keys(room.players).forEach((playerId) => {
+            updateParticipantInfo(room, playerId)
+        })
+
         io.to(roomId).emit("game_started", { room })
         console.log(`multiplayer: Game started in room: ${roomId}`)
     })

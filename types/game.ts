@@ -103,8 +103,18 @@ export interface MultiplayerRoom {
   filteredSongs: Song[]
   status: "waiting" | "playing" | "finished"
   winner?: string
-  isPublic: boolean // 新增：是否为公开房间
-  playerAvatars: Record<string, number> // 新增：玩家头像映射
+  isPublic: boolean
+  playerAvatars: Record<string, number>
+  // 新增：记录所有参与过比赛的玩家信息
+  allParticipants: Record<
+      string,
+      {
+        id: string
+        nickname: string
+        score: number
+        avatarId: number
+      }
+  >
 }
 
 export interface Tag {

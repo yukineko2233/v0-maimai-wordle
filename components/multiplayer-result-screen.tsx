@@ -12,24 +12,23 @@ interface MultiplayerResultScreenProps {
 
 export default function MultiplayerResultScreen({ room, currentPlayerId, onExit }: MultiplayerResultScreenProps) {
     const isWinner = room.winner === currentPlayerId
-    const winner = room.players[room.winner || ""]
-    const players = Object.values(room.players)
+    const winner = room.players[room.winner || ""] || room.allParticipants[room.winner || ""]
 
-    // 检查是否因为玩家离开而结束游戏
-    const isForfeit = Object.keys(room.players).length === 1
-
-    // 获取所有玩家的得分
-    const playerScores = players.map((player) => ({
+    // 获取所有参与者的得分（包括已离开的玩家）
+    const allPlayerScores = Object.values(room.allParticipants).map((player) => ({
         id: player.id,
         nickname: player.nickname,
         score: room.roundsWon[player.id] || 0,
         isCurrentPlayer: player.id === currentPlayerId,
         isWinner: player.id === room.winner,
-        avatarId: room.playerAvatars[player.id] || 1,
+        avatarId: player.avatarId || 1,
     }))
 
+    // 检查是否因为玩家离开而结束游戏
+    const isForfeit = Object.keys(room.players).length === 1
+
     // 按得分排序（从高到低）
-    playerScores.sort((a, b) => b.score - a.score)
+    allPlayerScores.sort((a, b) => b.score - a.score)
 
     return (
         <div className="p-2 bg-gray-50 rounded-lg mb-5 text-center">
@@ -44,7 +43,7 @@ export default function MultiplayerResultScreen({ room, currentPlayerId, onExit 
                     <p className="text-gray-600">其他玩家已离开游戏，你获得了胜利！</p>
                 ) : (
                     <p className="text-gray-600">
-                        最终比分: {playerScores[0]?.nickname} {playerScores[0]?.score} 分
+                        最终比分: {allPlayerScores[0]?.nickname} {allPlayerScores[0]?.score} 分
                     </p>
                 )}
             </div>
@@ -57,7 +56,7 @@ export default function MultiplayerResultScreen({ room, currentPlayerId, onExit 
                         <div className="text-center">得分</div>
                         <div className="text-right">结果</div>
                     </div>
-                    {playerScores.map((player) => (
+                    {allPlayerScores.map((player) => (
                         <div key={player.id} className="grid grid-cols-4 gap-2 py-2 items-center">
                             <div className="col-span-2 flex items-center gap-2">
                                 <div className="w-8 h-8 rounded-full overflow-hidden shrink-0">
@@ -65,6 +64,7 @@ export default function MultiplayerResultScreen({ room, currentPlayerId, onExit 
                                 </div>
                                 <div className="font-medium truncate">
                                     {player.nickname} {player.isCurrentPlayer && "(你)"}
+                                    {!room.players[player.id] && <span className="text-gray-400 text-xs ml-1">(已离开)</span>}
                                 </div>
                             </div>
                             <div className="text-center">{player.score}</div>
