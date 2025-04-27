@@ -9,6 +9,7 @@ import SearchBox from "@/components/search-box"
 import GuessRow from "@/components/guess-row"
 import { socket } from "@/lib/socket"
 import MultiplayerResultScreen from "@/components/multiplayer-result-screen"
+import PlayerList from "@/components/player-list"
 
 interface MultiplayerGameProps {
     initialRoom: MultiplayerRoom
@@ -23,7 +24,6 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
 
     // Get current player
     const currentPlayer = room.players[socket.id]
-    const opponent = Object.values(room.players).find((player) => player.id !== socket.id)
 
     useEffect(() => {
         // Set up socket event listeners
@@ -36,11 +36,11 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
 
             if (forfeit) {
                 toast({
-                    title: "对手已离开",
-                    description: message || "对手已离开游戏，你获得了胜利！",
+                    title: "玩家离开",
+                    description: message || "一名玩家已离开游戏",
                 })
             } else if (roundWinner) {
-                const winnerName = room.players[roundWinner].nickname
+                const winnerName = room.players[roundWinner]?.nickname || "未知玩家"
                 toast({
                     title: `第${room.currentRound}轮结束`,
                     description: `${winnerName} 赢得了这一轮！`,
@@ -53,7 +53,7 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
             }
 
             if (matchWinner) {
-                const winnerName = room.players[matchWinner].nickname
+                const winnerName = room.players[matchWinner]?.nickname || "未知玩家"
                 toast({
                     title: "比赛结束",
                     description: `${winnerName} 赢得了比赛！`,
@@ -72,11 +72,21 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
 
         socket.on("player_ready", ({ room }) => {
             setRoom(room)
-            const readyPlayer = Object.values(room.players).find((p) => p.readyForNextRound)
-            if (readyPlayer && readyPlayer.id !== socket.id) {
+            const readyPlayers = Object.values(room.players).filter((p) => p.readyForNextRound)
+            if (readyPlayers.length > 0) {
                 toast({
-                    title: "对手已准备好",
-                    description: "等待你准备开始下一轮",
+                    title: "玩家已准备好",
+                    description: `${readyPlayers.length}/${Object.keys(room.players).length} 玩家准备好开始下一轮`,
+                })
+            }
+        })
+
+        socket.on("player_left", ({ room, playerId, playerName }) => {
+            setRoom(room)
+            if (socket.id !== playerId) {
+                toast({
+                    title: "玩家离开",
+                    description: `${playerName} 离开了游戏`,
                 })
             }
         })
@@ -95,6 +105,7 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
             socket.off("round_ended")
             socket.off("next_round_started")
             socket.off("player_ready")
+            socket.off("player_left")
             socket.off("guess_error")
         }
     }, [toast])
@@ -169,12 +180,9 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
                         退出
                     </Button>
                     <div className="text-center">
-                        <h2 className="text-xl font-medium">
-                            第{room.currentRound}轮
-                        </h2>
+                        <h2 className="text-xl font-medium">第{room.currentRound}轮</h2>
                         <div className="text-sm">
-                            {currentPlayer.nickname} {currentPlayer.score} : {opponent?.score || 0}{" "}
-                            {opponent?.nickname || "等待中..."}
+                            {Object.values(room.players).length} 名玩家 | BO{room.bestOf}
                         </div>
                     </div>
                     <div className="w-24"></div> {/* Spacer for alignment */}
@@ -240,27 +248,27 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
                             <div className="text-sm text-gray-600">{room.targetSong.artist}</div>
                         </div>
                         <div className="flex items-center gap-5 mb-5 w-full justify-center">
-                            {" "}
-                            {/* Increased spacing */}
                             <img
-                                src={`https://www.diving-fish.com/covers/${String(room.targetSong.id).padStart(5, "0")}.png` || "/placeholder.png"}
+                                src={
+                                    `https://www.diving-fish.com/covers/${String(room.targetSong.id).padStart(5, "0") || "/placeholder.svg"}.png` ||
+                                    "/placeholder.png"
+                                }
                                 alt={room.targetSong.title}
-                                className="w-24 h-24 object-cover rounded-lg shadow-md" /* Increased from w-24 h-24 */
+                                className="w-24 h-24 object-cover rounded-lg shadow-md"
                                 onError={(e) => {
                                     ;(e.target as HTMLImageElement).src = "/placeholder.png?height=160&width=160"
                                 }}
                             />
                             <div className="text-left">
                                 <div className="text-sm mt-1">
-                                    {room.targetSong.type} | {room.targetSong.genre} | <span className="font-medium">BPM: </span> {room.targetSong.bpm}
+                                    {room.targetSong.type} | {room.targetSong.genre} | <span className="font-medium">BPM: </span>{" "}
+                                    {room.targetSong.bpm}
                                 </div>
                                 <div className="text-sm">
                                     <span className="font-medium">Master:</span> {room.targetSong.level_master} |
                                     <span className="font-medium"> Re:Master:</span> {room.targetSong.level_remaster || "无"}
                                 </div>
-                                <div className="text-sm">
-                                    {room.targetSong.version}
-                                </div>
+                                <div className="text-sm">{room.targetSong.version}</div>
                             </div>
                         </div>
                         <Button
@@ -268,7 +276,7 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
                             disabled={currentPlayer.readyForNextRound}
                             className="bg-gradient-to-r from-pink-500 to-purple-500 text-white"
                         >
-                            {currentPlayer.readyForNextRound ? "等待对手准备..." : "准备下一轮"}
+                            {currentPlayer.readyForNextRound ? "等待其他玩家准备..." : "准备下一轮"}
                             <RefreshCw className="ml-2 h-4 w-4" />
                         </Button>
                     </div>
@@ -284,25 +292,17 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
                     ))}
                 </div>
 
-                {/* Opponent status */}
-                {opponent && (
-                    <div className="mt-8 p-4 border rounded-lg">
-                        <h3 className="text-lg font-medium mb-2 flex items-center">对手状态: {opponent.nickname}</h3>
-                        <div className="flex items-center gap-4">
-                            <div>
-                                <span className="font-medium">已猜测: </span>
-                                <span>
-                  {opponent.currentRound.guesses.length}/{room.settings.maxGuesses}
-                </span>
-                            </div>
-                            {opponent.currentRound.gameOver && (
-                                <div className="text-sm px-2 py-1 rounded bg-gray-100">
-                                    {opponent.currentRound.won ? "已猜出正确答案" : "已结束猜测"}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
+                {/* Players status */}
+                <div className="mt-8 p-4 border rounded-lg">
+                    <h3 className="text-lg font-medium mb-2 flex items-center">玩家状态</h3>
+                    <PlayerList
+                        players={room.players}
+                        hostId={room.host}
+                        currentPlayerId={socket.id}
+                        playerAvatars={room.playerAvatars}
+                        isGameStarted={true}
+                    />
+                </div>
             </div>
         </div>
     )

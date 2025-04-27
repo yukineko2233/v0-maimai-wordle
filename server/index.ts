@@ -18,260 +18,6 @@ const io = new Server(server, {
 
 // Store rooms data
 const rooms: Record<string, MultiplayerRoom> = {}
-// Function to get active room count
-function getActiveRoomCount() {
-    return Object.keys(rooms).length
-}
-
-// Function to broadcast room count to all clients
-function broadcastRoomCount() {
-    io.emit("room_count_update", { count: getActiveRoomCount() })
-}
-
-// Socket.IO connection handling
-io.on("connection", (socket) => {
-    console.log("User connected:", socket.id)
-    // Send current room count to newly connected client
-    socket.emit("room_count_update", { count: getActiveRoomCount() })
-
-    // Client can request room count update
-    socket.on("get_room_count", () => {
-        socket.emit("room_count_update", { count: getActiveRoomCount() })
-    })
-
-    // Create a new room
-    socket.on("create_room", ({ nickname, settings, bestOf, songs }) => {
-        // Check if we've reached the room limit
-        if (getActiveRoomCount() >= 100) {
-            socket.emit("room_error", { message: "服务器房间已满，请稍后再试。" })
-            return
-        }
-
-        const roomId = generateRoomId()
-        const filteredSongs = filterSongs(songs, settings)
-
-        if (filteredSongs.length === 0) {
-            socket.emit("room_error", { message: "当前设置下没有可用的歌曲，请调整设置。" })
-            return
-        }
-
-        const targetSong = getRandomSong(filteredSongs)
-
-        rooms[roomId] = {
-            id: roomId,
-            host: socket.id,
-            players: {
-                [socket.id]: {
-                    id: socket.id,
-                    nickname,
-                    score: 0,
-                    currentRound: {
-                        guesses: [],
-                        gameOver: false,
-                        won: false,
-                        remainingTime: settings.timeLimit,
-                    },
-                },
-            },
-            settings,
-            bestOf,
-            currentRound: 1,
-            maxRounds: bestOf,
-            roundsWon: {},
-            targetSong,
-            filteredSongs,
-            status: "waiting", // waiting, playing, finished
-        }
-
-        socket.join(roomId)
-        socket.emit("room_created", { roomId, room: rooms[roomId] })
-        console.log(`multiplayer: Room created: ${roomId} by ${nickname}`)
-
-        // Broadcast updated room count
-        broadcastRoomCount()
-    })
-
-    // Join an existing room
-    socket.on("join_room", ({ roomId, nickname }) => {
-        const room = rooms[roomId]
-
-        if (!room) {
-            socket.emit("room_error", { message: "房间不存在" })
-            return
-        }
-
-        if (room.status !== "waiting") {
-            socket.emit("room_error", { message: "游戏已经开始，无法加入" })
-            return
-        }
-
-        if (Object.keys(room.players).length >= 2) {
-            socket.emit("room_error", { message: "房间已满" })
-            return
-        }
-
-        // Add player to room
-        room.players[socket.id] = {
-            id: socket.id,
-            nickname,
-            score: 0,
-            currentRound: {
-                guesses: [],
-                gameOver: false,
-                won: false,
-                remainingTime: room.settings.timeLimit,
-            },
-        }
-
-        socket.join(roomId)
-        socket.emit("room_joined", { room })
-        io.to(roomId).emit("player_joined", { room })
-        console.log(`multiplayer: Player ${nickname} joined room: ${roomId}`)
-    })
-
-    // Start the game
-    socket.on("start_game", ({ roomId }) => {
-        const room = rooms[roomId]
-
-        if (!room) {
-            socket.emit("room_error", { message: "房间不存在" })
-            return
-        }
-
-        if (socket.id !== room.host) {
-            socket.emit("room_error", { message: "只有房主可以开始游戏" })
-            return
-        }
-
-        if (Object.keys(room.players).length < 2) {
-            socket.emit("room_error", { message: "需要至少两名玩家才能开始游戏" })
-            return
-        }
-
-        room.status = "playing"
-        io.to(roomId).emit("game_started", { room })
-        console.log(`multiplayer: Game started in room: ${roomId}`)
-    })
-
-    // Make a guess
-    socket.on("make_guess", ({ roomId, song }) => {
-        const room = rooms[roomId]
-
-        if (!room || room.status !== "playing") {
-            return
-        }
-
-        const player = room.players[socket.id]
-        if (!player || player.currentRound.gameOver) {
-            return
-        }
-
-        // Check if song was already guessed
-        if (player.currentRound.guesses.some((g) => g.song.id === song.id)) {
-            socket.emit("guess_error", { message: "你已经猜过这首歌了！" })
-            return
-        }
-
-        // Process the guess (similar to the client-side logic)
-        const guess = processGuess(song, room.targetSong)
-        const correct = isGuessCorrect(guess)
-
-        player.currentRound.guesses.push(guess)
-
-        // If the guess is correct, immediately end the round and declare this player the winner
-        if (correct) {
-            player.currentRound.gameOver = true
-            player.currentRound.won = true
-
-            // End the round for all other players
-            Object.values(room.players).forEach((p) => {
-                if (p.id !== player.id) {
-                    p.currentRound.gameOver = true
-                    p.currentRound.won = false
-                }
-            })
-
-            // Check round end will handle scoring and notifications
-            checkRoundEnd(room)
-        } else if (player.currentRound.guesses.length >= room.settings.maxGuesses) {
-            // If player runs out of guesses
-            player.currentRound.gameOver = true
-            player.currentRound.won = false
-
-            // Check if round is over
-            checkRoundEnd(room)
-        }
-
-        // Update room state
-        io.to(roomId).emit("game_updated", { room })
-    })
-
-    // Player gives up
-    socket.on("give_up", ({ roomId }) => {
-        const room = rooms[roomId]
-
-        if (!room || room.status !== "playing") {
-            return
-        }
-
-        const player = room.players[socket.id]
-        if (!player || player.currentRound.gameOver) {
-            return
-        }
-
-        player.currentRound.gameOver = true
-        player.currentRound.won = false
-
-        // Check if round is over
-        checkRoundEnd(room)
-
-        // Update room state
-        io.to(roomId).emit("game_updated", { room })
-    })
-
-    // Ready for next round
-    socket.on("ready_next_round", ({ roomId }) => {
-        const room = rooms[roomId]
-
-        if (!room || room.status !== "playing") {
-            return
-        }
-
-        const player = room.players[socket.id]
-        if (!player) {
-            return
-        }
-
-        player.readyForNextRound = true
-
-        // Check if all players are ready
-        const allReady = Object.values(room.players).every((p) => p.readyForNextRound)
-
-        if (allReady) {
-            startNextRound(room)
-            io.to(roomId).emit("next_round_started", { room })
-        } else {
-            io.to(roomId).emit("player_ready", { room })
-        }
-    })
-
-    // Leave room
-    socket.on("leave_room", ({ roomId }) => {
-        leaveRoom(socket, roomId)
-    })
-
-    // Disconnect handling
-    socket.on("disconnect", () => {
-        console.log("User disconnected:", socket.id)
-
-        // Find and leave all rooms the user is in
-        Object.keys(rooms).forEach((roomId) => {
-            if (rooms[roomId].players[socket.id]) {
-                leaveRoom(socket, roomId)
-            }
-        })
-    })
-})
 
 // Helper function to filter songs based on settings
 function filterSongs(songs: Song[], settings: GameSettings): Song[] {
@@ -316,7 +62,7 @@ function filterSongs(songs: Song[], settings: GameSettings): Song[] {
 // Helper function to get version value
 function getVersionValue(version: string): number {
     const versionMap: Record<string, number> = {
-        "maimai": 1,
+        maimai: 1,
         "maimai PLUS": 2,
         "maimai GreeN": 3,
         "maimai GreeN PLUS": 4,
@@ -329,7 +75,7 @@ function getVersionValue(version: string): number {
         "maimai MiLK": 11,
         "maimai MiLK PLUS": 12,
         "maimai FiNALE": 13,
-        "舞萌DX": 14,
+        舞萌DX: 14,
         "舞萌DX 2021": 15,
         "舞萌DX 2022": 16,
         "舞萌DX 2023": 17,
@@ -494,25 +240,24 @@ function checkRoundEnd(room: MultiplayerRoom) {
     const allFinished = players.every((player) => player.currentRound.gameOver)
 
     if (allFinished) {
-        // Determine round winner - the player who guessed correctly wins
-        // If no one guessed correctly, there's no winner for this round
+        // 确定回合胜利者 - 猜对的玩家获胜
         let roundWinner: string | null = null
 
-        // Find the player who guessed correctly (should be at most one with the new system)
+        // 找到猜对的玩家
         const winners = players.filter((player) => player.currentRound.won)
 
         if (winners.length > 0) {
-            // The player who guessed correctly is the winner
+            // 猜对的玩家是胜利者
             roundWinner = winners[0].id
         }
 
-        // Update scores
+        // 更新分数
         if (roundWinner) {
             room.roundsWon[roundWinner] = (room.roundsWon[roundWinner] || 0) + 1
             room.players[roundWinner].score += 1
         }
 
-        // Check if match is over
+        // 检查比赛是否结束
         let matchWinner = null
         for (const [playerId, wins] of Object.entries(room.roundsWon)) {
             if (wins >= Math.ceil(room.maxRounds / 2)) {
@@ -526,7 +271,7 @@ function checkRoundEnd(room: MultiplayerRoom) {
             room.winner = matchWinner
         }
 
-        // Reset readyForNextRound for all players
+        // 重置所有玩家的准备状态
         Object.values(room.players).forEach((player) => {
             player.readyForNextRound = false
         })
@@ -558,7 +303,7 @@ function startNextRound(room: MultiplayerRoom) {
     })
 }
 
-// Handle a player leaving a room
+// 修改 leaveRoom 函数，确保 remainingPlayers 变量在使用前被声明
 function leaveRoom(socket: any, roomId: string) {
     const room = rooms[roomId]
 
@@ -566,61 +311,460 @@ function leaveRoom(socket: any, roomId: string) {
         return
     }
 
-    // Store player info before removing them
+    // 保存玩家信息
     const leavingPlayer = room.players[socket.id]
+    if (!leavingPlayer) return
+
+    const playerName = leavingPlayer.nickname
     const isInProgress = room.status === "playing"
 
-    // Remove player from room
+    // 从房间中移除玩家
     delete room.players[socket.id]
+    delete room.playerAvatars[socket.id]
     socket.leave(roomId)
 
-    // If the game was in progress, end it and declare the remaining player as winner
-    if (isInProgress && room.status !== "finished") {
-        const remainingPlayers = Object.keys(room.players)
+    // 获取剩余玩家列表
+    const remainingPlayers = Object.keys(room.players)
 
-        if (remainingPlayers.length > 0) {
-            // Get the remaining player's ID
+    // 如果游戏正在进行，检查是否只剩一名玩家
+    if (isInProgress && room.status !== "finished") {
+        if (remainingPlayers.length === 1) {
+            // 只剩一名玩家，结束游戏并宣布该玩家为胜利者
             const remainingPlayerId = remainingPlayers[0]
 
-            // Set the remaining player as the winner
+            // 设置剩余玩家为胜利者
             room.status = "finished"
             room.winner = remainingPlayerId
 
-            // Update the score for the remaining player
-            room.roundsWon[remainingPlayerId] = Math.ceil(room.maxRounds / 2) // Enough to win
+            // 更新剩余玩家的分数
+            room.roundsWon[remainingPlayerId] = Math.ceil(room.maxRounds / 2) // 足够获胜的分数
             room.players[remainingPlayerId].score = Math.ceil(room.maxRounds / 2)
 
-            // Notify the remaining player
+            // 通知剩余玩家
             io.to(roomId).emit("round_ended", {
                 room,
                 roundWinner: remainingPlayerId,
                 matchWinner: remainingPlayerId,
                 forfeit: true,
-                message: `${leavingPlayer?.nickname || "对手"} 已离开游戏，你获得了胜利！`,
+                message: `所有其他玩家已离开游戏，${room.players[remainingPlayerId].nickname} 获得了胜利！`,
             })
-
-            return
+        } else if (remainingPlayers.length > 1) {
+            // 仍有多名玩家，游戏继续
+            io.to(roomId).emit("player_left", {
+                room,
+                playerId: socket.id,
+                playerName,
+            })
         }
+    } else if (remainingPlayers.length > 0) {
+        // 游戏未开始或已结束，但房间不为空
+        io.to(roomId).emit("player_left", {
+            room,
+            playerId: socket.id,
+            playerName,
+        })
     }
 
-    // Check if room is now empty - if so, delete it
-    const remainingPlayers = Object.keys(room.players)
+    // 检查房间是否为空
     if (remainingPlayers.length === 0) {
         delete rooms[roomId]
-        // Broadcast updated room count after deleting the room
+        // 广播更新房间数量
         broadcastRoomCount()
         return
     }
 
-    // If host left, assign a new host or close the room
+    // 如果房主离开，分配新房主
     if (socket.id === room.host) {
         room.host = remainingPlayers[0]
-        io.to(roomId).emit("host_changed", {room})
+        io.to(roomId).emit("host_changed", { room })
+    }
 }
 
-    // Notify remaining players
-    io.to(roomId).emit("player_left", { room })
+// 获取公开房间数量
+function getPublicRoomCount() {
+    return Object.values(rooms).filter((room) => room.isPublic).length
 }
+// Function to get active room count
+function getActiveRoomCount() {
+    return Object.keys(rooms).length
+}
+
+// Function to broadcast room count to all clients
+function broadcastRoomCount() {
+    io.emit("room_count_update", {
+        count: getActiveRoomCount(),
+        publicCount: getPublicRoomCount(),
+    })
+}
+
+// Socket.IO connection handling
+io.on("connection", (socket) => {
+    console.log("User connected:", socket.id)
+    // Send current room count to newly connected client
+    socket.emit("room_count_update", { count: getActiveRoomCount() })
+
+    // Client can request room count update
+    socket.on("get_room_count", () => {
+        socket.emit("room_count_update", { count: getActiveRoomCount() })
+    })
+
+    // Create a new room
+    socket.on("create_room", ({ nickname, settings, bestOf, songs, isPublic }) => {
+        // 检查是否达到房间上限
+        if (getActiveRoomCount() >= 200) {
+            socket.emit("room_error", { message: "服务器房间已满，请稍后再试。" })
+            return
+        }
+
+        const roomId = generateRoomId()
+        const filteredSongs = filterSongs(songs, settings)
+
+        if (filteredSongs.length === 0) {
+            socket.emit("room_error", { message: "当前设置下没有可用的歌曲，请调整设置。" })
+            return
+        }
+
+        const targetSong = getRandomSong(filteredSongs)
+
+        // 为玩家分配头像ID (1-6)
+        const playerAvatars = {
+            [socket.id]: Math.floor(Math.random() * 6) + 1,
+        }
+
+        rooms[roomId] = {
+            id: roomId,
+            host: socket.id,
+            players: {
+                [socket.id]: {
+                    id: socket.id,
+                    nickname,
+                    score: 0,
+                    currentRound: {
+                        guesses: [],
+                        gameOver: false,
+                        won: false,
+                        remainingTime: settings.timeLimit,
+                    },
+                    isReady: false, // 房主不需要准备
+                },
+            },
+            settings,
+            bestOf,
+            currentRound: 1,
+            maxRounds: bestOf,
+            roundsWon: {},
+            targetSong,
+            filteredSongs,
+            status: "waiting", // waiting, playing, finished
+            isPublic: isPublic || false, // 新增：是否为公开房间
+            playerAvatars, // 新增：玩家头像映射
+        }
+
+        socket.join(roomId)
+        socket.emit("room_created", { roomId, room: rooms[roomId] })
+        console.log(`multiplayer: Room created: ${roomId} by ${nickname}, public: ${isPublic}`)
+
+        // 广播更新房间数量
+        broadcastRoomCount()
+    })
+
+    // Join an existing room
+    socket.on("join_room", ({ roomId, nickname }) => {
+        const room = rooms[roomId]
+
+        if (!room) {
+            socket.emit("room_error", { message: "房间不存在" })
+            return
+        }
+
+        if (room.status !== "waiting") {
+            socket.emit("room_error", { message: "游戏已经开始，无法加入" })
+            return
+        }
+
+        if (Object.keys(room.players).length >= 6) {
+            socket.emit("room_error", { message: "房间已满" })
+            return
+        }
+
+        // 分配一个未使用的头像ID
+        const usedAvatarIds = Object.values(room.playerAvatars)
+        let avatarId = 1
+        while (usedAvatarIds.includes(avatarId) && avatarId <= 6) {
+            avatarId++
+        }
+        if (avatarId > 6) avatarId = 1 // 如果所有头像都被使用，使用默认头像
+
+        // 更新玩家头像映射
+        room.playerAvatars[socket.id] = avatarId
+
+        // 添加玩家到房间
+        room.players[socket.id] = {
+            id: socket.id,
+            nickname,
+            score: 0,
+            currentRound: {
+                guesses: [],
+                gameOver: false,
+                won: false,
+                remainingTime: room.settings.timeLimit,
+            },
+            isReady: false,
+        }
+
+        socket.join(roomId)
+        socket.emit("room_joined", { room })
+        io.to(roomId).emit("player_joined", { room, playerId: socket.id })
+        console.log(`multiplayer: Player ${nickname} joined room: ${roomId}`)
+    })
+
+    // 添加随机加入公开房间的处理函数
+    socket.on("join_random_room", ({ nickname }) => {
+        // 查找所有公开且等待中的房间
+        const availableRooms = Object.values(rooms).filter(
+            (room) => room.isPublic && room.status === "waiting" && Object.keys(room.players).length < 6,
+        )
+
+        if (availableRooms.length === 0) {
+            socket.emit("room_error", { message: "当前没有可用的公开房间，请创建一个新房间或稍后再试。" })
+            return
+        }
+
+        // 随机选择一个房间
+        const randomRoom = availableRooms[Math.floor(Math.random() * availableRooms.length)]
+
+        // 分配一个未使用的头像ID
+        const usedAvatarIds = Object.values(randomRoom.playerAvatars)
+        let avatarId = 1
+        while (usedAvatarIds.includes(avatarId) && avatarId <= 6) {
+            avatarId++
+        }
+        if (avatarId > 6) avatarId = 1 // 如果所有头像都被使用，使用默认头像
+
+        // 更新玩家头像映射
+        randomRoom.playerAvatars[socket.id] = avatarId
+
+        // 添加玩家到房间
+        randomRoom.players[socket.id] = {
+            id: socket.id,
+            nickname,
+            score: 0,
+            currentRound: {
+                guesses: [],
+                gameOver: false,
+                won: false,
+                remainingTime: randomRoom.settings.timeLimit,
+            },
+            isReady: false,
+        }
+
+        socket.join(randomRoom.id)
+        socket.emit("room_joined", { room: randomRoom })
+        io.to(randomRoom.id).emit("player_joined", { room: randomRoom, playerId: socket.id })
+        console.log(`multiplayer: Player ${nickname} randomly joined room: ${randomRoom.id}`)
+    })
+
+    // 添加玩家准备状态切换的处理函数
+    socket.on("toggle_ready", ({ roomId }) => {
+        const room = rooms[roomId]
+
+        if (!room || room.status !== "waiting") {
+            return
+        }
+
+        const player = room.players[socket.id]
+        if (!player || socket.id === room.host) {
+            return
+        }
+
+        // 切换准备状态
+        player.isReady = !player.isReady
+
+        // 通知所有玩家
+        io.to(roomId).emit("player_ready", { room, playerId: socket.id })
+    })
+
+    // 添加房主移除玩家的处理函数
+    socket.on("remove_player", ({ roomId, playerId }) => {
+        const room = rooms[roomId]
+
+        if (!room || socket.id !== room.host) {
+            return
+        }
+
+        const playerToRemove = room.players[playerId]
+        if (!playerToRemove) {
+            return
+        }
+
+        // 保存玩家名称以便通知
+        const playerName = playerToRemove.nickname
+
+        // 从房间中移除玩家
+        delete room.players[playerId]
+        delete room.playerAvatars[playerId]
+
+        // 通知被移除的玩家
+        io.to(playerId).emit("player_removed", { room, playerId, playerName })
+
+        // 通知房间中的所有玩家（包括房主）
+        io.to(roomId).emit("player_removed", { room, playerId, playerName })
+
+        // 让被移除的玩家离开房间
+        io.sockets.sockets.get(playerId)?.leave(roomId)
+    })
+
+    // Start the game
+    socket.on("start_game", ({ roomId }) => {
+        const room = rooms[roomId]
+
+        if (!room) {
+            socket.emit("room_error", { message: "房间不存在" })
+            return
+        }
+
+        if (socket.id !== room.host) {
+            socket.emit("room_error", { message: "只有房主可以开始游戏" })
+            return
+        }
+
+        if (Object.keys(room.players).length < 2) {
+            socket.emit("room_error", { message: "需要至少两名玩家才能开始游戏" })
+            return
+        }
+
+        // 检查除房主外的所有玩家是否都已准备
+        const allPlayersReady = Object.values(room.players).every((player) => player.id === room.host || player.isReady)
+
+        if (!allPlayersReady) {
+            socket.emit("room_error", { message: "等待所有玩家准备就绪" })
+            return
+        }
+
+        room.status = "playing"
+        io.to(roomId).emit("game_started", { room })
+        console.log(`multiplayer: Game started in room: ${roomId}`)
+    })
+
+    // Make a guess
+    socket.on("make_guess", ({ roomId, song }) => {
+        const room = rooms[roomId]
+
+        if (!room || room.status !== "playing") {
+            return
+        }
+
+        const player = room.players[socket.id]
+        if (!player || player.currentRound.gameOver) {
+            return
+        }
+
+        // Check if song was already guessed
+        if (player.currentRound.guesses.some((g) => g.song.id === song.id)) {
+            socket.emit("guess_error", { message: "你已经猜过这首歌了！" })
+            return
+        }
+
+        // Process the guess (similar to the client-side logic)
+        const guess = processGuess(song, room.targetSong)
+        const correct = isGuessCorrect(guess)
+
+        player.currentRound.guesses.push(guess)
+
+        // If the guess is correct, immediately end the round and declare this player the winner
+        if (correct) {
+            player.currentRound.gameOver = true
+            player.currentRound.won = true
+
+            // End the round for all other players
+            Object.values(room.players).forEach((p) => {
+                if (p.id !== player.id) {
+                    p.currentRound.gameOver = true
+                    p.currentRound.won = false
+                }
+            })
+
+            // Check round end will handle scoring and notifications
+            checkRoundEnd(room)
+        } else if (player.currentRound.guesses.length >= room.settings.maxGuesses) {
+            // If player runs out of guesses
+            player.currentRound.gameOver = true
+            player.currentRound.won = false
+
+            // Check if round is over
+            checkRoundEnd(room)
+        }
+
+        // Update room state
+        io.to(roomId).emit("game_updated", { room })
+    })
+
+    // Player gives up
+    socket.on("give_up", ({ roomId }) => {
+        const room = rooms[roomId]
+
+        if (!room || room.status !== "playing") {
+            return
+        }
+
+        const player = room.players[socket.id]
+        if (!player || player.currentRound.gameOver) {
+            return
+        }
+
+        player.currentRound.gameOver = true
+        player.currentRound.won = false
+
+        // Check if round is over
+        checkRoundEnd(room)
+
+        // Update room state
+        io.to(roomId).emit("game_updated", { room })
+    })
+
+    // Ready for next round
+    socket.on("ready_next_round", ({ roomId }) => {
+        const room = rooms[roomId]
+
+        if (!room || room.status !== "playing") {
+            return
+        }
+
+        const player = room.players[socket.id]
+        if (!player) {
+            return
+        }
+
+        player.readyForNextRound = true
+
+        // Check if all players are ready
+        const allReady = Object.values(room.players).every((p) => p.readyForNextRound)
+
+        if (allReady) {
+            startNextRound(room)
+            io.to(roomId).emit("next_round_started", { room })
+        } else {
+            io.to(roomId).emit("player_ready", { room })
+        }
+    })
+
+    // Leave room
+    socket.on("leave_room", ({ roomId }) => {
+        leaveRoom(socket, roomId)
+    })
+
+    // Disconnect handling
+    socket.on("disconnect", () => {
+        console.log("User disconnected:", socket.id)
+
+        // Find and leave all rooms the user is in
+        Object.keys(rooms).forEach((roomId) => {
+            if (rooms[roomId].players[socket.id]) {
+                leaveRoom(socket, roomId)
+            }
+        })
+    })
+})
 
 // Start the server
 const PORT = process.env.PORT || 3001

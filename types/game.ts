@@ -87,6 +87,7 @@ export interface PlayerState {
     remainingTime: number
   }
   readyForNextRound?: boolean
+  isReady?: boolean // 新增：玩家是否准备好开始游戏
 }
 
 export interface MultiplayerRoom {
@@ -102,6 +103,8 @@ export interface MultiplayerRoom {
   filteredSongs: Song[]
   status: "waiting" | "playing" | "finished"
   winner?: string
+  isPublic: boolean // 新增：是否为公开房间
+  playerAvatars: Record<string, number> // 新增：玩家头像映射
 }
 
 export interface Tag {

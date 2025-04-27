@@ -5,13 +5,16 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
-import { Settings, Users, Copy, ArrowRight, House, ArrowLeft } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
+import { Settings, Copy, ArrowRight, HomeIcon as House, ArrowLeft, UserPlus, Shuffle } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import type { MultiplayerRoom, GameSettings, Song } from "@/types/game"
 import { MULTIPLAYER_DEFAULT_SETTINGS } from "@/lib/game-logic"
 import SettingsPanel from "@/components/settings-panel"
 import { socket } from "@/lib/socket"
+import PlayerList from "@/components/player-list"
 
+// 更新 MultiplayerLobby 组件
 interface MultiplayerLobbyProps {
     onStartGame: (room: MultiplayerRoom) => void
     onBack: () => void
@@ -26,6 +29,7 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
     const [settings, setSettings] = useState<GameSettings>(MULTIPLAYER_DEFAULT_SETTINGS)
     const [room, setRoom] = useState<MultiplayerRoom | null>(null)
     const [isHost, setIsHost] = useState(false)
+    const [isPublic, setIsPublic] = useState(false)
     const { toast } = useToast()
 
     useEffect(() => {
@@ -48,22 +52,53 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
             })
         })
 
-        socket.on("player_joined", ({ room }) => {
+        socket.on("player_joined", ({ room, playerId }) => {
             setRoom(room)
-            if (isHost) {
+            const newPlayer = room.players[playerId]
+            if (newPlayer && socket.id !== playerId) {
                 toast({
                     title: "玩家加入",
-                    description: `${Object.values(room.players).find((p) => p.id !== socket.id)?.nickname} 加入了房间`,
+                    description: `${newPlayer.nickname} 加入了房间`,
                 })
             }
         })
 
-        socket.on("player_left", ({ room }) => {
+        socket.on("player_left", ({ room, playerId, playerName }) => {
             setRoom(room)
-            toast({
-                title: "玩家离开",
-                description: "一名玩家离开了房间",
-            })
+            if (socket.id !== playerId) {
+                toast({
+                    title: "玩家离开",
+                    description: `${playerName} 离开了房间`,
+                })
+            }
+        })
+
+        socket.on("player_removed", ({ room, playerId, playerName }) => {
+            setRoom(room)
+            if (socket.id === playerId) {
+                setRoom(null)
+                toast({
+                    title: "你被移出房间",
+                    description: "房主将你移出了房间",
+                    variant: "destructive",
+                })
+            } else {
+                toast({
+                    title: "玩家被移除",
+                    description: `${playerName} 被移出了房间`,
+                })
+            }
+        })
+
+        socket.on("player_ready", ({ room, playerId }) => {
+            setRoom(room)
+            const readyPlayer = room.players[playerId]
+            if (readyPlayer && socket.id !== playerId) {
+                toast({
+                    title: "玩家准备就绪",
+                    description: `${readyPlayer.nickname} 已准备好`,
+                })
+            }
         })
 
         socket.on("host_changed", ({ room }) => {
@@ -95,6 +130,8 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
             socket.off("room_joined")
             socket.off("player_joined")
             socket.off("player_left")
+            socket.off("player_removed")
+            socket.off("player_ready")
             socket.off("host_changed")
             socket.off("game_started")
             socket.off("room_error")
@@ -114,7 +151,8 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
             nickname,
             settings,
             bestOf: Number.parseInt(bestOf),
-            songs: initialSongs, // Pass the songs to the server
+            songs: initialSongs,
+            isPublic,
         })
     }
 
@@ -141,6 +179,28 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
         })
     }
 
+    const joinRandomRoom = () => {
+        if (!nickname.trim()) {
+            toast({
+                title: "请输入昵称",
+                variant: "destructive",
+            })
+            return
+        }
+
+        socket.emit("join_random_room", {
+            nickname,
+        })
+    }
+
+    const toggleReady = () => {
+        if (!room) return
+
+        socket.emit("toggle_ready", {
+            roomId: room.id,
+        })
+    }
+
     const startGame = () => {
         if (!room) return
 
@@ -157,6 +217,15 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
         }
         setRoom(null)
         setIsHost(false)
+    }
+
+    const removePlayer = (playerId: string) => {
+        if (!room || !isHost) return
+
+        socket.emit("remove_player", {
+            roomId: room.id,
+            playerId,
+        })
     }
 
     const copyRoomId = () => {
@@ -176,47 +245,48 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
 
     if (room) {
         const players = Object.values(room.players)
-        const canStart = isHost && players.length === 2
+        const allPlayersReady = players.length >= 2 && players.every((p) => p.id === room.host || p.isReady)
+        const currentPlayer = room.players[socket.id]
+        const isCurrentPlayerReady = currentPlayer?.isReady || false
 
         return (
             <div className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
                 <div className="relative bg-gradient-to-r from-pink-500 to-purple-500 text-white p-5 flex items-center justify-center">
-                    <Button variant="ghost" size="icon" onClick={leaveRoom} className="absolute left-4 text-white hover:bg-white/20">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={leaveRoom}
+                        className="absolute left-4 text-white hover:bg-white/20"
+                    >
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
-                    <h1 className="text-xl font-medium">双人模式房间</h1>
+                    <h1 className="text-xl font-medium">多人模式房间</h1>
                 </div>
                 <div className="p-6">
-                    <div className="mb-3">
-                        <span className="text-lg font-medium mb-1">房间号: {room.id}</span>
-                        <Button variant="ghost" size="icon" onClick={copyRoomId} className="text-black hover:bg-black/20 ml-1">
-                            <Copy className="h-4 w-4" />
-                        </Button>
-                    </div>
-                    <div className="mb-6">
-                        <h3 className="text-lg font-medium mb-3">玩家 ({players.length}/2)</h3>
-                        <div className="space-y-3">
-                            {players.map((player) => (
-                                <div key={player.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-12 h-12 rounded-full overflow-hidden shrink-0">
-                                            <img
-                                                src={player.id === room.host ? "/chara01.png" : "/chara02.png"}
-                                                alt="avatar"
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </div>
-                                        <div>
-                                            <div className="font-medium flex items-center gap-1">
-                                                {player.nickname}
-                                                {player.id === room.host && <House className="h-4 w-4 text-yellow-500" />}
-                                            </div>
-                                            <div className="text-sm text-muted-foreground">{player.id === socket.id ? "你" : "对手"}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+                    <div className="mb-3 flex justify-between items-center">
+                        <div className="flex items-center">
+                            <span className="text-lg font-medium mb-1">房间号: {room.id}</span>
+                            <Button variant="ghost" size="icon" onClick={copyRoomId} className="text-black hover:bg-black/20 ml-1">
+                                <Copy className="h-4 w-4" />
+                            </Button>
                         </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm">房间类型:</span>
+                            <span className={`text-sm font-medium ${room.isPublic ? "text-green-600" : "text-blue-600"}`}>
+                {room.isPublic ? "公开" : "私密"}
+              </span>
+                        </div>
+                    </div>
+
+                    <div className="mb-6">
+                        <h3 className="text-lg font-medium mb-3">玩家 ({players.length}/6)</h3>
+                        <PlayerList
+                            players={room.players}
+                            hostId={room.host}
+                            currentPlayerId={socket.id}
+                            playerAvatars={room.playerAvatars}
+                            onRemovePlayer={isHost ? removePlayer : undefined}
+                        />
                     </div>
 
                     <div className="mb-6">
@@ -228,21 +298,26 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                             </div>
                             <div>
                                 <Label>版本范围</Label>
-                                <div className="font-medium">{room.settings.versionRange.min} - {room.settings.versionRange.max}</div>
+                                <div className="font-medium">
+                                    {room.settings.versionRange.min} - {room.settings.versionRange.max}
+                                </div>
                             </div>
                             <div>
                                 <Label>流派</Label>
                                 <div className="font-medium">
                                     {room.settings.genres.length === 0 ||
-                                    ["舞萌", "音击&中二节奏", "niconico & VOCALOID", "流行&动漫", "东方Project", "其他游戏"]
-                                        .every(p => room.settings.genres.includes(p))
+                                    ["舞萌", "音击&中二节奏", "niconico & VOCALOID", "流行&动漫", "东方Project", "其他游戏"].every((p) =>
+                                        room.settings.genres.includes(p),
+                                    )
                                         ? "全部"
                                         : `${room.settings.genres.join(", ")}`}
                                 </div>
                             </div>
                             <div>
                                 <Label>Master等级范围</Label>
-                                <div className="font-medium">{room.settings.masterLevelRange.min} - {room.settings.masterLevelRange.max}</div>
+                                <div className="font-medium">
+                                    {room.settings.masterLevelRange.min} - {room.settings.masterLevelRange.max}
+                                </div>
                             </div>
                             <div>
                                 <Label>最大猜测次数</Label>
@@ -261,14 +336,42 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                         <Button variant="outline" onClick={leaveRoom}>
                             离开房间
                         </Button>
-                        {isHost && (
+
+                        {isHost ? (
                             <Button
                                 onClick={startGame}
-                                disabled={!canStart}
+                                disabled={!allPlayersReady}
                                 className="bg-gradient-to-r from-pink-500 to-purple-500 text-white"
                             >
-                                {canStart ? "开始游戏" : "等待玩家加入..."}
+                                {allPlayersReady ? "开始游戏" : "等待玩家准备..."}
                                 <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        ) : (
+                            <Button
+                                onClick={toggleReady}
+                                className={
+                                    isCurrentPlayerReady
+                                        ? "bg-green-500 hover:bg-green-600 text-white"
+                                        : "bg-gradient-to-r from-pink-500 to-purple-500 text-white"
+                                }
+                            >
+                                {isCurrentPlayerReady ? "取消准备" : "准备"}
+                                {isCurrentPlayerReady && (
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        className="ml-2"
+                                    >
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                )}
                             </Button>
                         )}
                     </div>
@@ -283,7 +386,7 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                 <Button variant="ghost" size="icon" onClick={onBack} className="absolute left-4 text-white hover:bg-white/20">
                     <ArrowLeft className="h-5 w-5" />
                 </Button>
-                <h1 className="text-xl font-medium text-center">双人模式</h1>
+                <h1 className="text-xl font-medium text-center">多人模式</h1>
             </div>
             <div className="p-6">
                 <div className="mb-6">
@@ -305,11 +408,15 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                             <House className="h-6 w-6" />
                             <h3 className="text-lg font-medium">创建房间</h3>
                         </div>
+                        <div className="flex items-center space-x-2 mb-4">
+                            <Switch id="public-room" checked={isPublic} onCheckedChange={setIsPublic} />
+                            <Label htmlFor="public-room">公开房间</Label>
+                        </div>
                         <div>
                             <Label htmlFor="bestOf" className="mb-2 block">
                                 比赛模式
                             </Label>
-                            <div className='grid md:grid-cols-2 gap-4'>
+                            <div className="grid md:grid-cols-2 gap-4">
                                 <Select value={bestOf} onValueChange={setBestOf}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="选择比赛模式" />
@@ -328,14 +435,14 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                             </div>
                         </div>
                         <Button onClick={createRoom} className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white">
-                            <Users className="mr-2 h-4 w-4" />
+                            <UserPlus className="mr-2 h-4 w-4" />
                             创建房间
                         </Button>
                     </div>
 
                     <div className="space-y-4">
                         <div className="flex items-center gap-2">
-                            <ArrowRight className="h-6 w-6"/>
+                            <ArrowRight className="h-6 w-6" />
                             <h3 className="text-lg font-medium">加入房间</h3>
                         </div>
                         <div>
@@ -353,6 +460,10 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                             <ArrowRight className="mr-2 h-4 w-4" />
                             加入房间
                         </Button>
+                        <Button onClick={joinRandomRoom} className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
+                            <Shuffle className="mr-2 h-4 w-4" />
+                            随机加入公开房间
+                        </Button>
                     </div>
                 </div>
             </div>
@@ -362,7 +473,7 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                     settings={settings}
                     onApply={applySettings}
                     onClose={() => setShowSettings(false)}
-                    isMultiplayer={true} // Specify that this is multiplayer mode
+                    isMultiplayer={true}
                 />
             )}
         </div>
