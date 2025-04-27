@@ -62,7 +62,7 @@ function filterSongs(songs: Song[], settings: GameSettings): Song[] {
 // Helper function to get version value
 function getVersionValue(version: string): number {
     const versionMap: Record<string, number> = {
-        maimai: 1,
+        "maimai": 1,
         "maimai PLUS": 2,
         "maimai GreeN": 3,
         "maimai GreeN PLUS": 4,
@@ -75,7 +75,7 @@ function getVersionValue(version: string): number {
         "maimai MiLK": 11,
         "maimai MiLK PLUS": 12,
         "maimai FiNALE": 13,
-        舞萌DX: 14,
+        "舞萌DX": 14,
         "舞萌DX 2021": 15,
         "舞萌DX 2022": 16,
         "舞萌DX 2023": 17,

@@ -64,7 +64,6 @@ export default function MultiplayerResultScreen({ room, currentPlayerId, onExit 
                                 </div>
                                 <div className="font-medium truncate">
                                     {player.nickname} {player.isCurrentPlayer && "(你)"}
-                                    {!room.players[player.id] && <span className="text-gray-400 text-xs ml-1">(已离开)</span>}
                                 </div>
                             </div>
                             <div className="text-center">{player.score}</div>

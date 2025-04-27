@@ -268,7 +268,7 @@ export default function Home() {
                                 size="lg"
                             >
                                 <Users className="mr-2 h-5 w-5" />
-                                双人模式
+                                多人模式
                             </Button>
                         </div>
 

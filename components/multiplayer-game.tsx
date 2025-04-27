@@ -171,6 +171,14 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
     // Check if match is finished
     const isMatchFinished = room.status === "finished"
 
+    const bestOfLabel = {
+        '1': '先得1分者胜利',
+        '3': '先得2分者胜利',
+        '5': '先得3分者胜利',
+        '7': '先得4分者胜利',
+        '9': '先得5分者胜利',
+    };
+
     return (
         <div className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
             <div className="bg-gradient-to-r from-pink-500 to-purple-500 text-white p-4">
@@ -182,7 +190,7 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
                     <div className="text-center">
                         <h2 className="text-xl font-medium">第{room.currentRound}轮</h2>
                         <div className="text-sm">
-                            {Object.values(room.players).length} 名玩家 | BO{room.bestOf}
+                            {Object.keys(room.players).length} 名玩家 | {bestOfLabel[room.bestOf]}
                         </div>
                     </div>
                     <div className="w-24"></div> {/* Spacer for alignment */}

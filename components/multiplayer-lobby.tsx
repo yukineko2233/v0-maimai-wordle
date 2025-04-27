@@ -270,7 +270,13 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
         const allPlayersReady = players.length >= 2 && players.every((p) => p.id === room.host || p.isReady)
         const currentPlayer = room.players[socket.id]
         const isCurrentPlayerReady = currentPlayer?.isReady || false
-
+        const bestOfLabel = {
+            '1': '先得1分者胜利',
+            '3': '先得2分者胜利',
+            '5': '先得3分者胜利',
+            '7': '先得4分者胜利',
+            '9': '先得5分者胜利',
+        };
         return (
             <div className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
                 <div className="relative bg-gradient-to-r from-pink-500 to-purple-500 text-white p-5 flex items-center justify-center">
@@ -293,7 +299,6 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                             </Button>
                         </div>
                         <div className="flex items-center gap-2">
-                            <span className="text-sm">房间类型:</span>
                             <span className={`text-sm font-medium ${room.isPublic ? "text-green-600" : "text-blue-600"}`}>
                 {room.isPublic ? "公开" : "私密"}
               </span>
@@ -316,7 +321,7 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <Label>比赛模式</Label>
-                                <div className="font-medium">BO{room.bestOf}</div>
+                                <div className="font-medium">{bestOfLabel[room.bestOf]}</div>
                             </div>
                             <div>
                                 <Label>版本范围</Label>
@@ -421,41 +426,43 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                         value={nickname}
                         onChange={(e) => setNickname(e.target.value)}
                         className="mb-4"
+                        maxLength={8}
                     />
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-4">
-                        <div className="flex items-center gap-2">
-                            <House className="h-6 w-6" />
-                            <h3 className="text-lg font-medium">创建房间</h3>
-                        </div>
-                        <div className="flex items-center space-x-2 mb-4">
-                            <Switch id="public-room" checked={isPublic} onCheckedChange={setIsPublic} />
-                            <Label htmlFor="public-room">公开房间</Label>
+                        <div className='grid grid-cols-2 gap-4'>
+                            <div className="flex items-center gap-2">
+                                <House className="h-6 w-6"/>
+                                <h3 className="text-lg font-medium">创建房间</h3>
+                            </div>
+                            <div className="flex items-center gap-2 justify-end">
+                                <Switch id="public-room" checked={isPublic} onCheckedChange={setIsPublic}/>
+                                <Label htmlFor="public-room">公开房间</Label>
+                            </div>
                         </div>
                         <div>
                             <Label htmlFor="bestOf" className="mb-2 block">
                                 比赛模式
                             </Label>
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <Select value={bestOf} onValueChange={setBestOf}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="选择比赛模式" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="1">BO1 (1轮)</SelectItem>
-                                        <SelectItem value="3">BO3 (3轮)</SelectItem>
-                                        <SelectItem value="5">BO5 (5轮)</SelectItem>
-                                        <SelectItem value="7">BO7 (7轮)</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <Button onClick={() => setShowSettings(true)} variant="outline" className="w-full">
-                                    <Settings className="mr-2 h-4 w-4" />
-                                    游戏设置
-                                </Button>
-                            </div>
+                            <Select value={bestOf} onValueChange={setBestOf}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="选择比赛模式" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="1">先得1分者胜利</SelectItem>
+                                    <SelectItem value="3">先得2分者胜利</SelectItem>
+                                    <SelectItem value="5">先得3分者胜利</SelectItem>
+                                    <SelectItem value="7">先得4分者胜利</SelectItem>
+                                    <SelectItem value="9">先得5分者胜利</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
+                        <Button onClick={() => setShowSettings(true)} variant="outline" className="w-full">
+                            <Settings className="mr-2 h-4 w-4" />
+                            游戏设置
+                        </Button>
                         <Button onClick={createRoom} className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white">
                             <UserPlus className="mr-2 h-4 w-4" />
                             创建房间
