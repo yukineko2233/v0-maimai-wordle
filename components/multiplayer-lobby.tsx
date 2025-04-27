@@ -21,6 +21,9 @@ interface MultiplayerLobbyProps {
     initialSongs: Song[]
 }
 
+// 昵称存储的键名
+const NICKNAME_STORAGE_KEY = "maimai_wordle_nickname"
+
 export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: MultiplayerLobbyProps) {
     const [nickname, setNickname] = useState("")
     const [roomId, setRoomId] = useState("")
@@ -32,11 +35,28 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
     const [isPublic, setIsPublic] = useState(false)
     const { toast } = useToast()
 
+    // 加载保存的昵称
+    useEffect(() => {
+        const savedNickname = localStorage.getItem(NICKNAME_STORAGE_KEY)
+        if (savedNickname) {
+            setNickname(savedNickname)
+        }
+    }, [])
+
+    // 保存昵称到 localStorage
+    const saveNickname = (name: string) => {
+        if (name && name.trim()) {
+            localStorage.setItem(NICKNAME_STORAGE_KEY, name.trim())
+        }
+    }
+
     useEffect(() => {
         // Set up socket event listeners
         socket.on("room_created", ({ roomId, room }) => {
             setRoom(room)
             setIsHost(true)
+            // 保存昵称
+            saveNickname(nickname)
             toast({
                 title: "房间创建成功",
                 description: `房间号: ${roomId}`,
@@ -46,6 +66,8 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
         socket.on("room_joined", ({ room }) => {
             setRoom(room)
             setIsHost(socket.id === room.host)
+            // 保存昵称
+            saveNickname(nickname)
             toast({
                 title: "成功加入房间",
                 description: `房间号: ${room.id}`,
@@ -136,7 +158,7 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
             socket.off("game_started")
             socket.off("room_error")
         }
-    }, [toast, isHost, onStartGame])
+    }, [toast, isHost, onStartGame, nickname])
 
     const createRoom = () => {
         if (!nickname.trim()) {
