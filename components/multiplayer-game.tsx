@@ -301,6 +301,7 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
                         currentPlayerId={socket.id}
                         playerAvatars={room.playerAvatars}
                         isGameStarted={true}
+                        showReadyStatus={isRoundOver} // 轮次结束时显示准备状态
                     />
                 </div>
             </div>

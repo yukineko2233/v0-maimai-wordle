@@ -12,6 +12,7 @@ interface PlayerListProps {
     playerAvatars: Record<string, number>
     onRemovePlayer?: (playerId: string) => void
     isGameStarted?: boolean
+    showReadyStatus?: boolean // 新增：是否显示准备状态
 }
 
 export default function PlayerList({
@@ -21,6 +22,7 @@ export default function PlayerList({
                                        playerAvatars,
                                        onRemovePlayer,
                                        isGameStarted = false,
+                                       showReadyStatus = false, // 默认不显示准备状态
                                    }: PlayerListProps) {
     const isHost = currentPlayerId === hostId
 
@@ -33,7 +35,7 @@ export default function PlayerList({
                         nickname={player.nickname}
                         isHost={player.id === hostId}
                         isCurrentPlayer={player.id === currentPlayerId}
-                        isReady={isGameStarted ? undefined : player.isReady}
+                        isReady={isGameStarted ? (showReadyStatus ? player.readyForNextRound : undefined) : player.isReady}
                     />
 
                     {isHost && player.id !== currentPlayerId && onRemovePlayer && !isGameStarted && (
@@ -57,6 +59,9 @@ export default function PlayerList({
                                 >
                   {player.currentRound.won ? "已猜出" : "已结束"}
                 </span>
+                            )}
+                            {showReadyStatus && player.readyForNextRound && (
+                                <span className="ml-2 px-2 py-1 rounded text-xs bg-green-100 text-green-800">已准备</span>
                             )}
                         </div>
                     )}
