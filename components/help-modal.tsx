@@ -90,7 +90,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
             <h3 className="text-lg font-medium mb-2">关于此项目</h3>
             <ul className="list-disc pl-5 space-y-1">
               <li>
-                本项目使用 v0.dev AI 生成，前端基于 Next.js 开发。
+                本项目使用 v0.dev AI 生成，前端基于 Next.js 开发。推荐使用桌面浏览器以获得更好的体验。
               </li>
               <li>
                 感谢Diving-Fish提供的
@@ -112,6 +112,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
               </li>
               <li>
                 这是作者的第一次 Web 开发尝试，非常欢迎提交 Pull Request 来修复 BUG 或优化体验！
+                  <a href="https://yukineko2233.top/2025/04/26/maimai-wordle/" target="_blank" className="text-blue-500" rel="noopener noreferrer">查看更多&赞助！</a>
               </li>
             </ul>
           </div>
