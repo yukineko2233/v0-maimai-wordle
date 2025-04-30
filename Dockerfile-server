@@ -1,0 +1,24 @@
+# 使用 Node.js 20 作为基础镜像
+FROM node:20-alpine
+
+# 设置工作目录
+WORKDIR /app
+
+# 安装 pnpm
+RUN npm i pnpm -g
+
+# 复制 package.json 和 package-lock.json
+COPY package*.json pnpm-lock.yaml ./
+
+# 安装依赖
+RUN pnpm i --frozen-lockfile
+
+# 复制源代码
+COPY . .
+
+# 暴露端口
+EXPOSE 10000
+ENV PORT=10000
+
+# 启动服务
+CMD ["npm", "run", "server"]

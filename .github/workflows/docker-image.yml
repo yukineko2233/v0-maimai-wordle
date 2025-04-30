@@ -1,0 +1,76 @@
+name: Build & Publish Front-/Backend Images
+
+on:
+  push:
+    branches: ['main']   # 仅当 test 分支有推送时触发
+
+env:
+  REGISTRY: ${{ secrets.ALIYUN_REGISTRY }}
+  NAMESPACE: ${{ secrets.ALIYUN_NAMESPACE }}
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write        # 用于 OIDC / provenance
+    steps:
+      # 1. 拉取代码
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. 登录 AliyunACR
+      - name: Log in to AliyunACR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.ALIYUN_USERNAME }}
+          password: ${{ secrets.ALIYUN_PASSWORD }}
+
+      ######################################################################
+      # -------- 前端镜像 ---------------------------------------------------
+      ######################################################################
+      - name: Meta (frontend)
+        id: meta_front
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/v0-maimai-wordle
+
+      - name: Build & push (frontend)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile              # 默认即前端 Dockerfile
+          push: true
+          tags: ${{ steps.meta_front.outputs.tags }}
+          labels: ${{ steps.meta_front.outputs.labels }}
+          build-args: |
+            NEXT_PUBLIC_SOCKET_URL=${{ vars.NEXT_PUBLIC_SOCKET_URL }}
+
+      ######################################################################
+      # -------- 后端镜像 ---------------------------------------------------
+      ######################################################################
+      - name: Meta (backend)
+        id: meta_back
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/v0-maimai-wordle-server
+
+      - name: Build & push (backend)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile-server       # 指定后端 Dockerfile
+          push: true
+          tags: ${{ steps.meta_back.outputs.tags }}
+          labels: ${{ steps.meta_back.outputs.labels }}
+
+      ######################################################################
+      # -------- 触发远端重新部署 -------------------------------------------
+      ######################################################################
+      - name: Trigger redeploy webhook
+        if: success()                     # 仅当镜像全部推送成功
+        run: |
+          curl -fsSL -X GET "${{ secrets.REDEPLOY_WEBHOOK_BACKEND }}"
+          curl -fsSL -X GET "${{ secrets.REDEPLOY_WEBHOOK_FRONTEND }}"
