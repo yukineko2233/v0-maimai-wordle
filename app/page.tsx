@@ -240,7 +240,7 @@ export default function Home() {
                                 <RefreshCw className={`h-5 w-5 ${refreshing ? "animate-spin" : ""}`} />
                             </Button>
                             {/* 标题始终位于正中 */}
-                            <h1 className="text-xl font-medium">舞萌猜歌之潘一把</h1>
+                            <h1 className="text-xl font-medium">舞萌猜猜呗之潘一把</h1>
 
                             {/* 右侧帮助按钮——脱离文档流，固定在最右边 */}
                             <Button

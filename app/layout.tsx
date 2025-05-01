@@ -5,8 +5,8 @@ import ClientLayout from "./ClientLayout"
 import { Analytics } from "@vercel/analytics/react"
 
 export const metadata: Metadata = {
-    title: "舞萌猜歌之潘一把",
-    description: "舞萌猜歌之潘一把 Created with v0",
+    title: "舞萌猜猜呗之潘一把",
+    description: "舞萌猜猜呗之潘一把 Created with v0",
     generator: "YukiNeko with v0.dev",
     icons: {
         icon: "/favicon.svg",
