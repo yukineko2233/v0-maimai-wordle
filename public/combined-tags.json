@@ -25729,6 +25729,60 @@
             "sheet_type": "dx",
             "sheet_difficulty": "master",
             "tag_id": 14
+        },
+        {
+            "song_id": "Credits",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 19
+        },
+        {
+            "song_id": "Credits",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 8
+        },
+        {
+            "song_id": "Schwarzschild",
+            "sheet_type": "std",
+            "sheet_difficulty": "expert",
+            "tag_id": 7
+        },
+        {
+            "song_id": "Schwarzschild",
+            "sheet_type": "std",
+            "sheet_difficulty": "expert",
+            "tag_id": 6
+        },
+        {
+            "song_id": "PANDORA PARADOXXX",
+            "sheet_type": "std",
+            "sheet_difficulty": "expert",
+            "tag_id": 13
+        },
+        {
+            "song_id": "QZKago Requiem",
+            "sheet_type": "std",
+            "sheet_difficulty": "advanced",
+            "tag_id": 13
+        },
+        {
+            "song_id": "QZKago Requiem",
+            "sheet_type": "std",
+            "sheet_difficulty": "advanced",
+            "tag_id": 18
+        },
+        {
+            "song_id": "QZKago Requiem",
+            "sheet_type": "std",
+            "sheet_difficulty": "advanced",
+            "tag_id": 16
+        },
+        {
+            "song_id": "パーフェクション",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 11
         }
     ]
 }
