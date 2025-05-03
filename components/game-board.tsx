@@ -7,7 +7,7 @@ import GuessRow from "@/components/guess-row"
 import SettingsPanel from "@/components/settings-panel"
 import ResultScreen from "@/components/result-screen"
 import { Button } from "@/components/ui/button"
-import { Settings, RefreshCw, Flag, ArrowLeft } from "lucide-react"
+import { Settings, RefreshCw, Flag, ArrowLeft, ArrowUp, ArrowDown } from "lucide-react"
 import { getRandomSong, isGuessCorrect, DEFAULT_SETTINGS } from "@/lib/game-logic"
 import { useToast } from "@/components/ui/use-toast"
 import LoadingScreen from "@/components/loading-screen"
@@ -58,6 +58,7 @@ export default function GameBoard({ onBack, initialSongs, initialAliases }: Game
     remainingTime: settings.timeLimit,
   })
   const [filteredSongs, setFilteredSongs] = useState<Song[]>([])
+  const [reverseOrder, setReverseOrder] = useState(true)
   const { toast } = useToast()
   const [spinKey, setSpinKey] = useState(0);
 
@@ -250,6 +251,8 @@ export default function GameBoard({ onBack, initialSongs, initialAliases }: Game
     })
   }
 
+  const toggleOrder = () => setReverseOrder(prev => !prev);
+
   const compareValues = (guess: string, target: string): "higher" | "lower" | "equal" => {
     if (!guess || !target) {
       return "equal"
@@ -374,6 +377,18 @@ export default function GameBoard({ onBack, initialSongs, initialAliases }: Game
                   <Button
                       variant="outline"
                       size="sm"
+                      onClick={toggleOrder}
+                      className="flex-1 flex items-center justify-center gap-1 max-w-fit"
+                  >
+                    {reverseOrder ? (
+                        <ArrowDown className="h-4 w-4" />
+                    ) : (
+                        <ArrowUp className="h-4 w-4" />
+                    )}
+                  </Button>
+                  <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() =>
                           setGameState((prev) => ({
                             ...prev,
@@ -406,7 +421,7 @@ export default function GameBoard({ onBack, initialSongs, initialAliases }: Game
               />
           )}
 
-          <div className="mt-5 space-y-3">
+          <div className={`mt-5 gap-3 flex ${reverseOrder ? 'flex-col' : 'flex-col-reverse'}`}>
             {gameState.guesses.map((guess, index) => (
                 <GuessRow key={index} guess={guess} targetSong={gameState.targetSong} />
             ))}

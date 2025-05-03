@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import type { MultiplayerRoom, Song } from "@/types/game"
 import { Button } from "@/components/ui/button"
-import { RefreshCw, Flag, ArrowLeft } from "lucide-react"
+import { RefreshCw, Flag, ArrowLeft, ArrowUp, ArrowDown } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import SearchBox from "@/components/search-box"
 import GuessRow from "@/components/guess-row"
@@ -20,6 +20,7 @@ interface MultiplayerGameProps {
 export default function MultiplayerGame({ initialRoom, songAliases, onExit }: MultiplayerGameProps) {
     const [room, setRoom] = useState<MultiplayerRoom>(initialRoom)
     const [remainingTime, setRemainingTime] = useState(initialRoom.settings.timeLimit)
+    const [reverseOrder, setReverseOrder] = useState(true)
     const { toast } = useToast()
 
     // Get current player
@@ -144,6 +145,8 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
         })
     }
 
+    const toggleOrder = () => setReverseOrder(prev => !prev)
+
     const giveUp = () => {
         socket.emit("give_up", {
             roomId: room.id,
@@ -219,7 +222,19 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
 
                 {/* Game controls */}
                 {!currentPlayer.currentRound.gameOver && !isRoundOver && !isMatchFinished && (
-                    <div className="mb-6 flex justify-center gap-4">
+                    <div className="mb-6 flex justify-center gap-4 flex-wrap">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={toggleOrder}
+                            className="flex-1 flex items-center justify-center gap-1 max-w-fit"
+                        >
+                            {reverseOrder ? (
+                                <ArrowDown className="h-4 w-4" />
+                            ) : (
+                                <ArrowUp className="h-4 w-4" />
+                            )}
+                        </Button>
                         <Button
                             variant="outline"
                             size="sm"
@@ -294,7 +309,7 @@ export default function MultiplayerGame({ initialRoom, songAliases, onExit }: Mu
                 {isMatchFinished && <MultiplayerResultScreen room={room} currentPlayerId={socket.id} onExit={exitGame} />}
 
                 {/* Guesses */}
-                <div className="mt-5 space-y-3">
+                <div className={`mt-5 gap-3 flex ${reverseOrder ? 'flex-col' : 'flex-col-reverse'}`}>
                     {currentPlayer.currentRound.guesses.map((guess, index) => (
                         <GuessRow key={index} guess={guess} targetSong={room.targetSong} />
                     ))}
