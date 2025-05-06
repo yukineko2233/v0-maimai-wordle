@@ -6,6 +6,7 @@ export interface Song {
   genre: string
   bpm: string
   version: string
+  win_rate: number
   level_master: string
   level_remaster: string
   charts: {
@@ -29,6 +30,7 @@ export interface GameSettings {
     max: string
   }
   maxGuesses: number
+  topSongs: number
   timeLimit: number // in seconds, 0 means no limit
 }
 

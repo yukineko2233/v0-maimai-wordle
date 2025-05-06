@@ -202,12 +202,27 @@ async function refreshSongsCache(): Promise<Song[]> {
         },
       }
     })
+    
+    const voteResponse = await axios.get("https://www.diving-fish.com/api/maimaidxprober/vote_result")
+    const voteData: Record<string, { down_vote: number; total_vote: number }> = voteResponse.data
+
+    console.log(voteData);
+    const mergedData = processedData.map((song) => {
+
+      let songId = String(song.id);
+      if (Number(song.id) >= 10000) {
+        songId = songId.slice(-4);
+      }
+      const vote = voteData[songId] || { down_vote: 0, total_vote: 0 }
+      const win_rate = vote.total_vote > 0 ? 1 - vote.down_vote / vote.total_vote : 0
+      return { ...song, win_rate }
+    })
 
     // Update the cache
-    songsCache = processedData
-    localStorage.setItem("songsCache", JSON.stringify(processedData))
+    songsCache = mergedData
+    localStorage.setItem("songsCache", JSON.stringify(mergedData))
 
-    return processedData
+    return mergedData
   } catch (error) {
     console.error("Error refreshing songs cache:", error)
 

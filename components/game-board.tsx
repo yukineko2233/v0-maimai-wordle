@@ -78,9 +78,11 @@ export default function GameBoard({
 
   // Filter songs based on settings and start new game
   useEffect(() => {
+    console.log("当前 songs 数据:", songs.slice(0, 5));
+
     if (songs.length === 0) return;
 
-    const filtered = songs.filter((song) => {
+    let filtered = songs.filter((song) => {
       // Filter by version
       const versionValue = getVersionValue(song.version);
       const minVersionValue = getVersionValue(settings.versionRange.min);
@@ -122,6 +124,20 @@ export default function GameBoard({
 
       return true;
     });
+
+    // 根据歌曲的热度排序（水鱼投票箱）
+    filtered = filtered.sort((a, b) => {
+      const rateA = a.win_rate ?? 0;
+      const rateB = b.win_rate ?? 0;
+      return rateB - rateA;
+    });
+    console.log("sort后songs数据:", filtered);
+    // 3. 限制数量到 topSongs（比如前 100 首）
+    const topLimit = settings.topSongs || 500; // 如果没设置，最多 500
+    console.log("当前topLimit:", topLimit);
+    filtered = filtered.slice(0, topLimit);
+
+    console.log("filter后songs数据:", filtered);
 
     setFilteredSongs(filtered);
 

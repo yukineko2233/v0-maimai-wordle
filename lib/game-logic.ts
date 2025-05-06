@@ -46,10 +46,8 @@ const PRESET_BASE = {
 // Keep the existing presets but without time limit and guess count
 export const BEGINNER_PRESET = {
   ...PRESET_BASE,
-  masterLevelRange: {
-    min: "14",
-    max: "14+",
-  },
+  topSongs: 100,
+  
   genres: [], // All genres
 }
 
@@ -92,6 +90,7 @@ export function applyPresetSettings(currentSettings: GameSettings, preset: any):
   return {
     ...preset,
     maxGuesses: currentSettings.maxGuesses,
+    topSongs: currentSettings.topSongs,
     timeLimit: currentSettings.timeLimit,
   }
 }
