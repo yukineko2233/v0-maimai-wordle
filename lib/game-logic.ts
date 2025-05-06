@@ -13,6 +13,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
   },
   maxGuesses: 10,
   timeLimit: 0, // No time limit for single player
+  topSongs: 2000, // No limit for topSongs
 }
 
 // Add multiplayer default settings
@@ -46,7 +47,7 @@ const PRESET_BASE = {
 // Keep the existing presets but without time limit and guess count
 export const BEGINNER_PRESET = {
   ...PRESET_BASE,
-  topSongs: 100,
+  topSongs: 50,
   
   genres: [], // All genres
 }

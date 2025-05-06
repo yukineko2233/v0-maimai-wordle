@@ -78,8 +78,6 @@ export default function GameBoard({
 
   // Filter songs based on settings and start new game
   useEffect(() => {
-    console.log("当前 songs 数据:", songs.slice(0, 5));
-
     if (songs.length === 0) return;
 
     let filtered = songs.filter((song) => {
@@ -131,13 +129,12 @@ export default function GameBoard({
       const rateB = b.win_rate ?? 0;
       return rateB - rateA;
     });
-    console.log("sort后songs数据:", filtered);
     // 3. 限制数量到 topSongs（比如前 100 首）
-    const topLimit = settings.topSongs || 500; // 如果没设置，最多 500
-    console.log("当前topLimit:", topLimit);
+    let topLimit = settings.topSongs ?? 2000;
+    if (topLimit > 500) {
+      topLimit = 2000;
+    }
     filtered = filtered.slice(0, topLimit);
-
-    console.log("filter后songs数据:", filtered);
 
     setFilteredSongs(filtered);
 
@@ -193,7 +190,6 @@ export default function GameBoard({
     }
 
     const target = getRandomSong(songList);
-    console.log("Target song:", target.id); // For debugging
 
     setGameState({
       targetSong: target,
