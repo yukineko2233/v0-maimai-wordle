@@ -130,7 +130,7 @@ export default function GameBoard({
       return rateB - rateA;
     });
     // 3. 限制数量到 topSongs（比如前 100 首）
-    let topLimit = settings.topSongs ?? 2000;
+    let topLimit = settings.topSongs ?? 200;
     if (topLimit > 500) {
       topLimit = 2000;
     }
