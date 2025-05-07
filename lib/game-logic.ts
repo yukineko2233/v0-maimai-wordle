@@ -28,6 +28,7 @@ export const MULTIPLAYER_DEFAULT_SETTINGS: GameSettings = {
     max: "14+",
   },
   maxGuesses: 10,
+  topSongs: 200,
   timeLimit: 90, // 90 seconds for multiplayer
 }
 

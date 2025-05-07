@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
 
@@ -24,16 +26,19 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                 <span className="font-medium">调整设置</span>：太难了？先点击设置按钮调下难度；你可以选择一个预设。
               </li>
               <li>
-                <span className="font-medium">开始游戏</span>：根据你的设置，系统会从 maimai 曲库中随机选定一首歌曲作为答案。
+                <span className="font-medium">开始游戏</span>：根据你的设置，系统会从 maimai
+                曲库中随机选定一首歌曲作为答案。
               </li>
               <li>
                 <span className="font-medium">输入猜测</span>：你可以输入任意一首 maimai 歌曲名称（或别名）来进行猜测。
               </li>
               <li>
-                <span className="font-medium">获得提示</span>：每次提交猜测后，系统会针对几个属性给出反馈，帮助你缩小范围。
-                </li>
+                <span className="font-medium">获得提示</span>
+                ：每次提交猜测后，系统会针对几个属性给出反馈，帮助你缩小范围。
+              </li>
               <li>
-                <span className="font-medium">继续猜测</span>：根据提示调整下一次的猜测，用完所有机会、计时结束或猜中目标。
+                <span className="font-medium">继续猜测</span>
+                ：根据提示调整下一次的猜测，用完所有机会、计时结束或猜中目标。
               </li>
             </ul>
           </div>
@@ -47,15 +52,12 @@ export default function HelpModal({ onClose }: HelpModalProps) {
               <li>
                 <span className="font-medium text-yellow-500">黄色</span> - 该属性与你猜的“接近”：
                 <ul className="list-none pl-5 mt-1">
+                  <li>BPM 相差在 ±20 范围内；</li>
                   <li>
-                    BPM 相差在 ±20 范围内；
+                    <span className="text-purple-800">Master</span> 难度或{" "}
+                    <span className="text-purple-400">Re:Master</span> 难度相差半级（即一个 + 号）；
                   </li>
-                  <li>
-                    <span className="text-purple-800">Master</span> 难度或 <span className="text-purple-400">Re:Master</span> 难度相差半级（即一个 + 号）；
-                  </li>
-                  <li>
-                    版本相差一个世代（例如 maimai → maimai PLUS）。
-                  </li>
+                  <li>版本相差一个世代（例如 maimai → maimai PLUS）。</li>
                 </ul>
               </li>
               <li>
@@ -78,9 +80,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                   <li>
                     当一个标签与目标曲目的属性一致时，该标签会变为<span className="text-green-500">绿色</span>。
                   </li>
-                  <li>
-                    注意，有些曲目可能未添加标签。
-                  </li>
+                  <li>注意，有些曲目可能未添加标签。</li>
                 </ul>
               </li>
             </ul>
@@ -89,30 +89,45 @@ export default function HelpModal({ onClose }: HelpModalProps) {
           <div>
             <h3 className="text-lg font-medium mb-2">关于此项目</h3>
             <ul className="list-disc pl-5 space-y-1">
-              <li>
-                本项目使用 v0.dev AI 生成，前端基于 Next.js 开发。推荐使用桌面浏览器以获得更好的体验。
-              </li>
+              <li>本项目使用 v0.dev AI 生成，前端基于 Next.js 开发。推荐使用桌面浏览器以获得更好的体验。</li>
               <li>
                 感谢Diving-Fish提供的
-                <a href="https://github.com/Diving-Fish/maimaidx-prober/blob/main/database/zh-api-document.md" target="_blank" className="text-blue-500" rel="noopener noreferrer">
+                <a
+                  href="https://github.com/Diving-Fish/maimaidx-prober/blob/main/database/zh-api-document.md"
+                  target="_blank"
+                  className="text-blue-500"
+                  rel="noopener noreferrer"
+                >
                   曲目数据库
                 </a>
               </li>
               <li>
                 感谢Yuri-YuzuChaN提供的
-                <a href="https://github.com/Yuri-YuzuChaN/SakuraBotDocs/blob/main/docs/api/maimaiDX.md" target="_blank" className="text-blue-500" rel="noopener noreferrer">
+                <a
+                  href="https://github.com/Yuri-YuzuChaN/SakuraBotDocs/blob/main/docs/api/maimaiDX.md"
+                  target="_blank"
+                  className="text-blue-500"
+                  rel="noopener noreferrer"
+                >
                   别名数据库
                 </a>
               </li>
               <li>
                 感谢DXRating.net提供的
                 <a href="https://dxrating.net/" target="_blank" className="text-blue-500" rel="noopener noreferrer">
-                   标签数据库
+                  标签数据库
                 </a>
               </li>
               <li>
-                这是作者的第一次 Web 开发尝试，非常欢迎提交 Pull Request 来修复 BUG 或优化体验！
-                  <a href="https://yukineko2233.top/2025/04/26/maimai-wordle/" target="_blank" className="text-blue-500" rel="noopener noreferrer">查看更多&赞助！</a>
+                这是作者的��一次 Web 开发尝试，非常欢迎提交 Pull Request 来修复 BUG 或优化体验！
+                <a
+                  href="https://yukineko2233.top/2025/04/26/maimai-wordle/"
+                  target="_blank"
+                  className="text-blue-500"
+                  rel="noopener noreferrer"
+                >
+                  查看更多&赞助！
+                </a>
               </li>
             </ul>
           </div>

@@ -1,6 +1,8 @@
+"use client"
+
 import type { Song } from "@/types/game"
 import { Button } from "@/components/ui/button"
-import { RefreshCw } from "lucide-react"
+import { RefreshCw, Share2 } from "lucide-react"
 
 interface ResultScreenProps {
   won: boolean
@@ -8,9 +10,19 @@ interface ResultScreenProps {
   guessCount: number
   maxGuesses: number
   onNewGame: () => void
+  isDaily?: boolean
+  onShare?: () => void
 }
 
-export default function ResultScreen({ won, targetSong, guessCount, maxGuesses, onNewGame }: ResultScreenProps) {
+export default function ResultScreen({
+  won,
+  targetSong,
+  guessCount,
+  maxGuesses,
+  onNewGame,
+  isDaily = false,
+  onShare,
+}: ResultScreenProps) {
   // Update the cover image URL to use diving-fish.com
   const coverImageUrl = `https://www.diving-fish.com/covers/${String(targetSong.id).padStart(5, "0")}.png`
 
@@ -55,16 +67,25 @@ export default function ResultScreen({ won, targetSong, guessCount, maxGuesses, 
               <span className="font-medium">Master:</span> {targetSong.level_master} |
               <span className="font-medium"> Re:Master:</span> {targetSong.level_remaster || "无"}
             </div>
-            <div className="text-sm">
-              {targetSong.version}
-            </div>
+            <div className="text-sm">{targetSong.version}</div>
           </div>
         </div>
 
-        <Button onClick={onNewGame} className="flex items-center gap-1">
-          <RefreshCw className="h-4 w-4" />
-          开始新游戏
-        </Button>
+        <div className="flex gap-3">
+          {!isDaily && (
+            <Button onClick={onNewGame} className="flex items-center gap-1">
+              <RefreshCw className="h-4 w-4" />
+              开始新游戏
+            </Button>
+          )}
+
+          {isDaily && onShare && (
+            <Button onClick={onShare} className="flex items-center gap-1">
+              <Share2 className="h-4 w-4" />
+              分享结果
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   )
