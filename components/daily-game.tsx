@@ -23,7 +23,7 @@ const DAILY_SETTINGS: GameSettings = {
     min: "10+",
     max: "14+",
   },
-  maxGuesses: 10, // Limit to 6 guesses
+  maxGuesses: 10, // Limit to 10 guesses
   timeLimit: 0, // No time limit
   topSongs: 100, // Use top 100 songs
 }
