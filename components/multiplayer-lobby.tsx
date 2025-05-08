@@ -321,7 +321,7 @@ export default function MultiplayerLobby({ onStartGame, onBack, initialSongs }: 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <Label>比赛模式</Label>
-                                <div className="font-medium">{bestOfLabel[room.bestOf]}</div>
+                                <div className="font-medium">{bestOfLabel[room.bestOf]} / {room.settings.topSongs > 500? "无限制" : `前${room.settings.topSongs}首热门歌曲`}</div>
                             </div>
                             <div>
                                 <Label>版本范围</Label>

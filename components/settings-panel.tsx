@@ -318,6 +318,29 @@ export default function SettingsPanel({ settings, onApply, onClose, isMultiplaye
                   </div>
                 </div>
               </div>
+              
+              <div>
+                <h3 className="text-lg font-medium mb-2">歌曲热度范围</h3>
+                <div >
+                    <Label>
+                      按歌曲热度筛选: {currentSettings.topSongs > 500? "无限制" : `前${currentSettings.topSongs}首热门歌曲`}
+                      </Label>
+                    <Slider
+                      value={[currentSettings.topSongs]}
+                      min={50}
+                      max={550}
+                      step={50}
+                      onValueChange={(value) =>
+                        setCurrentSettings({
+                          ...currentSettings,
+                          topSongs: value[0],
+                        })
+                      }
+                      className="mt-2"
+                    />
+                  </div>
+              </div>
+              
 
               <div>
                 <h3 className="text-lg font-medium mb-2">游戏设置</h3>

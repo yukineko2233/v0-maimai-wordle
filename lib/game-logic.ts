@@ -13,6 +13,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
   },
   maxGuesses: 10,
   timeLimit: 0, // No time limit for single player
+  topSongs: 2000, // No limit for topSongs
 }
 
 // Add multiplayer default settings
@@ -27,6 +28,7 @@ export const MULTIPLAYER_DEFAULT_SETTINGS: GameSettings = {
     max: "14+",
   },
   maxGuesses: 10,
+  topSongs: 200,
   timeLimit: 90, // 90 seconds for multiplayer
 }
 
@@ -92,6 +94,7 @@ export function applyPresetSettings(currentSettings: GameSettings, preset: any):
   return {
     ...preset,
     maxGuesses: currentSettings.maxGuesses,
+    topSongs: currentSettings.topSongs,
     timeLimit: currentSettings.timeLimit,
   }
 }
