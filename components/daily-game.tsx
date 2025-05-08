@@ -275,7 +275,7 @@ export default function DailyGame({ onBack, initialSongs, initialAliases }: Dail
     target: string,
   ): { direction: "newer" | "older" | "equal"; close: boolean } => {
     const versionMap: Record<string, number> = {
-      maimai: 1,
+      "maimai": 1,
       "maimai PLUS": 2,
       "maimai GreeN": 3,
       "maimai GreeN PLUS": 4,
@@ -288,7 +288,7 @@ export default function DailyGame({ onBack, initialSongs, initialAliases }: Dail
       "maimai MiLK": 11,
       "maimai MiLK PLUS": 12,
       "maimai FiNALE": 13,
-      舞萌DX: 14,
+      "舞萌DX": 14,
       "舞萌DX 2021": 15,
       "舞萌DX 2022": 16,
       "舞萌DX 2023": 17,
