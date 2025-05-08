@@ -11,11 +11,12 @@ import { Settings, RefreshCw, Flag, ArrowLeft, ArrowUp, ArrowDown } from "lucide
 import { getRandomSong, isGuessCorrect, DEFAULT_SETTINGS } from "@/lib/game-logic"
 import { useToast } from "@/components/ui/use-toast"
 import LoadingScreen from "@/components/loading-screen"
+import { useLanguage } from "@/lib/i18n/language-context"
 
 // Add this function after the imports
 function getVersionValue(version: string): number {
   const versionMap: Record<string, number> = {
-    "maimai": 1,
+    maimai: 1,
     "maimai PLUS": 2,
     "maimai GreeN": 3,
     "maimai GreeN PLUS": 4,
@@ -28,7 +29,7 @@ function getVersionValue(version: string): number {
     "maimai MiLK": 11,
     "maimai MiLK PLUS": 12,
     "maimai FiNALE": 13,
-    "舞萌DX": 14,
+    舞萌DX: 14,
     "舞萌DX 2021": 15,
     "舞萌DX 2022": 16,
     "舞萌DX 2023": 17,
@@ -60,55 +61,56 @@ export default function GameBoard({ onBack, initialSongs, initialAliases }: Game
   const [filteredSongs, setFilteredSongs] = useState<Song[]>([])
   const [reverseOrder, setReverseOrder] = useState(true)
   const { toast } = useToast()
-  const [spinKey, setSpinKey] = useState(0);
+  const [spinKey, setSpinKey] = useState(0)
+  const { t } = useLanguage()
 
   const handleClick = () => {
     // 先启动新游戏
-    startNewGame();
+    startNewGame()
     // 然后自增 key，触发图标重渲染和动画
-    setSpinKey((k) => k + 1);
-  };
+    setSpinKey((k) => k + 1)
+  }
 
   // Filter songs based on settings and start new game
   useEffect(() => {
     if (songs.length === 0) return
 
-    const filtered = songs.filter(song => {
-        // Filter by version
-        const versionValue = getVersionValue(song.version)
-        const minVersionValue = getVersionValue(settings.versionRange.min)
-        const maxVersionValue = getVersionValue(settings.versionRange.max)
+    const filtered = songs.filter((song) => {
+      // Filter by version
+      const versionValue = getVersionValue(song.version)
+      const minVersionValue = getVersionValue(settings.versionRange.min)
+      const maxVersionValue = getVersionValue(settings.versionRange.max)
 
-        if (versionValue < minVersionValue || versionValue > maxVersionValue) {
+      if (versionValue < minVersionValue || versionValue > maxVersionValue) {
+        return false
+      }
+
+      // Filter by genre
+      if (settings.genres.length > 0 && !settings.genres.includes(song.genre)) {
+        return false
+      }
+
+      // Fix: Safely handle level_master that might be undefined
+      if (!song.level_master) {
+        return false
+      }
+
+      // Filter by master level
+      try {
+        const masterLevel = Number.parseFloat(song.level_master.replace("+", ".7"))
+        const minMasterLevel = Number.parseFloat(settings.masterLevelRange.min.replace("+", ".7"))
+        const maxMasterLevel = Number.parseFloat(settings.masterLevelRange.max.replace("+", ".7"))
+
+        if (masterLevel < minMasterLevel || masterLevel > maxMasterLevel) {
           return false
         }
+      } catch (error) {
+        console.error("Error parsing master level:", error, song)
+        return false
+      }
 
-        // Filter by genre
-        if (settings.genres.length > 0 && !settings.genres.includes(song.genre)) {
-          return false
-        }
-
-        // Fix: Safely handle level_master that might be undefined
-        if (!song.level_master) {
-          return false
-        }
-
-        // Filter by master level
-        try {
-          const masterLevel = Number.parseFloat(song.level_master.replace("+", ".7"))
-          const minMasterLevel = Number.parseFloat(settings.masterLevelRange.min.replace("+", ".7"))
-          const maxMasterLevel = Number.parseFloat(settings.masterLevelRange.max.replace("+", ".7"))
-
-          if (masterLevel < minMasterLevel || masterLevel > maxMasterLevel) {
-            return false
-          }
-        } catch (error) {
-          console.error("Error parsing master level:", error, song)
-          return false
-        }
-
-        return true
-      })
+      return true
+    })
 
     setFilteredSongs(filtered)
 
@@ -146,8 +148,8 @@ export default function GameBoard({ onBack, initialSongs, initialAliases }: Game
   const startNewGame = (songList: Song[] = filteredSongs) => {
     if (songList.length === 0) {
       toast({
-        title: "无法开始游戏",
-        description: "当前设置下没有可用的歌曲，请调整设置。",
+        title: t("error"),
+        description: t("noSongsAvailable"),
         variant: "destructive",
       })
       setShowSettings(true)
@@ -180,8 +182,8 @@ export default function GameBoard({ onBack, initialSongs, initialAliases }: Game
 
     // Compare BPM values
     const compareBPM = (
-        guessBPM: string,
-        targetBPM: string,
+      guessBPM: string,
+      targetBPM: string,
     ): {
       value: boolean
       direction: "higher" | "lower" | "equal"
@@ -251,7 +253,7 @@ export default function GameBoard({ onBack, initialSongs, initialAliases }: Game
     })
   }
 
-  const toggleOrder = () => setReverseOrder(prev => !prev);
+  const toggleOrder = () => setReverseOrder((prev) => !prev)
 
   const compareValues = (guess: string, target: string): "higher" | "lower" | "equal" => {
     if (!guess || !target) {
@@ -288,8 +290,8 @@ export default function GameBoard({ onBack, initialSongs, initialAliases }: Game
   }
 
   const compareVersions = (
-      guess: string,
-      target: string,
+    guess: string,
+    target: string,
   ): { direction: "newer" | "older" | "equal"; close: boolean } => {
     const guessValue = getVersionValue(guess)
     const targetValue = getVersionValue(target)
@@ -318,126 +320,125 @@ export default function GameBoard({ onBack, initialSongs, initialAliases }: Game
   }
 
   return (
-      <div className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="p-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white flex justify-between items-center">
-          <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-xl font-medium text-center">单人模式</h1>
-          <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowSettings(true)}
-              className="text-white hover:bg-white/20"
-          >
-            <Settings className="h-5 w-5" />
-          </Button>
-        </div>
+    <div className="w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+      <div className="p-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white flex justify-between items-center">
+        <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20">
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <h1 className="text-xl font-medium text-center">{t("singlePlayerTitle")}</h1>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setShowSettings(true)}
+          className="text-white hover:bg-white/20"
+        >
+          <Settings className="h-5 w-5" />
+        </Button>
+      </div>
 
-        <div className="p-6">
-          {filteredSongs.length === 0 && !gameState.targetSong ? (
-              <div className="text-center text-gray-500 py-10">
-                当前设置下没有可用的歌曲，请调整设置。
-              </div>
-          ) : (
-              <>
-          {gameState.targetSong && (
+      <div className="p-6">
+        {filteredSongs.length === 0 && !gameState.targetSong ? (
+          <div className="text-center text-gray-500 py-10">{t("noSongsAvailable")}</div>
+        ) : (
+          <>
+            {gameState.targetSong && (
               <>
                 <div className="mb-3 flex justify-center gap-4 items-center">
                   <div className="flex-1 text-center">
-                    <span className="font-medium">已猜测: </span>
+                    <span className="font-medium">{t("guessed")}: </span>
                     <span>
-                  {gameState.guesses.length}/{settings.maxGuesses}
-                </span>
+                      {gameState.guesses.length}/{settings.maxGuesses}
+                    </span>
                   </div>
                   <div className="flex-1 text-center">
                     {settings.timeLimit > 0 ? (
-                        <>
-                          <span className="font-medium">剩余时间: </span>
-                          <span>{gameState.remainingTime}秒</span>
-                        </>
+                      <>
+                        <span className="font-medium">{t("timeRemaining")}: </span>
+                        <span>
+                          {gameState.remainingTime}
+                          {t("seconds")}
+                        </span>
+                      </>
                     ) : (
-                        <span>无限时间</span>
+                      <span>{t("unlimited")}</span>
                     )}
                   </div>
                 </div>
                 <div className="mb-6 flex justify-center gap-4">
                   <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleClick}
-                      className="flex-1 flex items-center justify-center gap-1 max-w-40"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleClick}
+                    className="flex-1 flex items-center justify-center gap-1 max-w-40"
                   >
-                    <RefreshCw
-                        key={spinKey}
-                        className="h-4 w-4 animate-[spin_1s_linear_1]"
-                    />
+                    <RefreshCw key={spinKey} className="h-4 w-4 animate-[spin_1s_linear_1]" />
                     新游戏
                   </Button>
                   <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={toggleOrder}
-                      className="flex-1 flex items-center justify-center gap-1 max-w-fit"
+                    variant="outline"
+                    size="sm"
+                    onClick={toggleOrder}
+                    className="flex-1 flex items-center justify-center gap-1 max-w-fit"
                   >
-                    {reverseOrder ? (
-                        <ArrowDown className="h-4 w-4" />
-                    ) : (
-                        <ArrowUp className="h-4 w-4" />
-                    )}
+                    {reverseOrder ? <ArrowDown className="h-4 w-4" /> : <ArrowUp className="h-4 w-4" />}
                   </Button>
                   <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                          setGameState((prev) => ({
-                            ...prev,
-                            gameOver: true,
-                          }))
-                      }
-                      className="flex-1 flex items-center justify-center gap-1 max-w-40"
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setGameState((prev) => ({
+                        ...prev,
+                        gameOver: true,
+                      }))
+                    }
+                    className="flex-1 flex items-center justify-center gap-1 max-w-40"
                   >
                     <Flag className="h-4 w-4" />
                     投降
                   </Button>
                 </div>
               </>
-          )}
+            )}
 
-          {/* Fixed: Move search box above result screen to ensure it's visible */}
-          {!gameState.gameOver && gameState.targetSong && (
+            {/* Fixed: Move search box above result screen to ensure it's visible */}
+            {!gameState.gameOver && gameState.targetSong && (
               <div className="mb-5">
-                <SearchBox songs={filteredSongs} aliases={songAliases} onSelect={makeGuess} disabled={gameState.gameOver} />
+                <SearchBox
+                  songs={filteredSongs}
+                  aliases={songAliases}
+                  onSelect={makeGuess}
+                  disabled={gameState.gameOver}
+                />
               </div>
-          )}
+            )}
 
-          {gameState.gameOver && gameState.targetSong && (
+            {gameState.gameOver && gameState.targetSong && (
               <ResultScreen
-                  won={gameState.won}
-                  targetSong={gameState.targetSong}
-                  guessCount={gameState.guesses.length}
-                  maxGuesses={settings.maxGuesses}
-                  onNewGame={() => startNewGame()}
+                won={gameState.won}
+                targetSong={gameState.targetSong}
+                guessCount={gameState.guesses.length}
+                maxGuesses={settings.maxGuesses}
+                onNewGame={() => startNewGame()}
               />
-          )}
+            )}
 
-          <div className={`mt-5 gap-3 flex ${reverseOrder ? 'flex-col' : 'flex-col-reverse'}`}>
-            {gameState.guesses.map((guess, index) => (
+            <div className={`mt-5 gap-3 flex ${reverseOrder ? "flex-col" : "flex-col-reverse"}`}>
+              {gameState.guesses.map((guess, index) => (
                 <GuessRow key={index} guess={guess} targetSong={gameState.targetSong} />
-            ))}
-          </div>
-              </>
-          )}
-        </div>
-
-        {showSettings && (
-            <SettingsPanel
-                settings={settings}
-                onApply={applySettings}
-                onClose={() => setShowSettings(false)}
-                isMultiplayer={false} // Specify that this is single player mode
-            />
+              ))}
+            </div>
+          </>
         )}
       </div>
+
+      {showSettings && (
+        <SettingsPanel
+          settings={settings}
+          onApply={applySettings}
+          onClose={() => setShowSettings(false)}
+          isMultiplayer={false} // Specify that this is single player mode
+        />
+      )}
+    </div>
   )
 }

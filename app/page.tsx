@@ -15,6 +15,8 @@ import HelpModal from "@/components/help-modal"
 import { useToast } from "@/components/ui/use-toast"
 import RoomStatus from "@/components/room-status"
 import FixedBg from "@/components/fixed-bg"
+import LanguageToggle from "@/components/language-toggle"
+import { useLanguage } from "@/lib/i18n/language-context"
 
 export default function Home() {
   const [mode, setMode] = useState<"menu" | "singleplayer" | "multiplayer-lobby" | "multiplayer-game" | "daily">("menu")
@@ -25,6 +27,7 @@ export default function Home() {
   const [showHelp, setShowHelp] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   const { toast } = useToast()
+  const { t } = useLanguage()
 
   useEffect(() => {
     const setVH = () => {
@@ -58,15 +61,15 @@ export default function Home() {
       } catch (error) {
         console.error("Failed to load game data:", error)
         toast({
-          title: "加载失败",
-          description: "无法加载游戏数据，请刷新页面重试。",
+          title: t("loadFailed"),
+          description: t("loadFailedDesc"),
           variant: "destructive",
         })
       }
     }
 
     loadData()
-  }, [toast])
+  }, [toast, t])
 
   const handleStartMultiplayerGame = (room: MultiplayerRoom) => {
     setMultiplayerRoom(room)
@@ -86,14 +89,14 @@ export default function Home() {
       setSongAliases(aliasesData)
 
       toast({
-        title: "数据已更新",
-        description: "游戏数据已成功刷新",
+        title: t("dataUpdated"),
+        description: t("dataUpdated"),
       })
     } catch (error) {
       console.error("Failed to refresh game data:", error)
       toast({
-        title: "刷新失败",
-        description: "无法刷新游戏数据，请稍后再试。",
+        title: t("dataUpdateFailed"),
+        description: t("dataUpdateFailed"),
         variant: "destructive",
       })
     } finally {
@@ -232,22 +235,25 @@ export default function Home() {
                   onClick={handleRefreshData}
                   disabled={refreshing}
                   className="absolute left-4 text-white hover:bg-white/20"
-                  title="刷新游戏数据"
+                  title={t("refresh")}
                 >
                   <RefreshCw className={`h-5 w-5 ${refreshing ? "animate-spin" : ""}`} />
                 </Button>
-                {/* 标题始终位于正中 */}
-                <h1 className="text-xl font-medium">舞萌猜猜呗之潘一把</h1>
+                {/* Title always in the center */}
+                <h1 className="text-xl font-medium">{t("appTitle")}</h1>
 
-                {/* 右侧帮助按钮——脱离文档流，固定在最右边 */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowHelp(true)}
-                  className="absolute right-4 text-white hover:bg-white/20"
-                >
-                  <HelpCircle className="h-5 w-5" />
-                </Button>
+                {/* Help button on the right */}
+                <div className="absolute right-4 flex items-center gap-2">
+                  <LanguageToggle />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowHelp(true)}
+                    className="text-white hover:bg-white/20"
+                  >
+                    <HelpCircle className="h-5 w-5" />
+                  </Button>
+                </div>
               </div>
 
               <div className="p-8 flex flex-col md:flex-row gap-4 justify-center text-center">
@@ -257,7 +263,7 @@ export default function Home() {
                   size="lg"
                 >
                   <Calendar className="mr-2 h-5 w-5" />
-                  每日一首
+                  {t("dailyMode")}
                 </Button>
                 <Button
                   onClick={() => setMode("singleplayer")}
@@ -265,7 +271,7 @@ export default function Home() {
                   size="lg"
                 >
                   <User className="mr-2 h-5 w-5" />
-                  单人模式
+                  {t("singlePlayerMode")}
                 </Button>
                 <Button
                   onClick={() => setMode("multiplayer-lobby")}
@@ -273,16 +279,16 @@ export default function Home() {
                   size="lg"
                 >
                   <Users className="mr-2 h-5 w-5" />
-                  多人模式
+                  {t("multiplayerMode")}
                 </Button>
               </div>
 
-              {/* 实时房间状态显示 */}
+              {/* Real-time room status */}
               <RoomStatus />
 
               <div className="text-center text-gray-500 text-sm mb-6 ml-2 mr-2">
                 <Lightbulb className=" text-black inline h-4 w-4 mr-1" />
-                一起猜歌？QQ群: 1042238018 或右上角
+                {t("groupInvite")}
               </div>
             </div>
           )}

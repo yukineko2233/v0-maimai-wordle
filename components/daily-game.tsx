@@ -11,6 +11,7 @@ import { isGuessCorrect } from "@/lib/game-logic"
 import { useToast } from "@/components/ui/use-toast"
 import LoadingScreen from "@/components/loading-screen"
 import DailyResultShare from "@/components/daily-result-share"
+import { useLanguage } from "@/lib/i18n/language-context"
 
 // Daily game settings
 const DAILY_SETTINGS: GameSettings = {
@@ -51,6 +52,7 @@ export default function DailyGame({ onBack, initialSongs, initialAliases }: Dail
   const { toast } = useToast()
   const [alreadyPlayed, setAlreadyPlayed] = useState(false)
   const [todayDate, setTodayDate] = useState("")
+  const { t } = useLanguage()
 
   // Filter songs and get daily song
   useEffect(() => {
@@ -152,8 +154,8 @@ export default function DailyGame({ onBack, initialSongs, initialAliases }: Dail
     // Check if song was already guessed
     if (gameState.guesses.some((g) => g.song.id === song.id)) {
       toast({
-        title: "重复猜测",
-        description: "你已经猜过这首歌了！",
+        title: t("duplicateGuess"),
+        description: t("duplicateGuessDesc"),
       })
       return
     }
@@ -234,7 +236,7 @@ export default function DailyGame({ onBack, initialSongs, initialAliases }: Dail
     })
   }
 
-  const toggleOrder = () => setReverseOrder(prev => !prev);
+  const toggleOrder = () => setReverseOrder((prev) => !prev)
 
   const compareValues = (guess: string, target: string): "higher" | "lower" | "equal" => {
     if (!guess || !target) {
@@ -278,7 +280,7 @@ export default function DailyGame({ onBack, initialSongs, initialAliases }: Dail
     target: string,
   ): { direction: "newer" | "older" | "equal"; close: boolean } => {
     const versionMap: Record<string, number> = {
-      "maimai": 1,
+      maimai: 1,
       "maimai PLUS": 2,
       "maimai GreeN": 3,
       "maimai GreeN PLUS": 4,
@@ -291,7 +293,7 @@ export default function DailyGame({ onBack, initialSongs, initialAliases }: Dail
       "maimai MiLK": 11,
       "maimai MiLK PLUS": 12,
       "maimai FiNALE": 13,
-      "舞萌DX": 14,
+      舞萌DX: 14,
       "舞萌DX 2021": 15,
       "舞萌DX 2022": 16,
       "舞萌DX 2023": 17,
@@ -322,20 +324,22 @@ export default function DailyGame({ onBack, initialSongs, initialAliases }: Dail
         <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/20">
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-xl font-medium text-center">每日一首 {todayDate}</h1>
+        <h1 className="text-xl font-medium text-center">
+          {t("dailyTitle")} {todayDate}
+        </h1>
         <div className="w-9 h-9"></div> {/* Placeholder for alignment */}
       </div>
 
       <div className="p-6">
         {filteredSongs.length === 0 && !gameState.targetSong ? (
-          <div className="text-center text-gray-500 py-10">加载中，请稍候...</div>
+          <div className="text-center text-gray-500 py-10">{t("loading")}</div>
         ) : (
           <>
             {gameState.targetSong && (
               <>
                 <div className="mb-3 flex justify-center gap-4 items-center">
                   <div className="flex-1 text-center">
-                    <span className="font-medium">已猜测: </span>
+                    <span className="font-medium">{t("guessed")}: </span>
                     <span>
                       {gameState.guesses.length}/{DAILY_SETTINGS.maxGuesses}
                     </span>
@@ -355,21 +359,16 @@ export default function DailyGame({ onBack, initialSongs, initialAliases }: Dail
                       className="flex-1 flex items-center justify-center gap-1 max-w-40"
                     >
                       <Flag className="h-4 w-4" />
-                      投降
+                      {t("surrender")}
                     </Button>
-                    
                   )}
                   <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={toggleOrder}
-                      className="flex-1 flex items-center justify-center gap-1 max-w-fit"
+                    variant="outline"
+                    size="sm"
+                    onClick={toggleOrder}
+                    className="flex-1 flex items-center justify-center gap-1 max-w-fit"
                   >
-                    {reverseOrder ? (
-                        <ArrowDown className="h-4 w-4" />
-                    ) : (
-                        <ArrowUp className="h-4 w-4" />
-                    )}
+                    {reverseOrder ? <ArrowDown className="h-4 w-4" /> : <ArrowUp className="h-4 w-4" />}
                   </Button>
 
                   {gameState.gameOver && (
@@ -380,7 +379,7 @@ export default function DailyGame({ onBack, initialSongs, initialAliases }: Dail
                       className="flex-1 flex items-center justify-center gap-1 max-w-40"
                     >
                       <Share2 className="h-4 w-4" />
-                      分享结果
+                      {t("shareResults")}
                     </Button>
                   )}
                 </div>
@@ -413,7 +412,7 @@ export default function DailyGame({ onBack, initialSongs, initialAliases }: Dail
             )}
 
             {/* Guesses display */}
-            <div className={`mt-5 gap-3 flex ${reverseOrder ? 'flex-col' : 'flex-col-reverse'}`}>
+            <div className={`mt-5 gap-3 flex ${reverseOrder ? "flex-col" : "flex-col-reverse"}`}>
               {gameState.guesses.map((guess, index) => (
                 <GuessRow key={index} guess={guess} targetSong={gameState.targetSong} />
               ))}

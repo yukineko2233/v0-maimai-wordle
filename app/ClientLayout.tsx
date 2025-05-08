@@ -2,30 +2,17 @@
 
 import type React from "react"
 
-import { initializeCache } from "@/lib/api"
-import { useEffect } from "react"
+import { ThemeProvider } from "@/components/theme-provider"
+import { LanguageProvider } from "@/lib/i18n/language-context"
 
-// This is a client component that initializes the cache
-function CacheInitializer() {
-    // Use a React effect to initialize the cache on the client side
-    useEffect(() => {
-        initializeCache()
-    }, [])
-
-    return null
-}
-
-export default function ClientLayout({
-                                         children,
-                                     }: Readonly<{
-    children: React.ReactNode
-}>) {
-    return (
-        <html lang="en">
-        <body>
-        <CacheInitializer />
-        {children}
-        </body>
-        </html>
-    )
+export default function ClientLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+          <LanguageProvider>{children}</LanguageProvider>
+        </ThemeProvider>
+      </body>
+    </html>
+  )
 }

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Copy, Check } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import type { Guess } from "@/types/game"
+import { useLanguage } from "@/lib/i18n/language-context"
 
 interface DailyResultShareProps {
   guesses: Guess[]
@@ -19,11 +20,12 @@ export default function DailyResultShare({ guesses, won, maxGuesses, date, onClo
   const [copied, setCopied] = useState(false)
   const { toast } = useToast()
   const [shareText, setShareText] = useState("")
+  const { t } = useLanguage()
 
   useEffect(() => {
     // Generate the share text
     const generateShareText = () => {
-      const header = `舞萌猜猜呗之潘一把 每日一首 ${date}\n`
+      const header = `${t("shareResultsTitle")} ${date}\n`
       const result = `${won ? "✅" : "❌"} ${guesses.length}/${maxGuesses}\n\n`
 
       // Generate emoji grid for guesses
@@ -86,15 +88,15 @@ export default function DailyResultShare({ guesses, won, maxGuesses, date, onClo
     }
 
     setShareText(generateShareText())
-  }, [guesses, won, maxGuesses, date])
+  }, [guesses, won, maxGuesses, date, t])
 
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(shareText)
       setCopied(true)
       toast({
-        title: "已复制到剪贴板",
-        description: "你可以将结果分享给朋友",
+        title: t("copied"),
+        description: t("shareDesc"),
       })
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
@@ -110,12 +112,12 @@ export default function DailyResultShare({ guesses, won, maxGuesses, date, onClo
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>分享你的每日一首结果</DialogTitle>
+          <DialogTitle>{t("shareTitle")}</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col space-y-4">
           <div className="bg-gray-100 p-4 rounded-md whitespace-pre-wrap font-mono text-sm">{shareText}</div>
           <div className="text-sm text-gray-500">
-            <p>🟩 - 完全匹配</p>
+            <p>{t("shareResultsLegend1")}</p>
             <p>🟨 - 接近</p>
             <p>⬇️/⬆️ - 高于/低于目标值</p>
             <p>⬜ - 不匹配</p>
@@ -124,7 +126,7 @@ export default function DailyResultShare({ guesses, won, maxGuesses, date, onClo
         <DialogFooter className="sm:justify-start">
           <Button type="button" variant="default" onClick={copyToClipboard} className="gap-2">
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-            {copied ? "已复制" : "复制结果"}
+            {copied ? t("copied") : t("copy")}
           </Button>
         </DialogFooter>
       </DialogContent>
