@@ -48,8 +48,10 @@ const PRESET_BASE = {
 // Keep the existing presets but without time limit and guess count
 export const BEGINNER_PRESET = {
   ...PRESET_BASE,
-  topSongs: 50,
-  
+  masterLevelRange: {
+    min: "14",
+    max: "14+",
+  },
   genres: [], // All genres
 }
 
