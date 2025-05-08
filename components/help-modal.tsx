@@ -119,7 +119,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                 </a>
               </li>
               <li>
-                这是作者的��一次 Web 开发尝试，非常欢迎提交 Pull Request 来修复 BUG 或优化体验！
+                这是作者的第一次 Web 开发尝试，非常欢迎提交 Pull Request 来修复 BUG 或优化体验！
                 <a
                   href="https://yukineko2233.top/2025/04/26/maimai-wordle/"
                   target="_blank"

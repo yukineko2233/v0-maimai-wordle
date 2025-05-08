@@ -46,7 +46,7 @@ export default function DailyResultShare({ guesses, won, maxGuesses, date, onClo
           } else if (guess.result.bpm.close) {
             row += "🟨"
           } else {
-            row += guess.result.bpm.direction === "higher" ? "⬆️" : guess.result.bpm.direction === "lower" ? "⬇️" : "⬜"
+            row += guess.result.bpm.direction === "higher" ? "⬇️" : guess.result.bpm.direction === "lower" ? "⬆️" : "⬜"
           }
 
           // Genre
@@ -60,9 +60,9 @@ export default function DailyResultShare({ guesses, won, maxGuesses, date, onClo
           } else {
             row +=
               guess.result.masterLevel.direction === "higher"
-                ? "⬆️"
+                ? "⬇️"
                 : guess.result.masterLevel.direction === "lower"
-                  ? "⬇️"
+                  ? "⬆️"
                   : "⬜"
           }
 
@@ -73,7 +73,7 @@ export default function DailyResultShare({ guesses, won, maxGuesses, date, onClo
             row += "🟨"
           } else {
             row +=
-              guess.result.version.direction === "newer" ? "⬆️" : guess.result.version.direction === "older" ? "⬇️" : "⬜"
+              guess.result.version.direction === "newer" ? "⬇️" : guess.result.version.direction === "older" ? "⬆️" : "⬜"
           }
 
           return row
@@ -117,7 +117,7 @@ export default function DailyResultShare({ guesses, won, maxGuesses, date, onClo
           <div className="text-sm text-gray-500">
             <p>🟩 - 完全匹配</p>
             <p>🟨 - 接近</p>
-            <p>⬆️/⬇️ - 高于/低于目标值</p>
+            <p>⬇️/⬆️ - 高于/低于目标值</p>
             <p>⬜ - 不匹配</p>
           </div>
         </div>

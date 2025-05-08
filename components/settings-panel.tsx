@@ -323,7 +323,7 @@ export default function SettingsPanel({ settings, onApply, onClose, isMultiplaye
                 <h3 className="text-lg font-medium mb-2">歌曲热度范围</h3>
                 <div >
                     <Label>
-                      按歌曲热度筛选: {currentSettings.topSongs >= 500? "无限制" : `前${currentSettings.topSongs}首热门歌曲`}
+                      按歌曲热度筛选: {currentSettings.topSongs > 500? "无限制" : `前${currentSettings.topSongs}首热门歌曲`}
                       </Label>
                     <Slider
                       value={[currentSettings.topSongs]}
