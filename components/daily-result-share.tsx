@@ -80,7 +80,7 @@ export default function DailyResultShare({ guesses, won, maxGuesses, date, onClo
         })
         .join("\n")
 
-      const footer = "\n\nhttps://yukineko2233.top/maimai-wordle"
+      const footer = "\n\nhttps://maimai.yukineko2233.top/"
 
       return header + result + guessEmojis + footer
     }

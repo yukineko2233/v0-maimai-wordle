@@ -6,7 +6,7 @@ import SearchBox from "@/components/search-box"
 import GuessRow from "@/components/guess-row"
 import ResultScreen from "@/components/result-screen"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Flag, Share2 } from "lucide-react"
+import { ArrowLeft, Flag, Share2, ArrowUp, ArrowDown } from "lucide-react"
 import { isGuessCorrect } from "@/lib/game-logic"
 import { useToast } from "@/components/ui/use-toast"
 import LoadingScreen from "@/components/loading-screen"
@@ -23,7 +23,7 @@ const DAILY_SETTINGS: GameSettings = {
     min: "10+",
     max: "14+",
   },
-  maxGuesses: 10, // Limit to 10 guesses
+  maxGuesses: 6, // Limit to 6 guesses
   timeLimit: 0, // No time limit
   topSongs: 100, // Use top 100 songs
 }
@@ -46,6 +46,7 @@ export default function DailyGame({ onBack, initialSongs, initialAliases }: Dail
     remainingTime: 0,
   })
   const [filteredSongs, setFilteredSongs] = useState<Song[]>([])
+  const [reverseOrder, setReverseOrder] = useState(true)
   const [showShareModal, setShowShareModal] = useState(false)
   const { toast } = useToast()
   const [alreadyPlayed, setAlreadyPlayed] = useState(false)
@@ -233,6 +234,8 @@ export default function DailyGame({ onBack, initialSongs, initialAliases }: Dail
     })
   }
 
+  const toggleOrder = () => setReverseOrder(prev => !prev);
+
   const compareValues = (guess: string, target: string): "higher" | "lower" | "equal" => {
     if (!guess || !target) {
       return "equal"
@@ -354,7 +357,21 @@ export default function DailyGame({ onBack, initialSongs, initialAliases }: Dail
                       <Flag className="h-4 w-4" />
                       投降
                     </Button>
+                    
                   )}
+                  <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={toggleOrder}
+                      className="flex-1 flex items-center justify-center gap-1 max-w-fit"
+                  >
+                    {reverseOrder ? (
+                        <ArrowDown className="h-4 w-4" />
+                    ) : (
+                        <ArrowUp className="h-4 w-4" />
+                    )}
+                  </Button>
+
                   {gameState.gameOver && (
                     <Button
                       variant="outline"
@@ -396,7 +413,7 @@ export default function DailyGame({ onBack, initialSongs, initialAliases }: Dail
             )}
 
             {/* Guesses display */}
-            <div className="mt-5 space-y-3 flex flex-col-reverse">
+            <div className={`mt-5 gap-3 flex ${reverseOrder ? 'flex-col' : 'flex-col-reverse'}`}>
               {gameState.guesses.map((guess, index) => (
                 <GuessRow key={index} guess={guess} targetSong={gameState.targetSong} />
               ))}
