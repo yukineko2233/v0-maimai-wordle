@@ -16,7 +16,7 @@ import DailyResultShare from "@/components/daily-result-share"
 const DAILY_SETTINGS: GameSettings = {
   versionRange: {
     min: "maimai",
-    max: "舞萌DX 2024",
+    max: "舞萌DX 2025",
   },
   genres: [],
   masterLevelRange: {
@@ -296,6 +296,7 @@ export default function DailyGame({ onBack, initialSongs, initialAliases }: Dail
       "舞萌DX 2022": 16,
       "舞萌DX 2023": 17,
       "舞萌DX 2024": 18,
+      "舞萌DX 2025": 19,
     }
 
     const guessValue = versionMap[guess] || 0

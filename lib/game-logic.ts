@@ -4,7 +4,7 @@ import type { GameSettings, Song, Guess } from "@/types/game"
 export const DEFAULT_SETTINGS: GameSettings = {
   versionRange: {
     min: "maimai",
-    max: "舞萌DX 2024",
+    max: "舞萌DX 2025",
   },
   genres: [],
   masterLevelRange: {
@@ -20,7 +20,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
 export const MULTIPLAYER_DEFAULT_SETTINGS: GameSettings = {
   versionRange: {
     min: "maimai",
-    max: "舞萌DX 2024",
+    max: "舞萌DX 2025",
   },
   genres: [],
   masterLevelRange: {
@@ -36,7 +36,7 @@ export const MULTIPLAYER_DEFAULT_SETTINGS: GameSettings = {
 const PRESET_BASE = {
   versionRange: {
     min: "maimai",
-    max: "舞萌DX 2024",
+    max: "舞萌DX 2025",
   },
   genres: [],
   masterLevelRange: {
@@ -85,7 +85,7 @@ export const DX_VERSION_PRESET = {
   ...PRESET_BASE,
   versionRange: {
     min: "舞萌DX",
-    max: "舞萌DX 2024",
+    max: "舞萌DX 2025",
   },
 }
 

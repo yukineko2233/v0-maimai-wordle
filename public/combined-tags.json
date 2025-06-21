@@ -13293,6 +13293,12 @@
             "tag_id": 4
         },
         {
+            "song_id": "終点",
+            "sheet_type": "std",
+            "sheet_difficulty": "advanced",
+            "tag_id": 11
+        },
+        {
             "song_id": "ハードコア・シンドローム",
             "sheet_type": "dx",
             "sheet_difficulty": "master",
@@ -17061,6 +17067,12 @@
             "tag_id": 6
         },
         {
+            "song_id": "Help me, ERINNNNNN!!",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 13
+        },
+        {
             "song_id": "エナドリおいしいソング",
             "sheet_type": "dx",
             "sheet_difficulty": "master",
@@ -17659,6 +17671,12 @@
             "sheet_type": "dx",
             "sheet_difficulty": "master",
             "tag_id": 1
+        },
+        {
+            "song_id": "Help me, ERINNNNNN!!",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 16
         },
         {
             "song_id": "YKWTD",
@@ -18355,6 +18373,12 @@
             "sheet_type": "dx",
             "sheet_difficulty": "master",
             "tag_id": 11
+        },
+        {
+            "song_id": "悪魔の踊り方",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 13
         },
         {
             "song_id": "Sqlupp (Camellia's \"Sqleipd*Hiytex\" Remix)",
@@ -20199,6 +20223,12 @@
             "tag_id": 9
         },
         {
+            "song_id": "TiamaT:F minor",
+            "sheet_type": "std",
+            "sheet_difficulty": "expert",
+            "tag_id": 19
+        },
+        {
             "song_id": "ホシシズク",
             "sheet_type": "dx",
             "sheet_difficulty": "master",
@@ -20971,6 +21001,12 @@
             "sheet_type": "dx",
             "sheet_difficulty": "master",
             "tag_id": 17
+        },
+        {
+            "song_id": "氷滅の135小節",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 9
         },
         {
             "song_id": "Jörqer",
@@ -24879,6 +24915,24 @@
             "tag_id": 13
         },
         {
+            "song_id": "ウルトラトレーラー",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 20
+        },
+        {
+            "song_id": "ウッーウッーウマウマ(ﾟ∀ﾟ)",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 17
+        },
+        {
+            "song_id": "KING is BACK!!",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 7
+        },
+        {
             "song_id": "Hyper Active",
             "sheet_type": "std",
             "sheet_difficulty": "master",
@@ -25279,6 +25333,12 @@
             "sheet_type": "dx",
             "sheet_difficulty": "master",
             "tag_id": 19
+        },
+        {
+            "song_id": "MYTH Re：LEASE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 4
         },
         {
             "song_id": "We Gonna Party",
@@ -25839,6 +25899,12 @@
             "tag_id": 9
         },
         {
+            "song_id": "MYTH Re：LEASE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 6
+        },
+        {
             "song_id": "raputa",
             "sheet_type": "dx",
             "sheet_difficulty": "expert",
@@ -25933,6 +25999,12 @@
             "sheet_type": "dx",
             "sheet_difficulty": "master",
             "tag_id": 17
+        },
+        {
+            "song_id": "MYTH Re：LEASE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "expert",
+            "tag_id": 4
         },
         {
             "song_id": "GO BACK 2 YOUR RAVE",
@@ -26283,6 +26355,12 @@
             "tag_id": 11
         },
         {
+            "song_id": "MYTH Re：LEASE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 8
+        },
+        {
             "song_id": "回る空うさぎ",
             "sheet_type": "dx",
             "sheet_difficulty": "master",
@@ -26313,6 +26391,12 @@
             "tag_id": 11
         },
         {
+            "song_id": "MYTH Re：LEASE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "expert",
+            "tag_id": 8
+        },
+        {
             "song_id": "ナイト・オブ・ナイツ",
             "sheet_type": "std",
             "sheet_difficulty": "expert",
@@ -26337,10 +26421,34 @@
             "tag_id": 13
         },
         {
+            "song_id": "MYTH Re：LEASE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 7
+        },
+        {
+            "song_id": "MYTH Re：LEASE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 1
+        },
+        {
+            "song_id": "MYTH Re：LEASE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 18
+        },
+        {
             "song_id": "Melody！",
             "sheet_type": "dx",
             "sheet_difficulty": "master",
             "tag_id": 13
+        },
+        {
+            "song_id": "MYTH Re：LEASE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "expert",
+            "tag_id": 7
         },
         {
             "song_id": "Grievous Lady",
@@ -26353,6 +26461,12 @@
             "sheet_type": "dx",
             "sheet_difficulty": "expert",
             "tag_id": 16
+        },
+        {
+            "song_id": "MYTH Re：LEASE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "expert",
+            "tag_id": 6
         },
         {
             "song_id": "Luminaria",
@@ -26383,6 +26497,12 @@
             "sheet_type": "std",
             "sheet_difficulty": "master",
             "tag_id": 1
+        },
+        {
+            "song_id": "jelly",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 10
         },
         {
             "song_id": "アポカリプスに反逆の焔を焚べろ",
@@ -26463,6 +26583,12 @@
             "tag_id": 17
         },
         {
+            "song_id": "バーチャルダム　ネーション",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 10
+        },
+        {
             "song_id": "もうみんなしねばいいのに",
             "sheet_type": "std",
             "sheet_difficulty": "master",
@@ -26479,6 +26605,12 @@
             "sheet_type": "std",
             "sheet_difficulty": "master",
             "tag_id": 13
+        },
+        {
+            "song_id": "バーチャルダム　ネーション",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 8
         },
         {
             "song_id": "ミラクル・ショッピング",
@@ -26533,6 +26665,402 @@
             "sheet_type": "std",
             "sheet_difficulty": "master",
             "tag_id": 4
+        },
+        {
+            "song_id": "泥の分際で私だけの大切を奪おうだなんて",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 3
+        },
+        {
+            "song_id": "泥の分際で私だけの大切を奪おうだなんて",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 4
+        },
+        {
+            "song_id": "MYTH Re：LEASE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 24
+        },
+        {
+            "song_id": "MYTH Re：LEASE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 19
+        },
+        {
+            "song_id": "[逆]KING is BACK!!",
+            "sheet_type": "utage",
+            "sheet_difficulty": "【逆】",
+            "tag_id": 21
+        },
+        {
+            "song_id": "バーチャルダム　ネーション",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 23
+        },
+        {
+            "song_id": "INTERNET YAMERO",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 1
+        },
+        {
+            "song_id": "アポカリプスに反逆の焔を焚べろ",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 22
+        },
+        {
+            "song_id": "Our Wrenally",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 7
+        },
+        {
+            "song_id": "雨露霜雪",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 16
+        },
+        {
+            "song_id": "New York Back Raise",
+            "sheet_type": "dx",
+            "sheet_difficulty": "expert",
+            "tag_id": 4
+        },
+        {
+            "song_id": "のじゃロリック",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 1
+        },
+        {
+            "song_id": "のじゃロリック",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 10
+        },
+        {
+            "song_id": "のじゃロリック",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 14
+        },
+        {
+            "song_id": "強風オールバック",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 14
+        },
+        {
+            "song_id": "さよならヒストリー",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 1
+        },
+        {
+            "song_id": "さよならヒストリー",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 24
+        },
+        {
+            "song_id": "さよならヒストリー",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 20
+        },
+        {
+            "song_id": "L9",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 15
+        },
+        {
+            "song_id": "無敵We are one!!",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 11
+        },
+        {
+            "song_id": "光線チューニング",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 21
+        },
+        {
+            "song_id": "Kattobi KEIKYU Rider",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 20
+        },
+        {
+            "song_id": "First Dance",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 16
+        },
+        {
+            "song_id": "MarbleBlue.",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 10
+        },
+        {
+            "song_id": "How To Make 音ゲ～曲！",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 7
+        },
+        {
+            "song_id": "How To Make 音ゲ～曲！",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 24
+        },
+        {
+            "song_id": "How To Make 音ゲ～曲！",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 4
+        },
+        {
+            "song_id": "MarbleBlue.",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 4
+        },
+        {
+            "song_id": "Edelweiss",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 10
+        },
+        {
+            "song_id": "Edelweiss",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 6
+        },
+        {
+            "song_id": "熱異常",
+            "sheet_type": "dx",
+            "sheet_difficulty": "remaster",
+            "tag_id": 15
+        },
+        {
+            "song_id": "強風オールバック",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 20
+        },
+        {
+            "song_id": "CO5M1C R4ILR0AD",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 3
+        },
+        {
+            "song_id": "CO5M1C R4ILR0AD",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 18
+        },
+        {
+            "song_id": "Feel The Luv",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 13
+        },
+        {
+            "song_id": "HYP3RTRIBE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 4
+        },
+        {
+            "song_id": "HYP3RTRIBE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 3
+        },
+        {
+            "song_id": "HYP3RTRIBE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 18
+        },
+        {
+            "song_id": "New York Back Raise",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 10
+        },
+        {
+            "song_id": "患部で止まってすぐ溶ける～狂気の優曇華院",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 13
+        },
+        {
+            "song_id": "患部で止まってすぐ溶ける～狂気の優曇華院",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 7
+        },
+        {
+            "song_id": "患部で止まってすぐ溶ける～狂気の優曇華院",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 6
+        },
+        {
+            "song_id": "HYP3RTRIBE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 19
+        },
+        {
+            "song_id": "taboo tears you up",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 7
+        },
+        {
+            "song_id": "taboo tears you up",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 3
+        },
+        {
+            "song_id": "taboo tears you up",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 23
+        },
+        {
+            "song_id": "taboo tears you up",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 1
+        },
+        {
+            "song_id": "on the rocks",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 1
+        },
+        {
+            "song_id": "on the rocks",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 10
+        },
+        {
+            "song_id": "How To Make 音ゲ～曲！",
+            "sheet_type": "dx",
+            "sheet_difficulty": "expert",
+            "tag_id": 4
+        },
+        {
+            "song_id": "How To Make 音ゲ～曲！",
+            "sheet_type": "dx",
+            "sheet_difficulty": "expert",
+            "tag_id": 24
+        },
+        {
+            "song_id": "みんなのマイマイマー",
+            "sheet_type": "std",
+            "sheet_difficulty": "remaster",
+            "tag_id": 3
+        },
+        {
+            "song_id": "みんなのマイマイマー",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 3
+        },
+        {
+            "song_id": "みんなのマイマイマー",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 4
+        },
+        {
+            "song_id": "みんなのマイマイマー",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 7
+        },
+        {
+            "song_id": "U&iVERSE -銀河鸞翔-",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 18
+        },
+        {
+            "song_id": "Cthugha",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 19
+        },
+        {
+            "song_id": "Cthugha",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 6
+        },
+        {
+            "song_id": "Cthugha",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 23
+        },
+        {
+            "song_id": "パラマウント☆ショータイム！！",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 19
+        },
+        {
+            "song_id": "エスオーエス",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 19
+        },
+        {
+            "song_id": "tiny tales continue",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 23
+        },
+        {
+            "song_id": "スナネコのうた",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 14
+        },
+        {
+            "song_id": "忙シー日",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 20
+        },
+        {
+            "song_id": "Horoscope Express",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 7
+        },
+        {
+            "song_id": "四月の雨",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 13
         },
         {
             "song_id": "ナンセンス文学",
@@ -26685,6 +27213,12 @@
             "tag_id": 7
         },
         {
+            "song_id": "忙シー日",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 13
+        },
+        {
             "song_id": "ヒミツCULT",
             "sheet_type": "dx",
             "sheet_difficulty": "master",
@@ -26715,6 +27249,12 @@
             "tag_id": 22
         },
         {
+            "song_id": "ダブルラリアット",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 10
+        },
+        {
             "song_id": "進捗どうですか？",
             "sheet_type": "std",
             "sheet_difficulty": "master",
@@ -26734,6 +27274,12 @@
         },
         {
             "song_id": "共感覚おばけ",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 14
+        },
+        {
+            "song_id": "ダブルラリアット",
             "sheet_type": "std",
             "sheet_difficulty": "master",
             "tag_id": 14
@@ -26781,6 +27327,18 @@
             "tag_id": 1
         },
         {
+            "song_id": "[逆]KING is BACK!!",
+            "sheet_type": "utage",
+            "sheet_difficulty": "【逆】",
+            "tag_id": 6
+        },
+        {
+            "song_id": "バーチャルダム　ネーション",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 3
+        },
+        {
             "song_id": "若い力",
             "sheet_type": "dx",
             "sheet_difficulty": "master",
@@ -26797,6 +27355,36 @@
             "sheet_type": "dx",
             "sheet_difficulty": "remaster",
             "tag_id": 14
+        },
+        {
+            "song_id": "Chronomia",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 11
+        },
+        {
+            "song_id": "Everybody Say HARDCORE TANO*C",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 13
+        },
+        {
+            "song_id": "Everybody Say HARDCORE TANO*C",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 16
+        },
+        {
+            "song_id": "Trrricksters!!",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 8
+        },
+        {
+            "song_id": "PinqPiq (xovevox Remix)",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 11
         },
         {
             "song_id": "パーフェクション",
@@ -26839,6 +27427,12 @@
             "sheet_type": "std",
             "sheet_difficulty": "master",
             "tag_id": 14
+        },
+        {
+            "song_id": "New York Back Raise",
+            "sheet_type": "dx",
+            "sheet_difficulty": "expert",
+            "tag_id": 8
         },
         {
             "song_id": "GEMINI -M-",
@@ -26911,6 +27505,12 @@
             "sheet_type": "dx",
             "sheet_difficulty": "master",
             "tag_id": 11
+        },
+        {
+            "song_id": "超最終鬼畜妹フランドール・S",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 13
         },
         {
             "song_id": "Lights of Muse",
@@ -26995,6 +27595,12 @@
             "sheet_type": "dx",
             "sheet_difficulty": "master",
             "tag_id": 21
+        },
+        {
+            "song_id": "ダブルラリアット",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 17
         },
         {
             "song_id": "壱雫空",
@@ -27225,6 +27831,12 @@
             "tag_id": 3
         },
         {
+            "song_id": "[逆]KING is BACK!!",
+            "sheet_type": "utage",
+            "sheet_difficulty": "【逆】",
+            "tag_id": 3
+        },
+        {
             "song_id": "Bad Apple!! feat.nomico",
             "sheet_type": "std",
             "sheet_difficulty": "remaster",
@@ -27319,6 +27931,66 @@
             "sheet_type": "std",
             "sheet_difficulty": "master",
             "tag_id": 16
+        },
+        {
+            "song_id": "[逆]KING is BACK!!",
+            "sheet_type": "utage",
+            "sheet_difficulty": "【逆】",
+            "tag_id": 7
+        },
+        {
+            "song_id": "Reach For The Stars (Re-Colors)",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 24
+        },
+        {
+            "song_id": "MYTH Re：LEASE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 21
+        },
+        {
+            "song_id": "アポカリプスに反逆の焔を焚べろ",
+            "sheet_type": "dx",
+            "sheet_difficulty": "expert",
+            "tag_id": 23
+        },
+        {
+            "song_id": "アポカリプスに反逆の焔を焚べろ",
+            "sheet_type": "dx",
+            "sheet_difficulty": "expert",
+            "tag_id": 4
+        },
+        {
+            "song_id": "GEOMETRIC DANCE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 7
+        },
+        {
+            "song_id": "TEmPTaTiON",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 8
+        },
+        {
+            "song_id": "[習]ウミユリ海底譚",
+            "sheet_type": "utage",
+            "sheet_difficulty": "【習】",
+            "tag_id": 11
+        },
+        {
+            "song_id": "ネクロファンタジア～Arr.Demetori",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 3
+        },
+        {
+            "song_id": "Armageddon",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 7
         }
     ]
 }

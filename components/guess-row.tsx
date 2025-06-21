@@ -66,6 +66,7 @@ export default function GuessRow({ guess, targetSong }: GuessRowProps) {
     "舞萌DX 2022": "DX 2022 宙/星",
     "舞萌DX 2023": "DX 2023 祭/祝",
     "舞萌DX 2024": "DX 2024 双/宴",
+    "舞萌DX 2025": "DX 2025 镜",
   }
 
 

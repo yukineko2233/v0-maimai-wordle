@@ -177,6 +177,10 @@ async function refreshSongsCache(): Promise<Song[]> {
         version = "舞萌DX 2024"
       }
 
+      if (version === "maimai でらっくす PRiSM") {
+        version = "舞萌DX 2025"
+      }
+
       // Ensure all required properties exist
       return {
         id: song.id || 0,
@@ -273,7 +277,7 @@ async function refreshAliasesCache(): Promise<Record<number, string[]>> {
       headers["If-None-Match"] = aliasesEtag
     }
 
-    const response = await axios.get("https://api.yuzuchan.moe/maimaidx/maimaidxalias", {
+    const response = await axios.get("https://www.yuzuchan.moe/api/maimaidx/maimaidxalias", {
       headers,
       validateStatus: (status) => status === 200 || status === 304,
     })

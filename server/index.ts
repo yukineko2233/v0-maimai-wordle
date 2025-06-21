@@ -80,6 +80,7 @@ function getVersionValue(version: string): number {
         "舞萌DX 2022": 16,
         "舞萌DX 2023": 17,
         "舞萌DX 2024": 18,
+        "舞萌DX 2025": 19,
     }
 
     return versionMap[version] || 0
