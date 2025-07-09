@@ -27991,6 +27991,330 @@
             "sheet_type": "dx",
             "sheet_difficulty": "master",
             "tag_id": 7
+        },
+        {
+            "song_id": "Blew Moon",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 13
+        },
+        {
+            "song_id": "オーバーライド",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 11
+        },
+        {
+            "song_id": "SPILL OVER COLORS",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 14
+        },
+        {
+            "song_id": "SUPER AMBULANCE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 19
+        },
+        {
+            "song_id": "SUPER AMBULANCE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 23
+        },
+        {
+            "song_id": "Xenovcipher",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 23
+        },
+        {
+            "song_id": "QuiQ",
+            "sheet_type": "dx",
+            "sheet_difficulty": "expert",
+            "tag_id": 23
+        },
+        {
+            "song_id": "QuiQ",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 17
+        },
+        {
+            "song_id": "conflict",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 13
+        },
+        {
+            "song_id": "Apollo",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 22
+        },
+        {
+            "song_id": "QZKago Requiem",
+            "sheet_type": "std",
+            "sheet_difficulty": "advanced",
+            "tag_id": 3
+        },
+        {
+            "song_id": "Credits",
+            "sheet_type": "std",
+            "sheet_difficulty": "expert",
+            "tag_id": 8
+        },
+        {
+            "song_id": "sølips",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 11
+        },
+        {
+            "song_id": "Ourania",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 13
+        },
+        {
+            "song_id": "華の集落、秋のお届け",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 8
+        },
+        {
+            "song_id": "華の集落、秋のお届け",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 15
+        },
+        {
+            "song_id": "IF:U",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 6
+        },
+        {
+            "song_id": "IF:U",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 3
+        },
+        {
+            "song_id": "Comet Panto Men!",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 18
+        },
+        {
+            "song_id": "FLUFFY FLASH",
+            "sheet_type": "dx",
+            "sheet_difficulty": "expert",
+            "tag_id": 18
+        },
+        {
+            "song_id": "FLUFFY FLASH",
+            "sheet_type": "dx",
+            "sheet_difficulty": "expert",
+            "tag_id": 19
+        },
+        {
+            "song_id": "My First Phone",
+            "sheet_type": "std",
+            "sheet_difficulty": "expert",
+            "tag_id": 14
+        },
+        {
+            "song_id": "エンドマークに希望と涙を添えて",
+            "sheet_type": "std",
+            "sheet_difficulty": "expert",
+            "tag_id": 18
+        },
+        {
+            "song_id": "ラビットホール",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 10
+        },
+        {
+            "song_id": "Hyper Active",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 19
+        },
+        {
+            "song_id": "Lia=Fail",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 20
+        },
+        {
+            "song_id": "Lia=Fail",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 24
+        },
+        {
+            "song_id": "Lia=Fail",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 7
+        },
+        {
+            "song_id": "Lia=Fail",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 6
+        },
+        {
+            "song_id": "\"411Ψ892\"",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 19
+        },
+        {
+            "song_id": "Heavenly Blast",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 17
+        },
+        {
+            "song_id": "魔法少女になるしかねぇ",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 8
+        },
+        {
+            "song_id": "概して過誤",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 6
+        },
+        {
+            "song_id": "表裏一体",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 1
+        },
+        {
+            "song_id": "Armageddon",
+            "sheet_type": "dx",
+            "sheet_difficulty": "expert",
+            "tag_id": 8
+        },
+        {
+            "song_id": "若い力 -SEGA HARD GIRLS MIX-",
+            "sheet_type": "std",
+            "sheet_difficulty": "remaster",
+            "tag_id": 10
+        },
+        {
+            "song_id": "NULCTRL",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 11
+        },
+        {
+            "song_id": "インパアフェクシオン・ホワイトガアル",
+            "sheet_type": "dx",
+            "sheet_difficulty": "expert",
+            "tag_id": 4
+        },
+        {
+            "song_id": "QuiQ",
+            "sheet_type": "dx",
+            "sheet_difficulty": "expert",
+            "tag_id": 18
+        },
+        {
+            "song_id": "うぇいびー",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 11
+        },
+        {
+            "song_id": "Ourania",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 10
+        },
+        {
+            "song_id": "Ourania",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 6
+        },
+        {
+            "song_id": "Ourania",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 7
+        },
+        {
+            "song_id": "Snow Colored Score",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 4
+        },
+        {
+            "song_id": "Snow Colored Score",
+            "sheet_type": "dx",
+            "sheet_difficulty": "master",
+            "tag_id": 7
+        },
+        {
+            "song_id": "MAXRAGE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "remaster",
+            "tag_id": 23
+        },
+        {
+            "song_id": "MAXRAGE",
+            "sheet_type": "dx",
+            "sheet_difficulty": "remaster",
+            "tag_id": 3
+        },
+        {
+            "song_id": "バーチャルダム　ネーション",
+            "sheet_type": "dx",
+            "sheet_difficulty": "remaster",
+            "tag_id": 7
+        },
+        {
+            "song_id": "バーチャルダム　ネーション",
+            "sheet_type": "dx",
+            "sheet_difficulty": "remaster",
+            "tag_id": 4
+        },
+        {
+            "song_id": "バーチャルダム　ネーション",
+            "sheet_type": "dx",
+            "sheet_difficulty": "remaster",
+            "tag_id": 23
+        },
+        {
+            "song_id": "バーチャルダム　ネーション",
+            "sheet_type": "dx",
+            "sheet_difficulty": "remaster",
+            "tag_id": 6
+        },
+        {
+            "song_id": "SPICY SWINGY STYLE",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 15
+        },
+        {
+            "song_id": "SPICY SWINGY STYLE",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 24
+        },
+        {
+            "song_id": "SPICY SWINGY STYLE",
+            "sheet_type": "std",
+            "sheet_difficulty": "master",
+            "tag_id": 17
         }
     ]
 }
