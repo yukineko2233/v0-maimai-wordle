@@ -1,0 +1,267 @@
+import { useState, useEffect } from "react"
+import { Toaster, toast } from "sonner"
+import {
+  Calendar,
+  User,
+  Users,
+  HelpCircle,
+  RefreshCw,
+  Lightbulb,
+  ExternalLink,
+} from "lucide-react"
+import type { MultiplayerRoom, Song } from "../shared/types"
+import { clearClientCache, fetchSongs } from "./services/api"
+import FixedBg from "./components/common/FixedBg"
+import LoadingScreen from "./components/common/LoadingScreen"
+import HelpModal from "./components/common/HelpModal"
+import RoomStatus from "./components/common/RoomStatus"
+import GameBoard from "./components/singleplayer/GameBoard"
+import DailyGame from "./components/daily/DailyGame"
+import MultiplayerLobby from "./components/multiplayer/MultiplayerLobby"
+import MultiplayerGame from "./components/multiplayer/MultiplayerGame"
+
+type GameMode = "menu" | "singleplayer" | "daily" | "multiplayer-lobby" | "multiplayer-game"
+
+export default function App() {
+  const [mode, setMode] = useState<GameMode>("menu")
+  const [songs, setSongs] = useState<Song[]>([])
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [showHelp, setShowHelp] = useState(false)
+  const [multiplayerRoom, setMultiplayerRoom] = useState<MultiplayerRoom | null>(null)
+
+  // 视口高度适配
+  useEffect(() => {
+    const setVH = () => {
+      const vh = window.innerHeight * 0.01
+      document.documentElement.style.setProperty("--vh", `${vh}px`)
+    }
+    setVH()
+    window.addEventListener("resize", setVH)
+    return () => window.removeEventListener("resize", setVH)
+  }, [])
+
+  // 加载数据
+  useEffect(() => {
+    let mounted = true
+    async function load() {
+      try {
+        const data = await fetchSongs()
+        if (mounted) {
+          setSongs(data)
+          setLoading(false)
+
+          // 首次访问自动弹出帮助说明
+          const hasVisited = localStorage.getItem("has_visited_maimai_wordle_v2")
+          if (!hasVisited) {
+            localStorage.setItem("has_visited_maimai_wordle_v2", "true")
+            setShowHelp(true)
+          }
+        }
+      } catch (err) {
+        if (mounted) {
+          toast.error("曲库加载失败，请检查网络连接后重试")
+          setLoading(false)
+        }
+      }
+    }
+    load()
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  const handleRefreshData = async () => {
+    setRefreshing(true)
+    try {
+      clearClientCache()
+      const data = await fetchSongs(true)
+      setSongs(data)
+      toast.success(`曲库数据已成功刷新！共加载 ${data.length} 首歌曲`)
+    } catch (err) {
+      toast.error("刷新失败，请稍后再试")
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
+  const handleStartMultiplayer = (room: MultiplayerRoom) => {
+    setMultiplayerRoom(room)
+    setMode("multiplayer-game")
+  }
+
+  if (loading) {
+    return (
+      <>
+        <FixedBg />
+        <main className="min-h-[calc(var(--vh,1vh)*100)] py-12 px-4 flex flex-col items-center justify-center">
+          <div className="w-full max-w-xl">
+            <LoadingScreen />
+          </div>
+        </main>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <FixedBg />
+      <main className="min-h-[calc(var(--vh,1vh)*100)] py-8 md:py-16 px-3 md:px-6 flex flex-col items-center justify-center">
+        <div className="w-full max-w-5xl">
+          {mode === "menu" && (
+            <div className="relative w-full mx-auto bg-white/95 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden border border-white/50 animate-in fade-in duration-200">
+              {/* 外部社区与原作者链接条 */}
+              <div className="hidden sm:flex justify-between items-center px-5 py-2.5 bg-slate-50/80 border-b border-gray-100 text-xs text-gray-500">
+                <div className="flex items-center gap-3">
+                  <a
+                    href="https://yukineko2233.top/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 hover:text-pink-600 transition-colors"
+                  >
+                    <span>🐱 Yukineko's Blog</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <a
+                    href="https://www.diving-fish.com/maimaidx/prober/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-blue-600 transition-colors"
+                  >
+                    水鱼查分器
+                  </a>
+                  <a
+                    href="https://space.bilibili.com/91295942"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-sky-500 transition-colors"
+                  >
+                    Bilibili
+                  </a>
+                  <a
+                    href="https://github.com/yukineko2233/v0-maimai-wordle"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-gray-900 transition-colors"
+                  >
+                    GitHub
+                  </a>
+                  <a
+                    href="https://qm.qq.com/q/Ou7L5DOzKi"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-pink-600 font-semibold hover:underline"
+                  >
+                    QQ 群
+                  </a>
+                </div>
+              </div>
+
+              {/* 经典主标题 Banner */}
+              <div className="relative p-5 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white flex items-center justify-between shadow-xs">
+                <button
+                  type="button"
+                  onClick={handleRefreshData}
+                  disabled={refreshing}
+                  className="p-2 rounded-full hover:bg-white/20 transition-colors text-white cursor-pointer disabled:opacity-50"
+                  title="强制刷新曲库数据"
+                >
+                  <RefreshCw className={`h-5 w-5 ${refreshing ? "animate-spin" : ""}`} />
+                </button>
+
+                <h1 className="text-xl md:text-2xl font-black tracking-wider text-center drop-shadow-xs">
+                  舞萌猜猜呗之潘一把
+                </h1>
+
+                <button
+                  type="button"
+                  onClick={() => setShowHelp(true)}
+                  className="p-2 rounded-full hover:bg-white/20 transition-colors text-white cursor-pointer"
+                  title="玩法与规则帮助"
+                >
+                  <HelpCircle className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* 游戏模式大按钮选择区 */}
+              <div className="p-6 md:p-10 flex flex-col md:flex-row gap-4 justify-center text-center">
+                <button
+                  type="button"
+                  onClick={() => setMode("daily")}
+                  className="flex-1 py-8 px-4 bg-gradient-to-br from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white font-bold rounded-2xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer flex flex-col items-center justify-center gap-2 group"
+                >
+                  <Calendar className="h-7 w-7 transition-transform group-hover:scale-110" />
+                  <span className="text-lg">每日一首</span>
+                  <span className="text-xs font-normal opacity-85">全服每日统一随机挑战</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setMode("singleplayer")}
+                  className="flex-1 py-8 px-4 bg-gradient-to-br from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold rounded-2xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer flex flex-col items-center justify-center gap-2 group"
+                >
+                  <User className="h-7 w-7 transition-transform group-hover:scale-110" />
+                  <span className="text-lg">单人练习</span>
+                  <span className="text-xs font-normal opacity-85">自由设置出题范围与难度</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setMode("multiplayer-lobby")}
+                  className="flex-1 py-8 px-4 bg-gradient-to-br from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold rounded-2xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer flex flex-col items-center justify-center gap-2 group"
+                >
+                  <Users className="h-7 w-7 transition-transform group-hover:scale-110" />
+                  <span className="text-lg">多人联机</span>
+                  <span className="text-xs font-normal opacity-85">创建房间与朋友实时抢答</span>
+                </button>
+              </div>
+
+              {/* 实时房间状态 */}
+              <div className="px-6">
+                <RoomStatus />
+              </div>
+
+              {/* 底部社群提示 */}
+              <div className="text-center text-xs text-gray-500 pb-5 pt-1">
+                <Lightbulb className="inline h-3.5 w-3.5 text-amber-500 mr-1" />
+                一起联机猜歌？加入交流 QQ 群: <strong className="text-gray-800">1042238018</strong>
+              </div>
+            </div>
+          )}
+
+          {mode === "singleplayer" && (
+            <GameBoard onBack={() => setMode("menu")} initialSongs={songs} />
+          )}
+
+          {mode === "daily" && (
+            <DailyGame onBack={() => setMode("menu")} initialSongs={songs} />
+          )}
+
+          {mode === "multiplayer-lobby" && (
+            <MultiplayerLobby
+              onStartGame={handleStartMultiplayer}
+              onBack={() => setMode("menu")}
+              initialSongs={songs}
+            />
+          )}
+
+          {mode === "multiplayer-game" && multiplayerRoom && (
+            <MultiplayerGame
+              initialRoom={multiplayerRoom}
+              onExit={() => {
+                setMultiplayerRoom(null)
+                setMode("menu")
+              }}
+            />
+          )}
+        </div>
+
+        {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
+        <Toaster richColors position="top-center" />
+      </main>
+    </>
+  )
+}

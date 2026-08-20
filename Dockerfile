@@ -1,42 +1,31 @@
 # 构建阶段
-# 使用 Node.js 20 作为基础镜像
-FROM node:20-alpine AS build
+FROM node:20-alpine AS builder
 
-# 设置工作目录
 WORKDIR /app
+RUN npm i -g pnpm
 
-# 声明环境变量
-ARG NEXT_PUBLIC_SOCKET_URL
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
-# 安装 pnpm
-RUN npm i pnpm -g
-
-# 复制 package.json 和 package-lock.json
-COPY package*.json pnpm-lock.yaml ./
-
-# 安装依赖
-RUN pnpm i --frozen-lockfile
-
-# 复制源代码
 COPY . .
+RUN pnpm typecheck && pnpm test && pnpm build
 
-# 设置环境变量
-ENV NEXT_PUBLIC_SOCKET_URL=$NEXT_PUBLIC_SOCKET_URL
+# 生产运行阶段
+FROM node:20-alpine AS runner
 
-# 构建
-RUN pnpm build
-
-# 生产阶段
-FROM node:20-alpine
-
-# 设置工作目录
 WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=3000
 
-# 复制构建结果
-COPY --from=build /app ./
+RUN npm i -g pnpm
 
-# 暴露端口
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --prod --frozen-lockfile
+
+# 复制打包后的客户端与服务端产物
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/public ./public
+
 EXPOSE 3000
 
-# 启动应用
-CMD ["npm", "run", "start"]
+CMD ["node", "dist/server/index.js"]

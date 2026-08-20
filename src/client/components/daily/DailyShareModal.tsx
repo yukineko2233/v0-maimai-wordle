@@ -1,0 +1,115 @@
+import { useState } from "react"
+import { Copy, Check, X } from "lucide-react"
+import { toast } from "sonner"
+import type { Guess } from "../../../shared/types"
+
+interface DailyShareModalProps {
+  guesses: Guess[]
+  won: boolean
+  maxGuesses: number
+  date: string
+  onClose: () => void
+}
+
+export default function DailyShareModal({
+  guesses,
+  won,
+  maxGuesses,
+  date,
+  onClose,
+}: DailyShareModalProps) {
+  const [copied, setCopied] = useState(false)
+
+  const generateShareText = () => {
+    const header = `舞萌猜猜呗 每日一首 ${date}\n`
+    const result = `${won ? "✅" : "❌"} ${guesses.length}/${maxGuesses}\n\n`
+
+    const guessEmojis = guesses
+      .map((guess) => {
+        let row = ""
+        // Title
+        row += guess.result.title.status === "exact" ? "🟩" : "⬜"
+        // Type
+        row += guess.result.type.status === "exact" ? "🟩" : "⬜"
+        // Artist
+        row += guess.result.artist.status === "exact" ? "🟩" : "⬜"
+        // BPM
+        if (guess.result.bpm.status === "exact") row += "🟩"
+        else if (guess.result.bpm.status === "close") row += "🟨"
+        else row += guess.result.bpm.direction === "higher" ? "⬇️" : "⬆️"
+        // Genre
+        row += guess.result.genre.status === "exact" ? "🟩" : "⬜"
+        // Master Level
+        if (guess.result.masterLevel.status === "exact") row += "🟩"
+        else if (guess.result.masterLevel.status === "close") row += "🟨"
+        else row += guess.result.masterLevel.direction === "higher" ? "⬇️" : "⬆️"
+        // Version
+        if (guess.result.version.status === "exact") row += "🟩"
+        else if (guess.result.version.status === "close") row += "🟨"
+        else row += guess.result.version.direction === "higher" ? "⬇️" : "⬆️"
+
+        return row
+      })
+      .join("\n")
+
+    const footer = "\n\n一起猜歌: " + (typeof window !== "undefined" ? window.location.origin : "https://maimai.yukineko2233.top/")
+    return header + result + guessEmojis + footer
+  }
+
+  const shareText = generateShareText()
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(shareText)
+      setCopied(true)
+      toast.success("已成功复制到剪贴板！")
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      toast.error("复制失败，请手动长按复制")
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-5 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="font-bold text-gray-900 text-base">分享今日挑战结果</h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="bg-gray-100 p-4 rounded-lg font-mono text-xs whitespace-pre-wrap select-all mb-4 text-gray-800 leading-relaxed max-h-60 overflow-y-auto">
+          {shareText}
+        </div>
+
+        <div className="text-xs text-gray-500 mb-4 space-y-0.5">
+          <p>🟩 完全相同 | 🟨 接近 (BPM±20 / 等级±半级 / 版本±1代)</p>
+          <p>⬇️ 目标更小/更旧 | ⬆️ 目标更大/更后</p>
+        </div>
+
+        <div className="flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200"
+          >
+            关闭
+          </button>
+          <button
+            type="button"
+            onClick={copyToClipboard}
+            className="flex items-center gap-1.5 px-5 py-2 text-xs font-medium text-white bg-gradient-to-r from-green-500 to-teal-500 rounded-lg hover:opacity-90 shadow-xs cursor-pointer"
+          >
+            {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            {copied ? "已复制" : "复制文字"}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}

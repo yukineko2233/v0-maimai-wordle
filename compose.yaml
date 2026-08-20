@@ -1,0 +1,18 @@
+services:
+  maimai-wordle:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: maimai-wordle:latest
+    container_name: maimai-wordle
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 512M
