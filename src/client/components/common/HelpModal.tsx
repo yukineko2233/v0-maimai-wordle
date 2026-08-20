@@ -1,3 +1,5 @@
+import { useEffect } from "react"
+import { createPortal } from "react-dom"
 import { X } from "lucide-react"
 
 interface HelpModalProps {
@@ -5,15 +7,23 @@ interface HelpModalProps {
 }
 
 export default function HelpModal({ onClose }: HelpModalProps) {
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-auto animate-in fade-in zoom-in-95 duration-200">
-        <div className="p-4 border-b flex justify-between items-center bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-t-xl">
+  useEffect(() => {
+    const originalStyle = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.body.style.overflow = originalStyle
+    }
+  }, [])
+
+  const content = (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[99999] p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-auto animate-in fade-in zoom-in-95 duration-200">
+        <div className="p-4 border-b flex justify-between items-center bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-t-2xl">
           <h2 className="text-xl font-bold">玩法与规则说明</h2>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-white/20 transition-colors text-white"
+            className="p-1 rounded-full hover:bg-white/20 transition-colors text-white cursor-pointer"
           >
             <X className="h-5 w-5" />
           </button>
@@ -115,7 +125,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                 </a>
               </li>
               <li>
-                原作者博客 & 支持：
+                原作者博客：
                 <a
                   href="https://yukineko2233.top/2025/04/26/maimai-wordle/"
                   target="_blank"
@@ -129,11 +139,11 @@ export default function HelpModal({ onClose }: HelpModalProps) {
           </div>
         </div>
 
-        <div className="p-4 border-t flex justify-end bg-gray-50 rounded-b-xl">
+        <div className="p-4 border-t flex justify-end bg-gray-50 rounded-b-2xl">
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+            className="px-5 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
           >
             知道了，开始猜歌！
           </button>
@@ -141,4 +151,6 @@ export default function HelpModal({ onClose }: HelpModalProps) {
       </div>
     </div>
   )
+
+  return typeof document !== "undefined" ? createPortal(content, document.body) : null
 }

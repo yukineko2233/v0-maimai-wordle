@@ -138,9 +138,9 @@ export default function MultiplayerGame({
   const isMatchFinished = room.status === "finished"
 
   return (
-    <div className="w-full mx-auto bg-white/95 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden border border-white/50 animate-in fade-in duration-200">
+    <div className="w-full mx-auto bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-white/50 animate-in fade-in duration-200">
       {/* 顶栏 */}
-      <div className="p-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex justify-between items-center shadow-xs">
+      <div className="p-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex justify-between items-center shadow-xs rounded-t-2xl">
         <button
           type="button"
           onClick={exitGame}

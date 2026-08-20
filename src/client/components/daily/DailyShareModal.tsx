@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { createPortal } from "react-dom"
 import { Copy, Check, X } from "lucide-react"
 import { toast } from "sonner"
 import type { Guess } from "../../../shared/types"
@@ -19,6 +20,14 @@ export default function DailyShareModal({
   onClose,
 }: DailyShareModalProps) {
   const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    const originalStyle = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.body.style.overflow = originalStyle
+    }
+  }, [])
 
   const generateShareText = () => {
     const header = `舞萌猜猜呗 每日一首 ${date}\n`
@@ -52,7 +61,9 @@ export default function DailyShareModal({
       })
       .join("\n")
 
-    const footer = "\n\n一起猜歌: " + (typeof window !== "undefined" ? window.location.origin : "https://maimai.yukineko2233.top/")
+    const footer =
+      "\n\n一起猜歌: " +
+      (typeof window !== "undefined" ? window.location.origin : "https://maimai.yukineko2233.top/")
     return header + result + guessEmojis + footer
   }
 
@@ -69,21 +80,21 @@ export default function DailyShareModal({
     }
   }
 
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-5 animate-in fade-in zoom-in-95 duration-200">
+  const content = (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[99999] p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-5 animate-in fade-in zoom-in-95 duration-200">
         <div className="flex justify-between items-center mb-3">
           <h3 className="font-bold text-gray-900 text-base">分享今日挑战结果</h3>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+            className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="bg-gray-100 p-4 rounded-lg font-mono text-xs whitespace-pre-wrap select-all mb-4 text-gray-800 leading-relaxed max-h-60 overflow-y-auto">
+        <div className="bg-gray-100 p-4 rounded-xl font-mono text-xs whitespace-pre-wrap select-all mb-4 text-gray-800 leading-relaxed max-h-60 overflow-y-auto">
           {shareText}
         </div>
 
@@ -96,7 +107,7 @@ export default function DailyShareModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200"
+            className="px-4 py-2 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 cursor-pointer"
           >
             关闭
           </button>
@@ -112,4 +123,6 @@ export default function DailyShareModal({
       </div>
     </div>
   )
+
+  return typeof document !== "undefined" ? createPortal(content, document.body) : null
 }

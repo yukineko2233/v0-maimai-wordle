@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { createPortal } from "react-dom"
 import { X, RotateCcw } from "lucide-react"
 import type { GameSettings } from "../../../shared/types"
 import { VERSION_ORDER } from "../../../shared/domain/versions"
@@ -31,6 +32,15 @@ export default function SettingsPanel({
 }: SettingsPanelProps) {
   const [current, setCurrent] = useState<GameSettings>({ ...settings })
 
+  // 阻止背景滚动
+  useEffect(() => {
+    const originalStyle = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.body.style.overflow = originalStyle
+    }
+  }, [])
+
   const handleApply = () => {
     onApply(current)
   }
@@ -47,15 +57,15 @@ export default function SettingsPanel({
     }
   }
 
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
-        <div className="p-4 border-b flex justify-between items-center bg-gray-50 rounded-t-xl">
+  const content = (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[99999] p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+        <div className="p-4 border-b flex justify-between items-center bg-gray-50 rounded-t-2xl">
           <h2 className="text-lg font-bold text-gray-900">游戏设置</h2>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-colors"
+            className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-colors cursor-pointer"
           >
             <X className="h-5 w-5" />
           </button>
@@ -298,11 +308,11 @@ export default function SettingsPanel({
           </div>
         </div>
 
-        <div className="p-4 border-t flex justify-between items-center bg-gray-50 rounded-b-xl">
+        <div className="p-4 border-t flex justify-between items-center bg-gray-50 rounded-b-2xl">
           <button
             type="button"
             onClick={restoreDefaults}
-            className="flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors"
+            className="flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer"
           >
             <RotateCcw className="h-3.5 w-3.5" />
             恢复默认
@@ -312,14 +322,14 @@ export default function SettingsPanel({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
+              className="px-4 py-2 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
             >
               取消
             </button>
             <button
               type="button"
               onClick={handleApply}
-              className="px-5 py-2 text-xs font-medium text-white bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg hover:opacity-90 transition-opacity shadow-xs"
+              className="px-5 py-2 text-xs font-medium text-white bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg hover:opacity-90 transition-opacity shadow-xs cursor-pointer"
             >
               应用设置
             </button>
@@ -328,4 +338,6 @@ export default function SettingsPanel({
       </div>
     </div>
   )
+
+  return typeof document !== "undefined" ? createPortal(content, document.body) : null
 }

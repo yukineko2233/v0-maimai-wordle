@@ -1,14 +1,6 @@
 import { useState, useEffect } from "react"
 import { Toaster, toast } from "sonner"
-import {
-  Calendar,
-  User,
-  Users,
-  HelpCircle,
-  RefreshCw,
-  Lightbulb,
-  ExternalLink,
-} from "lucide-react"
+import { Calendar, User, Users, HelpCircle, RefreshCw } from "lucide-react"
 import type { MultiplayerRoom, Song } from "../shared/types"
 import { clearClientCache, fetchSongs } from "./services/api"
 import FixedBg from "./components/common/FixedBg"
@@ -110,56 +102,6 @@ export default function App() {
         <div className="w-full max-w-5xl">
           {mode === "menu" && (
             <div className="relative w-full mx-auto bg-white/95 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden border border-white/50 animate-in fade-in duration-200">
-              {/* 外部社区与原作者链接条 */}
-              <div className="hidden sm:flex justify-between items-center px-5 py-2.5 bg-slate-50/80 border-b border-gray-100 text-xs text-gray-500">
-                <div className="flex items-center gap-3">
-                  <a
-                    href="https://yukineko2233.top/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 hover:text-pink-600 transition-colors"
-                  >
-                    <span>🐱 Yukineko's Blog</span>
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <a
-                    href="https://www.diving-fish.com/maimaidx/prober/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-blue-600 transition-colors"
-                  >
-                    水鱼查分器
-                  </a>
-                  <a
-                    href="https://space.bilibili.com/91295942"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-sky-500 transition-colors"
-                  >
-                    Bilibili
-                  </a>
-                  <a
-                    href="https://github.com/yukineko2233/v0-maimai-wordle"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-gray-900 transition-colors"
-                  >
-                    GitHub
-                  </a>
-                  <a
-                    href="https://qm.qq.com/q/Ou7L5DOzKi"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-pink-600 font-semibold hover:underline"
-                  >
-                    QQ 群
-                  </a>
-                </div>
-              </div>
-
               {/* 经典主标题 Banner */}
               <div className="relative p-5 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white flex items-center justify-between shadow-xs">
                 <button
@@ -220,14 +162,8 @@ export default function App() {
               </div>
 
               {/* 实时房间状态 */}
-              <div className="px-6">
+              <div className="px-6 pb-6">
                 <RoomStatus />
-              </div>
-
-              {/* 底部社群提示 */}
-              <div className="text-center text-xs text-gray-500 pb-5 pt-1">
-                <Lightbulb className="inline h-3.5 w-3.5 text-amber-500 mr-1" />
-                一起联机猜歌？加入交流 QQ 群: <strong className="text-gray-800">1042238018</strong>
               </div>
             </div>
           )}
