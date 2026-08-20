@@ -14,6 +14,8 @@ import {
   OLD_VERSION_PRESET,
   DX_VERSION_PRESET,
   GENRE_LIST,
+  TOP_SONGS_OPTIONS,
+  UNLIMITED_TOP_SONGS,
   applyPresetSettings,
 } from "../../../shared/domain/presets"
 
@@ -46,7 +48,7 @@ export default function SettingsPanel({
   }
 
   const applyPreset = (preset: any) => {
-    setCurrent(applyPresetSettings(current, preset))
+    setCurrent(applyPresetSettings(current, preset, isMultiplayer))
   }
 
   const restoreDefaults = () => {
@@ -56,6 +58,14 @@ export default function SettingsPanel({
       setCurrent({ ...DEFAULT_SETTINGS })
     }
   }
+
+  // 计算当前热度滑块索引
+  const currentTopSongsIndex = (() => {
+    const foundIdx = TOP_SONGS_OPTIONS.indexOf(current.topSongs as any)
+    if (foundIdx !== -1) return foundIdx
+    if (current.topSongs >= 500) return TOP_SONGS_OPTIONS.length - 1
+    return 0
+  })()
 
   const content = (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[99999] p-4">
@@ -80,7 +90,7 @@ export default function SettingsPanel({
                 type="button"
                 onClick={() => applyPreset(BEGINNER_PRESET)}
                 className="px-3 py-1.5 rounded-lg border border-pink-300 bg-pink-50 text-pink-700 font-medium hover:bg-pink-100 transition-colors cursor-pointer text-xs"
-                title="版本: 全版本 | 等级: 10+~15 | 前100首热门"
+                title="版本: 全版本 | 等级: 10+~14+ | 前100首热门"
               >
                 🌱 入门推荐 (前100首热门)
               </button>
@@ -255,19 +265,30 @@ export default function SettingsPanel({
           <div className="space-y-2">
             <div className="flex justify-between items-center text-xs">
               <span className="font-semibold text-gray-900">歌曲热度范围</span>
-              <span className="text-gray-500">
-                {current.topSongs >= 500 ? "无限制 (所有符合条件的歌曲)" : `前 ${current.topSongs} 首热门歌曲`}
+              <span className="text-pink-600 font-semibold">
+                {current.topSongs >= UNLIMITED_TOP_SONGS
+                  ? "无限制 (所有符合条件的歌曲)"
+                  : `前 ${current.topSongs} 首热门歌曲`}
               </span>
             </div>
             <input
               type="range"
-              min={50}
-              max={550}
-              step={50}
-              value={current.topSongs}
-              onChange={(e) => setCurrent({ ...current, topSongs: Number(e.target.value) })}
-              className="w-full accent-pink-500"
+              min={0}
+              max={TOP_SONGS_OPTIONS.length - 1}
+              step={1}
+              value={currentTopSongsIndex}
+              onChange={(e) => {
+                const idx = Number(e.target.value)
+                setCurrent({ ...current, topSongs: TOP_SONGS_OPTIONS[idx] })
+              }}
+              className="w-full accent-pink-500 cursor-pointer"
             />
+            <div className="flex justify-between text-3xs text-gray-400 px-0.5">
+              <span>前50首</span>
+              <span>前200首</span>
+              <span>前500首</span>
+              <span>无限制</span>
+            </div>
           </div>
 
           {/* 猜测次数与时间限制 */}

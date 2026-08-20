@@ -99,7 +99,26 @@ describe("Version Management & Presets", () => {
     expect(BEGINNER_PRESET.versionRange.min).toBe("maimai")
     expect(BEGINNER_PRESET.versionRange.max).toBe("舞萌DX 2026")
     expect(BEGINNER_PRESET.masterLevelRange.min).toBe("10+")
-    expect(BEGINNER_PRESET.masterLevelRange.max).toBe("15")
+    expect(BEGINNER_PRESET.masterLevelRange.max).toBe("14+")
     expect(BEGINNER_PRESET.topSongs).toBe(100)
+  })
+
+  it("should apply preset defaults with proper topSongs in single vs multiplayer", async () => {
+    const { applyPresetSettings, DEFAULT_SETTINGS, VOCALOID_EXPERT_PRESET } = await import(
+      "../src/shared/domain/presets"
+    )
+    // Single player: defaults to 2000 (unlimited)
+    const sp = applyPresetSettings(DEFAULT_SETTINGS, VOCALOID_EXPERT_PRESET, false)
+    expect(sp.topSongs).toBe(2000)
+
+    // Multiplayer: defaults to 200
+    const mp = applyPresetSettings(DEFAULT_SETTINGS, VOCALOID_EXPERT_PRESET, true)
+    expect(mp.topSongs).toBe(200)
+
+    // Beginner preset: always 100 in both
+    const spBeginner = applyPresetSettings(DEFAULT_SETTINGS, BEGINNER_PRESET, false)
+    expect(spBeginner.topSongs).toBe(100)
+    const mpBeginner = applyPresetSettings(DEFAULT_SETTINGS, BEGINNER_PRESET, true)
+    expect(mpBeginner.topSongs).toBe(100)
   })
 })

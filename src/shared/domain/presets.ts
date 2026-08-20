@@ -1,5 +1,8 @@
 import type { GameSettings } from "../types"
 
+export const UNLIMITED_TOP_SONGS = 2000
+export const TOP_SONGS_OPTIONS = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 2000] as const
+
 export const DEFAULT_SETTINGS: GameSettings = {
   versionRange: {
     min: "maimai",
@@ -12,7 +15,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
   },
   maxGuesses: 10,
   timeLimit: 0,
-  topSongs: 2000,
+  topSongs: UNLIMITED_TOP_SONGS, // 单人模式默认无限制
 }
 
 export const MULTIPLAYER_DEFAULT_SETTINGS: GameSettings = {
@@ -26,7 +29,7 @@ export const MULTIPLAYER_DEFAULT_SETTINGS: GameSettings = {
     max: "14+",
   },
   maxGuesses: 10,
-  topSongs: 200,
+  topSongs: 200, // 多人模式默认 200 首
   timeLimit: 90,
 }
 
@@ -43,16 +46,16 @@ const PRESET_BASE: Pick<GameSettings, "versionRange" | "genres" | "masterLevelRa
 }
 
 /**
- * 6. “入门”难度预设：版本 maimai 至 舞萌DX 2026，等级 10+ 到 15，前 100 首热门歌曲
+ * 入门推荐预设：版本全范围，等级 10+ 到 14+，前 100 首热门歌曲
  */
 export const BEGINNER_PRESET = {
   ...PRESET_BASE,
   masterLevelRange: {
     min: "10+",
-    max: "15",
+    max: "14+",
   },
   genres: [],
-  topSongs: 100,
+  topSongs: 100, // 入门预设无论单人还是多人均固定为 100 首
 }
 
 export const VOCALOID_EXPERT_PRESET = {
@@ -98,16 +101,22 @@ export const GENRE_LIST = [
   "舞萌",
 ] as const
 
+/**
+ * 应用预设设置：
+ * - 入门预设：固定 100 首
+ * - 其他预设：单人模式默认为无限制 (2000)，多人模式默认为 200 首
+ */
 export function applyPresetSettings(
   currentSettings: GameSettings,
   preset: Partial<GameSettings>,
+  isMultiplayer = false,
 ): GameSettings {
+  const defaultTopSongs = isMultiplayer ? 200 : UNLIMITED_TOP_SONGS
   return {
     ...currentSettings,
     ...preset,
-    // 保留玩家已设置的游戏规则参数，若 preset 明确覆盖某项则采用 preset
     maxGuesses: preset.maxGuesses ?? currentSettings.maxGuesses,
-    topSongs: preset.topSongs ?? currentSettings.topSongs,
+    topSongs: preset.topSongs ?? defaultTopSongs,
     timeLimit: preset.timeLimit ?? currentSettings.timeLimit,
   }
 }

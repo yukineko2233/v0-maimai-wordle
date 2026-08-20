@@ -95,5 +95,4 @@ export const ALL_LEVEL_OPTIONS = [
   "13+",
   "14",
   "14+",
-  "15",
 ] as const

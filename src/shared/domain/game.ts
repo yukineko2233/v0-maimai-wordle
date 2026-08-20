@@ -121,10 +121,15 @@ export function filterSongs(songs: readonly Song[], settings: GameSettings): Son
   })
 
   // 按胜率降序排序，平分时按原始顺序保序
-  return filtered.sort((a, b) => {
+  const sorted = filtered.sort((a, b) => {
     if (b.winRate !== a.winRate) return b.winRate - a.winRate
     return a.sourceIndex - b.sourceIndex
   })
+
+  if (settings.topSongs && settings.topSongs < 2000) {
+    return sorted.slice(0, settings.topSongs)
+  }
+  return sorted
 }
 
 export function getRandomSong(songs: readonly Song[]): Song {
