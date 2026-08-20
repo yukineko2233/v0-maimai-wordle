@@ -1,5 +1,5 @@
 import type { Song } from "../../shared/types"
-import { buildCatalog, fetchRawCatalogData } from "../../server/catalog/fetcher"
+import { buildCatalog, fetchRawCatalogData } from "../../shared/domain/catalog"
 
 const SONGS_CACHE_KEY = "maimai_wordle_songs_v2"
 const CACHE_TIME_KEY = "maimai_wordle_songs_time_v2"

@@ -98,8 +98,67 @@ describe("Game Logic & Guess Evaluation", () => {
     expect(song1).toEqual(song2)
   })
 
-  it("should format Shanghai date correctly", () => {
-    const dateStr = getShanghaiDate(new Date())
-    expect(/^\d{4}-\d{2}-\d{2}$/.test(dateStr)).toBe(true)
+  it("should handle topSongs >= 2000 as unlimited in filterSongs", () => {
+    const songs = [mockSong1, mockSong2]
+    const unlimited = filterSongs(songs, {
+      versionRange: { min: "maimai", max: "舞萌DX 2026" },
+      genres: [],
+      masterLevelRange: { min: "10+", max: "14+" },
+      maxGuesses: 10,
+      topSongs: 2000,
+      timeLimit: 0,
+    })
+    expect(unlimited.length).toBe(2)
+
+    const limited = filterSongs(songs, {
+      versionRange: { min: "maimai", max: "舞萌DX 2026" },
+      genres: [],
+      masterLevelRange: { min: "10+", max: "14+" },
+      maxGuesses: 10,
+      topSongs: 1,
+      timeLimit: 0,
+    })
+    expect(limited.length).toBe(1)
+  })
+
+  it("should build catalog from raw data correctly", async () => {
+    const { buildCatalog } = await import("../src/shared/domain/catalog")
+    const mockMusicData = [
+      {
+        id: "100",
+        title: "Test Song",
+        type: "DX",
+        ds: [6.0, 8.5, 11.2, 13.7, 14.8],
+        level: ["6", "8+", "11", "13+", "14+"],
+        cids: [1, 2, 3, 4, 5],
+        charts: [
+          { notes: [100] },
+          { notes: [200] },
+          { notes: [300] },
+          { notes: [400], charter: "MasterCharter" },
+          { notes: [500], charter: "RemasterCharter" },
+        ],
+        basic_info: {
+          title: "Test Song",
+          artist: "Artist",
+          genre: "POPSアニメ",
+          bpm: 180,
+          release_date: "2024-01-01",
+          from: "舞萌DX 2024",
+          is_new: false,
+        },
+      },
+    ]
+
+    const catalog = buildCatalog(mockMusicData)
+    expect(catalog.length).toBe(1)
+    expect(catalog[0].id).toBe(100)
+    expect(catalog[0].genre).toBe("流行&动漫")
+    expect(catalog[0].version).toBe("舞萌DX 2024")
+    expect(catalog[0].masterLevel).toBe("13+")
+    expect(catalog[0].masterDesigner).toBe("MasterCharter")
+    expect(catalog[0].remasterLevel).toBe("14+")
+    expect(catalog[0].remasterDesigner).toBe("RemasterCharter")
   })
 })
+

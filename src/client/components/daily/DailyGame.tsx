@@ -54,7 +54,7 @@ export default function DailyGame({ onBack, initialSongs }: DailyGameProps) {
   // 初始化今日曲目
   useEffect(() => {
     if (songs.length === 0) return
-    const pool = filterSongs(songs, DAILY_SETTINGS).slice(0, DAILY_SETTINGS.topSongs)
+    const pool = filterSongs(songs, DAILY_SETTINGS)
     setFilteredSongs(pool)
 
     const target = getDailySong(pool, todayDate)
@@ -200,8 +200,8 @@ export default function DailyGame({ onBack, initialSongs }: DailyGameProps) {
 
             {/* 猜测记录列表 */}
             <div className={`gap-3 flex ${reverseOrder ? "flex-col" : "flex-col-reverse"}`}>
-              {gameState.guesses.map((guess, idx) => (
-                <GuessRow key={idx} guess={guess} />
+              {gameState.guesses.map((guess) => (
+                <GuessRow key={guess.song.id} guess={guess} />
               ))}
             </div>
           </>

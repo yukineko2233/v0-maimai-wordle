@@ -49,7 +49,7 @@ export const VERSION_SHORT_NAME: Record<VersionName, string> = {
 const SOURCE_VERSION_MAP: Record<string, VersionName> = {
   "maimai": "maimai",
   "maimai PLUS": "maimai PLUS",
-  "maimai GreeN": "GreeN 超" as any, // fallback
+  "maimai GreeN": "maimai GreeN",
   "maimai GreeN PLUS": "maimai GreeN PLUS",
   "maimai ORANGE": "maimai ORANGE",
   "maimai ORANGE PLUS": "maimai ORANGE PLUS",
@@ -78,7 +78,6 @@ const SOURCE_VERSION_MAP: Record<string, VersionName> = {
 }
 
 export function normalizeVersion(source: string): VersionName {
-  if (source === "maimai GreeN") return "maimai GreeN"
   return SOURCE_VERSION_MAP[source] || "舞萌DX 2026"
 }
 

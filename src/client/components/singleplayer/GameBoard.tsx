@@ -253,8 +253,8 @@ export default function GameBoard({ onBack, initialSongs }: GameBoardProps) {
 
             {/* 猜测记录列表 */}
             <div className={`gap-3 flex ${reverseOrder ? "flex-col" : "flex-col-reverse"}`}>
-              {gameState.guesses.map((guess, idx) => (
-                <GuessRow key={idx} guess={guess} />
+              {gameState.guesses.map((guess) => (
+                <GuessRow key={guess.song.id} guess={guess} />
               ))}
             </div>
           </>

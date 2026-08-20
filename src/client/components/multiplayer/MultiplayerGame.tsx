@@ -110,7 +110,7 @@ export default function MultiplayerGame({
   const makeGuess = (song: Song) => {
     socket.emit("make_guess", {
       roomId: room.id,
-      song,
+      songId: song.id,
     })
   }
 
@@ -264,8 +264,8 @@ export default function MultiplayerGame({
 
         {/* 猜测记录列表 */}
         <div className={`gap-3 flex ${reverseOrder ? "flex-col" : "flex-col-reverse"}`}>
-          {currentPlayer.currentRound?.guesses.map((guess, idx) => (
-            <GuessRow key={idx} guess={guess} />
+          {currentPlayer.currentRound?.guesses.map((guess) => (
+            <GuessRow key={guess.song.id} guess={guess} />
           ))}
         </div>
 

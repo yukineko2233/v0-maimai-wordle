@@ -40,7 +40,11 @@ export default {
         md: "calc(var(--radius, 0.5rem) - 2px)",
         sm: "calc(var(--radius, 0.5rem) - 4px)",
       },
+      fontSize: {
+        "2xs": ["0.625rem", { lineHeight: "0.875rem" }], // 10px
+        "3xs": ["0.5rem", { lineHeight: "0.75rem" }],    // 8px
+      },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 } satisfies Config

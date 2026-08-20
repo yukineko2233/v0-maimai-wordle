@@ -7,7 +7,6 @@ import type {
   Song,
 } from "../../shared/types"
 import {
-  evaluateGuess,
   filterSongs,
   getRandomSong,
   processGuess,
@@ -278,19 +277,26 @@ export class RoomManager {
     this.broadcastRoomStats()
   }
 
-  makeGuess(socket: Socket, data: { roomId: string; song: Song }) {
+  makeGuess(socket: Socket, data: { roomId: string; songId: number }) {
     const room = this.rooms.get(data.roomId)
     if (!room || room.status !== "playing" || !room.targetSong) return
 
     const player = room.players[socket.id]
     if (!player || player.currentRound.gameOver) return
 
-    if (player.currentRound.guesses.some((g) => g.song.id === data.song.id)) {
+    // 从服务端权威数据源查找歌曲，防止客户端伪造猜测
+    const song = room.filteredSongs.find((s) => s.id === data.songId)
+    if (!song) {
+      socket.emit("guess_error", { message: "无效的猜测歌曲，请从候选列表中选择" })
+      return
+    }
+
+    if (player.currentRound.guesses.some((g) => g.song.id === song.id)) {
       socket.emit("guess_error", { message: "你已经猜过这首歌了！" })
       return
     }
 
-    const guess = processGuess(data.song, room.targetSong)
+    const guess = processGuess(song, room.targetSong)
     const isCorrect = guess.result.correct
 
     player.currentRound.guesses.push(guess)
@@ -440,8 +446,13 @@ export class RoomManager {
     const playerName = leavingPlayer.nickname
     const wasPlaying = room.status === "playing"
 
+    // 清理所有关联映射
     delete room.players[socketId]
     this.socketToRoom.delete(socketId)
+    // 清理 sessionToken 映射，防止内存泄漏
+    if (leavingPlayer.sessionToken) {
+      this.sessionToPlayer.delete(leavingPlayer.sessionToken)
+    }
 
     const remainingPlayerIds = Object.keys(room.players)
 
