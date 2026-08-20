@@ -86,6 +86,10 @@ io.on("connection", (socket) => {
     roomManager.joinRoom(socket, data)
   })
 
+  socket.on("reconnect_session", (data) => {
+    roomManager.reconnectSession(socket, data)
+  })
+
   socket.on("join_random_room", (data) => {
     roomManager.joinRandomRoom(socket, data)
   })

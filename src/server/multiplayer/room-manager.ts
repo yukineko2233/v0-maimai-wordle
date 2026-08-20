@@ -198,6 +198,65 @@ export class RoomManager {
     this.broadcastRoomStats()
   }
 
+  reconnectSession(socket: Socket, data: { sessionToken: string }) {
+    if (!data.sessionToken) {
+      socket.emit("reconnect_failed", { message: "未提供会话标识" })
+      return
+    }
+
+    const session = this.sessionToPlayer.get(data.sessionToken)
+    if (!session) {
+      socket.emit("reconnect_failed", { message: "会话已失效或已超时" })
+      return
+    }
+
+    const { roomId, playerId: oldSocketId } = session
+    const room = this.rooms.get(roomId)
+    if (!room) {
+      this.sessionToPlayer.delete(data.sessionToken)
+      socket.emit("reconnect_failed", { message: "房间已解散" })
+      return
+    }
+
+    const player = room.players[oldSocketId]
+    if (!player) {
+      this.sessionToPlayer.delete(data.sessionToken)
+      socket.emit("reconnect_failed", { message: "玩家已离开房间" })
+      return
+    }
+
+    // 取消 30 秒断开定时器
+    const timer = this.disconnectTimers.get(oldSocketId)
+    if (timer) {
+      clearTimeout(timer)
+      this.disconnectTimers.delete(oldSocketId)
+    }
+
+    // 迁移至新 socket.id
+    player.id = socket.id
+    player.online = true
+    delete room.players[oldSocketId]
+    room.players[socket.id] = player
+
+    const avatar = room.playerAvatars[oldSocketId]
+    if (avatar) {
+      delete room.playerAvatars[oldSocketId]
+      room.playerAvatars[socket.id] = avatar
+    }
+
+    if (room.host === oldSocketId) {
+      room.host = socket.id
+    }
+
+    this.socketToRoom.delete(oldSocketId)
+    this.socketToRoom.set(socket.id, roomId)
+    this.sessionToPlayer.set(data.sessionToken, { roomId, playerId: socket.id })
+
+    socket.join(roomId)
+    socket.emit("reconnected", { room, sessionToken: data.sessionToken })
+    this.io.to(roomId).emit("player_reconnected", { room, playerId: socket.id, oldPlayerId: oldSocketId })
+  }
+
   joinRandomRoom(socket: Socket, data: { nickname: string }) {
     const available = Array.from(this.rooms.values()).filter(
       (r) => r.isPublic && r.status === "waiting" && Object.keys(r.players).length < MAX_ROOM_CAPACITY,

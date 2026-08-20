@@ -105,9 +105,30 @@ export default function MultiplayerLobby({
       onStartGame(r)
     })
 
+    socket.on("reconnected", ({ room: r, sessionToken }) => {
+      setRoom(r)
+      if (sessionToken) {
+        try {
+          sessionStorage.setItem("maimai_multi_token", sessionToken)
+        } catch (e) {}
+      }
+      toast.success("已恢复房间连接！")
+      if (r.status === "playing") {
+        onStartGame(r)
+      }
+    })
+
     socket.on("room_error", ({ message }) => {
       toast.error(message || "发生错误")
     })
+
+    // 检查是否有现有会话可恢复
+    try {
+      const savedToken = sessionStorage.getItem("maimai_multi_token")
+      if (savedToken && !room) {
+        socket.emit("reconnect_session", { sessionToken: savedToken })
+      }
+    } catch (e) {}
 
     return () => {
       socket.off("room_created")
@@ -118,9 +139,10 @@ export default function MultiplayerLobby({
       socket.off("player_ready")
       socket.off("host_changed")
       socket.off("game_started")
+      socket.off("reconnected")
       socket.off("room_error")
     }
-  }, [onStartGame])
+  }, [onStartGame, room])
 
   const handleCreateRoom = () => {
     if (!nickname.trim()) {

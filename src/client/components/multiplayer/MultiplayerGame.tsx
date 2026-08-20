@@ -69,6 +69,24 @@ export default function MultiplayerGame({
       toast.info(`${playerName} 离开了房间`)
     })
 
+    socket.on("reconnected", ({ room: r, sessionToken }) => {
+      setRoom(r)
+      if (sessionToken) {
+        try {
+          sessionStorage.setItem("maimai_multi_token", sessionToken)
+        } catch (e) {}
+      }
+      toast.success("已恢复网络连接！")
+    })
+
+    socket.on("player_reconnected", ({ room: r, playerId }) => {
+      setRoom(r)
+      const p = r.players[playerId]
+      if (p && playerId !== socket.id) {
+        toast.info(`${p.nickname} 已重新连线`)
+      }
+    })
+
     socket.on("guess_error", ({ message }) => {
       toast.error(message || "猜测错误")
     })
@@ -79,6 +97,8 @@ export default function MultiplayerGame({
       socket.off("next_round_started")
       socket.off("player_ready")
       socket.off("player_left")
+      socket.off("reconnected")
+      socket.off("player_reconnected")
       socket.off("guess_error")
     }
   }, [])
@@ -127,6 +147,9 @@ export default function MultiplayerGame({
   }
 
   const exitGame = () => {
+    try {
+      sessionStorage.removeItem("maimai_multi_token")
+    } catch (e) {}
     if (room && room.id) {
       socket.emit("leave_room", { roomId: room.id })
     }
