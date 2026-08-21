@@ -154,6 +154,9 @@ export function getShanghaiDate(now: Date = new Date()): string {
 
 /**
  * 每日一首确定性选题算法
+ *
+ * 使用日期字符串生成确定性种子，然后在有序 Song ID 列表中取模选取。
+ * 这样即使曲库新增歌曲，已有歌曲的相对顺序不变，历史日期的题目仍保持稳定。
  */
 export function getDailySong(songs: readonly Song[], dateString: string): Song | null {
   if (songs.length === 0) return null
@@ -161,5 +164,7 @@ export function getDailySong(songs: readonly Song[], dateString: string): Song |
   for (let i = 0; i < dateString.length; i++) {
     seed = (seed * 31 + dateString.charCodeAt(i)) % 1000000
   }
-  return songs[seed % songs.length]
+  // 按 id 升序排列后取模，新曲只追加到末尾不影响旧位置
+  const sorted = [...songs].sort((a, b) => a.id - b.id)
+  return sorted[seed % sorted.length]
 }

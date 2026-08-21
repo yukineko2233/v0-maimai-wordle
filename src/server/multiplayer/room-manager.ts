@@ -126,6 +126,7 @@ export class RoomManager {
       targetSong,
       filteredSongs: filtered,
       status: "waiting",
+      roundSettled: false,
       isPublic: data.isPublic || false,
       playerAvatars: { [socket.id]: avatarId },
       allParticipants: {},
@@ -395,10 +396,15 @@ export class RoomManager {
   }
 
   private checkRoundEnd(room: MultiplayerRoom) {
+    // 防止因断线等边缘情况导致重复触发结算、重复计分
+    if (room.roundSettled) return
+
     const players = Object.values(room.players)
     const allFinished = players.every((p) => p.currentRound.gameOver)
 
     if (allFinished) {
+      room.roundSettled = true
+
       let roundWinner: string | null = null
       const winners = players.filter((p) => p.currentRound.won)
       if (winners.length > 0) {
@@ -449,6 +455,7 @@ export class RoomManager {
 
     if (allReady) {
       room.currentRound += 1
+      room.roundSettled = false
       room.targetSong = getRandomSong(room.filteredSongs)
       for (const p of Object.values(room.players)) {
         p.currentRound = {
@@ -538,7 +545,28 @@ export class RoomManager {
         })
       } else {
         this.io.to(roomId).emit("player_left", { room, playerId: socketId, playerName })
+        // 若当前回合尚未结算，检查剩余玩家是否都已结束（如玩家在猜题阶段掉线）
         this.checkRoundEnd(room)
+        // Bug②修复：若回合已结算（roundSettled=true），检查剩余玩家是否全部都"准备下一轮"
+        // 如果是，则自动推进到下一轮，避免界面卡在结算画面
+        if (room.roundSettled && room.status === "playing") {
+          const allReady = Object.values(room.players).every((p) => p.readyForNextRound)
+          if (allReady) {
+            room.currentRound += 1
+            room.roundSettled = false
+            room.targetSong = getRandomSong(room.filteredSongs)
+            for (const p of Object.values(room.players)) {
+              p.currentRound = {
+                guesses: [],
+                gameOver: false,
+                won: false,
+                remainingTime: room.settings.timeLimit,
+              }
+              p.readyForNextRound = false
+            }
+            this.io.to(roomId).emit("next_round_started", { room })
+          }
+        }
       }
     } else {
       this.io.to(roomId).emit("player_left", { room, playerId: socketId, playerName })

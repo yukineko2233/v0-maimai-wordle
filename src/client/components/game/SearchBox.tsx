@@ -45,10 +45,10 @@ export default function SearchBox({
       flip({ fallbackPlacements: ["top-start"] }),
       shift({ padding: 8 }),
       size({
-        apply({ rects, elements }) {
+        apply({ availableHeight, rects, elements }) {
           Object.assign(elements.floating.style, {
             width: `${rects.reference.width}px`,
-            maxHeight: "300px",
+            maxHeight: `${Math.min(availableHeight - 8, 300)}px`,
           })
         },
       }),

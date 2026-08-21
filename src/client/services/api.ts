@@ -7,12 +7,18 @@ const CACHE_TTL_MS = 60 * 60 * 1000 // 1 hour
 
 let inMemorySongs: Song[] | null = null
 
-export async function fetchSongs(forceRefresh = false): Promise<Song[]> {
+export interface FetchSongsResult {
+  songs: Song[]
+  /** 是否使用了已过期的本地历史缓存（离线模式） */
+  isOfflineCache: boolean
+}
+
+export async function fetchSongs(forceRefresh = false): Promise<FetchSongsResult> {
   if (!forceRefresh && inMemorySongs && inMemorySongs.length > 0) {
-    return inMemorySongs
+    return { songs: inMemorySongs, isOfflineCache: false }
   }
 
-  // 1. 尝试从 localStorage 恢复
+  // 1. 尝试从 localStorage 恢复（仍在 TTL 内）
   if (!forceRefresh && typeof window !== "undefined") {
     try {
       const cached = localStorage.getItem(SONGS_CACHE_KEY)
@@ -21,7 +27,7 @@ export async function fetchSongs(forceRefresh = false): Promise<Song[]> {
         const parsed = JSON.parse(cached)
         if (Array.isArray(parsed) && parsed.length > 0) {
           inMemorySongs = parsed
-          return parsed
+          return { songs: parsed, isOfflineCache: false }
         }
       }
     } catch (e) {
@@ -36,7 +42,7 @@ export async function fetchSongs(forceRefresh = false): Promise<Song[]> {
       const songs = (await res.json()) as Song[]
       if (Array.isArray(songs) && songs.length > 0) {
         saveSongsToCache(songs)
-        return songs
+        return { songs, isOfflineCache: false }
       }
     }
   } catch (e) {
@@ -49,13 +55,13 @@ export async function fetchSongs(forceRefresh = false): Promise<Song[]> {
     const songs = buildCatalog(musicData, votesData, aliasesData, tagsData)
     if (songs.length > 0) {
       saveSongsToCache(songs)
-      return songs
+      return { songs, isOfflineCache: false }
     }
   } catch (err) {
     console.error("Direct fetch failed:", err)
   }
 
-  // 4. 若全部失败但有历史缓存，使用历史缓存
+  // 4. 全部失败但有历史缓存 → 离线模式（已过期缓存）
   if (typeof window !== "undefined") {
     try {
       const cached = localStorage.getItem(SONGS_CACHE_KEY)
@@ -63,7 +69,7 @@ export async function fetchSongs(forceRefresh = false): Promise<Song[]> {
         const parsed = JSON.parse(cached)
         if (Array.isArray(parsed) && parsed.length > 0) {
           inMemorySongs = parsed
-          return parsed
+          return { songs: parsed, isOfflineCache: true }
         }
       }
     } catch (e) {}

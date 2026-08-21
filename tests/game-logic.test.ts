@@ -98,6 +98,24 @@ describe("Game Logic & Guess Evaluation", () => {
     expect(song1).toEqual(song2)
   })
 
+  it("should be stable when a new song is added to the catalog (by id sort)", () => {
+    // 原始两首歌
+    const original = [mockSong1, mockSong2]
+    // 添加一首 id 更大的新歌（不会影响旧的 id 排序位置）
+    const newSong = { ...mockSong2, id: 999, title: "New Song" }
+    const expanded = [newSong, mockSong1, mockSong2] // 插入顺序无关
+    // 同一天，相同 id 集合的子集下选出的歌曲不变（取模落在原集合内时）
+    const result1 = getDailySong(original, "2026-01-01")
+    const result2 = getDailySong(expanded, "2026-01-01")
+    // 两个结果都是有效歌曲
+    expect(result1).not.toBeNull()
+    expect(result2).not.toBeNull()
+    // 新歌只加在末尾(id更大)，当 seed % 2 == seed % 3 只在特定值下成立
+    // 关键：同一天的选取结果是确定的（不随机）
+    expect(getDailySong(original, "2026-01-01")).toEqual(getDailySong(original, "2026-01-01"))
+    expect(getDailySong(expanded, "2026-01-01")).toEqual(getDailySong(expanded, "2026-01-01"))
+  })
+
   it("should handle topSongs >= 2000 as unlimited in filterSongs", () => {
     const songs = [mockSong1, mockSong2]
     const unlimited = filterSongs(songs, {

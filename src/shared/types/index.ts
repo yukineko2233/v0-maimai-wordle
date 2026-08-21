@@ -137,6 +137,8 @@ export interface MultiplayerRoom {
   targetSong: Song | null
   filteredSongs: Song[]
   status: "waiting" | "playing" | "finished"
+  /** 当前回合是否已经结算过，防止断线等边缘情况触发重复计分 */
+  roundSettled: boolean
   winner?: string
   isPublic: boolean
   playerAvatars: Record<string, number>

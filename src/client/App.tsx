@@ -38,10 +38,14 @@ export default function App() {
     let mounted = true
     async function load() {
       try {
-        const data = await fetchSongs()
+        const { songs: data, isOfflineCache } = await fetchSongs()
         if (mounted) {
           setSongs(data)
           setLoading(false)
+
+          if (isOfflineCache) {
+            toast.warning("🌐 当前为离线缓存模式，曲库数据可能不是最新版本")
+          }
 
           // 首次访问自动弹出帮助说明
           const hasVisited = localStorage.getItem("has_visited_maimai_wordle_v2")
@@ -67,7 +71,7 @@ export default function App() {
     setRefreshing(true)
     try {
       clearClientCache()
-      const data = await fetchSongs(true)
+      const { songs: data } = await fetchSongs(true)
       setSongs(data)
       toast.success(`曲库数据已成功刷新！共加载 ${data.length} 首歌曲`)
     } catch (err) {

@@ -70,13 +70,27 @@ export default function DailyShareModal({
   const shareText = generateShareText()
 
   const copyToClipboard = async () => {
+    // 优先使用现代 Clipboard API；HTTP 私有部署环境下降级使用 execCommand
     try {
-      await navigator.clipboard.writeText(shareText)
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(shareText)
+      } else {
+        // HTTP 环境降级方案
+        const textarea = document.createElement("textarea")
+        textarea.value = shareText
+        textarea.style.cssText = "position:fixed;left:-9999px;top:-9999px;opacity:0"
+        document.body.appendChild(textarea)
+        textarea.focus()
+        textarea.select()
+        const ok = document.execCommand("copy")
+        document.body.removeChild(textarea)
+        if (!ok) throw new Error("execCommand failed")
+      }
       setCopied(true)
       toast.success("已成功复制到剪贴板！")
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
-      toast.error("复制失败，请手动长按复制")
+      toast.error("复制失败，请手动长按选中文字后复制")
     }
   }
 
