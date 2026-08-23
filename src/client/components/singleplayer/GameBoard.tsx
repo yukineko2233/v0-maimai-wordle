@@ -180,6 +180,13 @@ export default function GameBoard({ onBack, initialSongs }: GameBoardProps) {
   }
 
   const applySettings = (newSettings: GameSettings) => {
+    if (
+      gameState.targetSong &&
+      !gameState.gameOver &&
+      !window.confirm("应用设置将重新开始新游戏，当前进度会丢失，确定继续吗？")
+    ) {
+      return
+    }
     setSettings(newSettings)
     setShowSettings(false)
     try {

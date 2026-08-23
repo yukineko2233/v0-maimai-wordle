@@ -223,6 +223,7 @@ export default function DailyGame({ onBack, initialSongs }: DailyGameProps) {
 
   const giveUp = async () => {
     if (submitting || gameState.gameOver) return
+    if (!window.confirm("投降后将结束今日挑战并公布答案，今天无法重新开始，确定投降吗？")) return
     if (mode === "online" && sessionToken) {
       mutationVersionRef.current++
       setSubmitting(true)
