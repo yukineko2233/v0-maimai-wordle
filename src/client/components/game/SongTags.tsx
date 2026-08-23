@@ -73,7 +73,7 @@ function TagBadge({ tag }: { tag: SongTag & { shared?: boolean } }) {
             ref={refs.setFloating}
             style={floatingStyles}
             {...getFloatingProps()}
-            className="z-[9999] w-64 max-w-[85vw] p-3 rounded-xl bg-slate-900 text-slate-100 shadow-2xl border border-slate-700 text-xs animate-in fade-in zoom-in-95 duration-150 select-none"
+            className="motion-tooltip z-[9999] w-64 max-w-[85vw] p-3 rounded-xl bg-slate-900 text-slate-100 shadow-2xl border border-slate-700 text-xs select-none"
           >
             <div className="flex items-center justify-between gap-2 mb-1">
               <span className="font-bold text-pink-300 text-sm">{tag.name}</span>

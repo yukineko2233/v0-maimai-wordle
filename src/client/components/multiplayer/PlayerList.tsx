@@ -68,10 +68,11 @@ export default function PlayerList({
                 <button
                   type="button"
                   onClick={() => onRemovePlayer(player.id)}
-                  className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                  aria-label={`将 ${player.nickname} 移出房间`}
+                  className="min-w-11 min-h-11 inline-flex items-center justify-center text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                   title="移出房间"
                 >
-                  <UserX className="h-4 w-4" />
+                  <UserX aria-hidden="true" className="h-4 w-4" />
                 </button>
               )}
 

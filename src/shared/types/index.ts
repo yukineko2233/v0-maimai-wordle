@@ -116,7 +116,6 @@ export interface PlayerRoundState {
 
 export interface PlayerState {
   id: string
-  sessionToken?: string
   nickname: string
   score: number
   online: boolean
@@ -135,6 +134,8 @@ export interface MultiplayerRoom {
   maxRounds: number
   roundsWon: Record<string, number>
   targetSong: Song | null
+  /** Server timestamp in milliseconds. Null when the round has no time limit or is not active. */
+  roundDeadline: number | null
   filteredSongs: Song[]
   status: "waiting" | "playing" | "finished"
   /** 当前回合是否已经结算过，防止断线等边缘情况触发重复计分 */

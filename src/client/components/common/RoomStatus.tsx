@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react"
 import { socket } from "../../services/socket"
+import { getSocketConnectionState, onSocketConnectionState, type SocketConnectionState } from "../../services/socket"
 import { Users, Globe } from "lucide-react"
 
 export default function RoomStatus() {
   const [stats, setStats] = useState<{ count: number; publicCount: number } | null>(null)
   const [loading, setLoading] = useState(true)
+  const [connectionState, setConnectionState] = useState<SocketConnectionState>(getSocketConnectionState)
 
   useEffect(() => {
     const handleUpdate = (data: { count: number; publicCount: number }) => {
@@ -13,18 +15,32 @@ export default function RoomStatus() {
     }
 
     socket.on("room_count_update", handleUpdate)
-    socket.emit("get_room_count")
+    const unsubscribeConnection = onSocketConnectionState((state) => {
+      setConnectionState(state)
+      if (state === "connected") socket.emit("get_room_count")
+    })
+    const timeout = window.setTimeout(() => setLoading(false), 6000)
 
     return () => {
+      window.clearTimeout(timeout)
       socket.off("room_count_update", handleUpdate)
+      unsubscribeConnection()
     }
   }, [])
 
-  if (loading || !stats) {
+  if ((loading || !stats) && connectionState !== "disconnected") {
     return (
       <div className="text-center text-gray-500 text-xs py-1">
         <Users className="inline h-3.5 w-3.5 mr-1" />
         加载实时房间状态...
+      </div>
+    )
+  }
+
+  if (!stats) {
+    return (
+      <div className="py-1 text-center text-xs text-amber-700" role="status">
+        多人服务暂不可用，连接恢复后会自动重试。
       </div>
     )
   }

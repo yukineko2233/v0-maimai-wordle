@@ -1,5 +1,6 @@
 import { Trophy, Home } from "lucide-react"
 import type { MultiplayerRoom } from "../../../shared/types"
+import { SongCover } from "../game/SongCover"
 
 interface MultiplayerResultScreenProps {
   room: MultiplayerRoom
@@ -27,20 +28,35 @@ export default function MultiplayerResultScreen({
   allScores.sort((a, b) => b.score - a.score)
 
   return (
-    <div className="p-5 bg-gray-50/95 border border-gray-200 rounded-xl mb-5 text-center shadow-xs animate-in fade-in duration-200">
+    <div className="motion-result p-5 bg-gray-50/95 border border-gray-200 rounded-xl mb-5 text-center shadow-xs">
       <div className="mb-5">
         <div className="w-16 h-16 mx-auto bg-gradient-to-tr from-amber-400 to-yellow-500 rounded-full flex items-center justify-center mb-3 shadow-md">
           <Trophy className="h-8 w-8 text-white" />
         </div>
 
         <h2 className="text-xl font-bold text-gray-900 mb-1">
-          {isWinner ? "👑 恭喜你赢得了比赛！" : `${winnerPlayer?.nickname || "对手"} 赢得了比赛！`}
+          {room.winner
+            ? isWinner
+              ? "👑 恭喜你赢得了比赛！"
+              : `${winnerPlayer?.nickname || "对手"} 赢得了比赛！`
+            : "比赛以平局结束"}
         </h2>
 
         <p className="text-xs text-gray-500">
           全场获胜目标: 先得 {Math.floor(room.bestOf / 2) + 1} 分
         </p>
       </div>
+
+      {room.targetSong && (
+        <div className="mb-5 flex items-center justify-center gap-3 rounded-xl border border-indigo-100 bg-white p-3 text-left">
+          <SongCover songId={room.targetSong.id} title={room.targetSong.title} className="h-14 w-14 rounded-lg object-cover" />
+          <div>
+            <div className="text-2xs text-gray-500">最后一轮答案</div>
+            <div className="text-sm font-bold text-gray-900">{room.targetSong.title}</div>
+            <div className="text-xs text-gray-500">{room.targetSong.artist}</div>
+          </div>
+        </div>
+      )}
 
       <div className="mb-5">
         <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">比分排名</h3>

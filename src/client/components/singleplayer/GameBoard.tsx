@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { ArrowLeft, Settings, RefreshCw, ArrowUp, ArrowDown, Flag } from "lucide-react"
 import { toast } from "sonner"
 import type { GameSettings, GameState, Guess, Song } from "../../../shared/types"
@@ -7,11 +7,34 @@ import { filterSongs, getRandomSong, processGuess } from "../../../shared/domain
 import SearchBox from "../game/SearchBox"
 import GuessRow from "../game/GuessRow"
 import SettingsPanel from "./SettingsPanel"
-import ResultScreen from "./ResultScreen"
+import ResultScreen, { type ResultEndReason } from "./ResultScreen"
 
 interface GameBoardProps {
   onBack: () => void
   initialSongs: Song[]
+}
+
+const SETTINGS_STORAGE_VERSION = 1
+
+function isGameSettings(value: unknown): value is GameSettings {
+  if (!value || typeof value !== "object") return false
+  const settings = value as GameSettings
+  return Boolean(
+    settings.versionRange &&
+      typeof settings.versionRange.min === "string" &&
+      typeof settings.versionRange.max === "string" &&
+      Array.isArray(settings.genres) &&
+      settings.genres.every((genre) => typeof genre === "string") &&
+      settings.masterLevelRange &&
+      typeof settings.masterLevelRange.min === "string" &&
+      typeof settings.masterLevelRange.max === "string" &&
+      Number.isFinite(settings.maxGuesses) &&
+      settings.maxGuesses > 0 &&
+      Number.isFinite(settings.topSongs) &&
+      settings.topSongs > 0 &&
+      Number.isFinite(settings.timeLimit) &&
+      settings.timeLimit >= 0,
+  )
 }
 
 export default function GameBoard({ onBack, initialSongs }: GameBoardProps) {
@@ -19,7 +42,16 @@ export default function GameBoard({ onBack, initialSongs }: GameBoardProps) {
   const [settings, setSettings] = useState<GameSettings>(() => {
     try {
       const saved = localStorage.getItem("maimai_single_settings")
-      if (saved) return JSON.parse(saved)
+      if (saved) {
+        const parsed: unknown = JSON.parse(saved)
+        const value =
+          parsed && typeof parsed === "object" && "version" in parsed && "settings" in parsed
+            ? (parsed as { version: unknown; settings: unknown }).version === SETTINGS_STORAGE_VERSION
+              ? (parsed as { settings: unknown }).settings
+              : null
+            : parsed
+        if (isGameSettings(value)) return value
+      }
     } catch (e) {}
     return DEFAULT_SETTINGS
   })
@@ -27,6 +59,10 @@ export default function GameBoard({ onBack, initialSongs }: GameBoardProps) {
   const [filteredSongs, setFilteredSongs] = useState<Song[]>([])
   const [reverseOrder, setReverseOrder] = useState(true)
   const [spinKey, setSpinKey] = useState(0)
+  const [deadline, setDeadline] = useState<number | null>(null)
+  const [endReason, setEndReason] = useState<ResultEndReason | null>(null)
+  const latestFeedbackRef = useRef<HTMLDivElement>(null)
+  const shouldScrollFeedbackRef = useRef(false)
 
   const [gameState, setGameState] = useState<GameState>({
     targetSong: null,
@@ -56,59 +92,54 @@ export default function GameBoard({ onBack, initialSongs }: GameBoardProps) {
 
   // 计时器
   useEffect(() => {
-    let timer: NodeJS.Timeout | null = null
-    if (
-      settings.timeLimit > 0 &&
-      gameState.remainingTime > 0 &&
-      !gameState.gameOver &&
-      gameState.targetSong
-    ) {
-      timer = setTimeout(() => {
-        setGameState((prev) => ({
-          ...prev,
-          remainingTime: prev.remainingTime - 1,
-          gameOver: prev.remainingTime <= 1,
-        }))
-      }, 1000)
-    } else if (settings.timeLimit > 0 && gameState.remainingTime === 0 && !gameState.gameOver && gameState.targetSong) {
-      setGameState((prev) => ({ ...prev, gameOver: true }))
-    }
+    if (deadline === null || gameState.gameOver || !gameState.targetSong) return
 
-    return () => {
-      if (timer) clearTimeout(timer)
+    let displayedRemainingTime = gameState.remainingTime
+    const updateRemainingTime = () => {
+      const remainingTime = Math.max(0, Math.ceil((deadline - Date.now()) / 1000))
+      if (remainingTime === displayedRemainingTime) return
+      displayedRemainingTime = remainingTime
+      if (remainingTime === 0) setEndReason((previous) => previous || "timeout")
+      setGameState((prev) => ({ ...prev, remainingTime, gameOver: remainingTime === 0 }))
     }
-  }, [gameState.remainingTime, gameState.gameOver, gameState.targetSong, settings.timeLimit])
+    updateRemainingTime()
+    const timer = window.setInterval(updateRemainingTime, 250)
+    return () => window.clearInterval(timer)
+  }, [deadline, gameState.gameOver, gameState.targetSong])
 
   const startNewGame = useCallback(
-    (pool = filteredSongs) => {
+    (pool = filteredSongs, timeLimit = settings.timeLimit) => {
       if (pool.length === 0) {
         toast.error("当前设置下没有可用曲目")
         setShowSettings(true)
         return
       }
       const target = getRandomSong(pool)
+      setDeadline(timeLimit > 0 ? Date.now() + timeLimit * 1000 : null)
+      setEndReason(null)
       setGameState({
         targetSong: target,
         guesses: [],
         gameOver: false,
         won: false,
-        remainingTime: settings.timeLimit,
+        remainingTime: timeLimit,
       })
     },
     [filteredSongs, settings.timeLimit],
   )
 
   const handleNewGameClick = () => {
+    if (!gameState.gameOver && !window.confirm("开始新游戏会丢失当前进度，确定继续吗？")) return
     setSpinKey((k) => k + 1)
     startNewGame()
   }
 
   const makeGuess = (song: Song) => {
-    if (gameState.gameOver || !gameState.targetSong) return
+    if (gameState.gameOver || !gameState.targetSong) return false
 
     if (gameState.guesses.some((g) => g.song.id === song.id)) {
       toast.info("你已经猜过这首歌曲了！")
-      return
+      return false
     }
 
     const newGuess: Guess = processGuess(song, gameState.targetSong)
@@ -116,6 +147,8 @@ export default function GameBoard({ onBack, initialSongs }: GameBoardProps) {
     const newGuesses = [...gameState.guesses, newGuess]
     const gameOver = won || newGuesses.length >= settings.maxGuesses
 
+    shouldScrollFeedbackRef.current = true
+    if (gameOver) setEndReason(won ? "won" : "max-guesses")
     setGameState((prev) => ({
       ...prev,
       guesses: newGuesses,
@@ -128,21 +161,43 @@ export default function GameBoard({ onBack, initialSongs }: GameBoardProps) {
     } else if (gameOver) {
       toast.error("猜测次数已用尽，游戏结束")
     }
+    return true
+  }
+
+  useEffect(() => {
+    if (!shouldScrollFeedbackRef.current) return
+    shouldScrollFeedbackRef.current = false
+    const frame = window.requestAnimationFrame(() => {
+      latestFeedbackRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" })
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [gameState.guesses.length])
+
+  const giveUp = () => {
+    if (!window.confirm("投降后本局将立即结束，确定投降吗？")) return
+    setEndReason("give-up")
+    setGameState((prev) => ({ ...prev, gameOver: true }))
   }
 
   const applySettings = (newSettings: GameSettings) => {
     setSettings(newSettings)
     setShowSettings(false)
     try {
-      localStorage.setItem("maimai_single_settings", JSON.stringify(newSettings))
+      localStorage.setItem(
+        "maimai_single_settings",
+        JSON.stringify({ version: SETTINGS_STORAGE_VERSION, settings: newSettings }),
+      )
     } catch (e) {}
     const filtered = filterSongs(songs, newSettings)
     setFilteredSongs(filtered)
-    startNewGame(filtered)
+    startNewGame(filtered, newSettings.timeLimit)
   }
 
+  const displayedGuesses = reverseOrder ? [...gameState.guesses].reverse() : gameState.guesses
+  const latestGuessId = gameState.guesses.at(-1)?.song.id
+
   return (
-    <div className="w-full mx-auto bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-white/50 animate-in fade-in duration-200">
+    <div className="motion-page w-full mx-auto bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-white/50">
       {/* 顶栏 */}
       <div className="p-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white flex justify-between items-center shadow-xs rounded-t-2xl">
         <button
@@ -222,7 +277,7 @@ export default function GameBoard({ onBack, initialSongs }: GameBoardProps) {
                   {!gameState.gameOver && (
                     <button
                       type="button"
-                      onClick={() => setGameState((prev) => ({ ...prev, gameOver: true }))}
+                      onClick={giveUp}
                       className="flex items-center gap-1.5 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium rounded-lg transition-colors cursor-pointer border border-red-200"
                     >
                       <Flag className="h-3.5 w-3.5" />
@@ -236,7 +291,12 @@ export default function GameBoard({ onBack, initialSongs }: GameBoardProps) {
             {/* 浮动搜索栏 */}
             {!gameState.gameOver && gameState.targetSong && (
               <div className="mb-5">
-                <SearchBox songs={filteredSongs} onSelect={makeGuess} disabled={gameState.gameOver} />
+                <SearchBox
+                  songs={filteredSongs}
+                  guessedSongIds={gameState.guesses.map((guess) => guess.song.id)}
+                  onSelect={makeGuess}
+                  disabled={gameState.gameOver}
+                />
               </div>
             )}
 
@@ -248,13 +308,16 @@ export default function GameBoard({ onBack, initialSongs }: GameBoardProps) {
                 guessCount={gameState.guesses.length}
                 maxGuesses={settings.maxGuesses}
                 onNewGame={handleNewGameClick}
+                endReason={endReason || undefined}
               />
             )}
 
             {/* 猜测记录列表 */}
-            <div className={`gap-3 flex ${reverseOrder ? "flex-col" : "flex-col-reverse"}`}>
-              {gameState.guesses.map((guess) => (
-                <GuessRow key={guess.song.id} guess={guess} />
+            <div className="gap-3 flex flex-col">
+              {displayedGuesses.map((guess) => (
+                <div key={guess.song.id} ref={guess.song.id === latestGuessId ? latestFeedbackRef : undefined}>
+                  <GuessRow guess={guess} />
+                </div>
               ))}
             </div>
           </>

@@ -10,6 +10,8 @@ import type {
 import { compareLevelBands, isLevelInRange } from "./levels"
 import { compareVersions, versionIndex } from "./versions"
 
+export const DAILY_ALGORITHM_VERSION = 3
+
 function exact<T>(value: T, matches: boolean): FieldFeedback<T> {
   return {
     value,
@@ -32,27 +34,85 @@ function compareBPM(guess: number, target: number): FieldFeedback<number> {
   }
 }
 
+const DESIGNER_SEPARATOR_PATTERN = /[\p{P}\p{Z}\s]+/gu
+const UNKNOWN_DESIGNERS = new Set(["未知", "不明", "unknown", "na"])
+
+function normalizeDesigner(value: string | null | undefined): string | null {
+  if (typeof value !== "string") return null
+  const normalized = value
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(DESIGNER_SEPARATOR_PATTERN, "")
+  return normalized || null
+}
+
+function hasCommonDesignerRun(guess: string, target: string, minimumLength = 4): boolean {
+  const guessCharacters = Array.from(guess)
+  const targetCharacters = Array.from(target)
+  if (guessCharacters.length < minimumLength || targetCharacters.length < minimumLength) return false
+
+  for (let guessIndex = 0; guessIndex <= guessCharacters.length - minimumLength; guessIndex++) {
+    for (let targetIndex = 0; targetIndex <= targetCharacters.length - minimumLength; targetIndex++) {
+      let runLength = 0
+      while (
+        guessCharacters[guessIndex + runLength] !== undefined &&
+        guessCharacters[guessIndex + runLength] === targetCharacters[targetIndex + runLength]
+      ) {
+        runLength++
+        if (runLength >= minimumLength) return true
+      }
+    }
+  }
+
+  return false
+}
+
+function compareChartDesigner<T extends string | null>(
+  guess: T,
+  target: string | null,
+  absentWhenBothEmpty = false,
+): FieldFeedback<T> {
+  const normalizedGuess = normalizeDesigner(guess)
+  const normalizedTarget = normalizeDesigner(target)
+
+  if (absentWhenBothEmpty && !normalizedGuess && !normalizedTarget) {
+    return { value: guess, status: "absent", direction: "equal" }
+  }
+  if (guess === target) {
+    return { value: guess, status: "exact", direction: "equal" }
+  }
+  if (
+    !normalizedGuess ||
+    !normalizedTarget ||
+    UNKNOWN_DESIGNERS.has(normalizedGuess) ||
+    UNKNOWN_DESIGNERS.has(normalizedTarget)
+  ) {
+    return { value: guess, status: "miss", direction: "equal" }
+  }
+
+  return {
+    value: guess,
+    status: hasCommonDesignerRun(normalizedGuess, normalizedTarget) ? "close" : "miss",
+    direction: "equal",
+  }
+}
+
 export function evaluateGuess(song: Song, target: Song): GuessFeedback {
   const isTitleMatch = song.title === target.title
   const isTypeMatch = song.type === target.type
   const isArtistMatch = song.artist === target.artist
   const isGenreMatch = song.genre === target.genre
-  const isMasterDesignerMatch = song.masterDesigner === target.masterDesigner
 
   const bpmFeedback = compareBPM(song.bpm, target.bpm)
   const masterLevelFeedback = compareLevelBands(song.masterLevel, target.masterLevel)
+  const masterDesignerFeedback = compareChartDesigner(song.masterDesigner, target.masterDesigner)
   const remasterLevelFeedback = compareLevelBands(song.remasterLevel, target.remasterLevel)
   const versionFeedback = compareVersions(song.version, target.version)
-
-  let remasterDesignerFeedback: FieldFeedback<string | null>
-  if (!song.remasterDesigner && !target.remasterDesigner) {
-    remasterDesignerFeedback = { value: null, status: "absent", direction: "equal" }
-  } else {
-    remasterDesignerFeedback = exact(
-      song.remasterDesigner,
-      Boolean(song.remasterDesigner && song.remasterDesigner === target.remasterDesigner),
-    )
-  }
+  const remasterDesignerFeedback = compareChartDesigner(
+    song.remasterDesigner,
+    target.remasterDesigner,
+    true,
+  )
 
   const targetTagIds = new Set(target.tags.map((t) => t.id))
   const tagsWithShared = song.tags.map((tag) => ({
@@ -72,20 +132,20 @@ export function evaluateGuess(song: Song, target: Song): GuessFeedback {
     isGenreMatch &&
     bpmFeedback.status === "exact" &&
     masterLevelFeedback.status === "exact" &&
-    isMasterDesignerMatch &&
+    masterDesignerFeedback.status === "exact" &&
     versionFeedback.status === "exact" &&
     isRemasterMatch
 
   return {
     song,
-    correct: isAllCorrect || song.id === target.id,
+    correct: isAllCorrect,
     title: exact(song.title, isTitleMatch),
     type: exact(song.type, isTypeMatch),
     artist: exact(song.artist, isArtistMatch),
     bpm: bpmFeedback,
     genre: exact(song.genre, isGenreMatch),
     masterLevel: { ...masterLevelFeedback, value: song.masterLevel },
-    masterDesigner: exact(song.masterDesigner, isMasterDesignerMatch),
+    masterDesigner: masterDesignerFeedback,
     remasterLevel: remasterLevelFeedback,
     remasterDesigner: remasterDesignerFeedback,
     version: versionFeedback,
@@ -152,19 +212,31 @@ export function getShanghaiDate(now: Date = new Date()): string {
   }).format(now)
 }
 
+function dailyScore(dateString: string, songId: number): number {
+  // FNV-1a over the rendezvous key. Each song has an independent, stable score.
+  const key = `${dateString}:${songId}`
+  let hash = 0x811c9dc5
+  for (let i = 0; i < key.length; i++) {
+    hash ^= key.charCodeAt(i)
+    hash = Math.imul(hash, 0x01000193)
+  }
+  return hash >>> 0
+}
+
 /**
- * 每日一首确定性选题算法
- *
- * 使用日期字符串生成确定性种子，然后在有序 Song ID 列表中取模选取。
- * 这样即使曲库新增歌曲，已有歌曲的相对顺序不变，历史日期的题目仍保持稳定。
+ * 使用 rendezvous hashing 确定每日曲目。顺序不影响结果，曲库变化时只有新增/删除
+ * 候选胜出才会重映射，避免 length modulo 导致几乎所有日期漂移。
  */
 export function getDailySong(songs: readonly Song[], dateString: string): Song | null {
   if (songs.length === 0) return null
-  let seed = 0
-  for (let i = 0; i < dateString.length; i++) {
-    seed = (seed * 31 + dateString.charCodeAt(i)) % 1000000
+  let selected = songs[0]
+  let selectedScore = dailyScore(dateString, selected.id)
+  for (let i = 1; i < songs.length; i++) {
+    const score = dailyScore(dateString, songs[i].id)
+    if (score > selectedScore || (score === selectedScore && songs[i].id < selected.id)) {
+      selected = songs[i]
+      selectedScore = score
+    }
   }
-  // 按 id 升序排列后取模，新曲只追加到末尾不影响旧位置
-  const sorted = [...songs].sort((a, b) => a.id - b.id)
-  return sorted[seed % sorted.length]
+  return selected
 }

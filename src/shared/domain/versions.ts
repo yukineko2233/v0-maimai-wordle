@@ -77,8 +77,8 @@ const SOURCE_VERSION_MAP: Record<string, VersionName> = {
   "舞萌DX 2026": "舞萌DX 2026",
 }
 
-export function normalizeVersion(source: string): VersionName {
-  return SOURCE_VERSION_MAP[source] || "舞萌DX 2026"
+export function normalizeVersion(source: string): VersionName | null {
+  return SOURCE_VERSION_MAP[source] ?? null
 }
 
 export function versionIndex(version: VersionName): number {

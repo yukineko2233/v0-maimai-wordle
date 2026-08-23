@@ -3,6 +3,8 @@ import type { Song } from "../../../shared/types"
 import { SongCover } from "../game/SongCover"
 import { VERSION_SHORT_NAME } from "../../../shared/domain/versions"
 
+export type ResultEndReason = "won" | "max-guesses" | "timeout" | "give-up"
+
 interface ResultScreenProps {
   won: boolean
   targetSong: Song
@@ -11,6 +13,7 @@ interface ResultScreenProps {
   onNewGame: () => void
   isDaily?: boolean
   onShare?: () => void
+  endReason?: ResultEndReason
 }
 
 export default function ResultScreen({
@@ -21,9 +24,19 @@ export default function ResultScreen({
   onNewGame,
   isDaily = false,
   onShare,
+  endReason,
 }: ResultScreenProps) {
+  const lossTitle =
+    endReason === "timeout"
+      ? "时间耗尽"
+      : endReason === "give-up"
+        ? "已投降"
+        : endReason === "max-guesses"
+          ? "猜测次数已用尽"
+          : "游戏结束"
+
   return (
-    <div className="p-5 bg-gray-50/90 border border-gray-200 rounded-xl mb-5 text-center shadow-xs animate-in fade-in zoom-in-95 duration-200">
+    <div className="motion-result p-5 bg-gray-50/90 border border-gray-200 rounded-xl mb-5 text-center shadow-xs">
       {won ? (
         <div className="mb-3">
           <h2 className="text-xl font-bold text-green-600 mb-1">🎉 恭喜你猜对了！</h2>
@@ -33,7 +46,7 @@ export default function ResultScreen({
         </div>
       ) : (
         <div className="mb-3">
-          <h2 className="text-xl font-bold text-red-600 mb-1">😢 游戏结束</h2>
+          <h2 className="text-xl font-bold text-red-600 mb-1">😢 {lossTitle}</h2>
           <p className="text-sm text-gray-600">正确答案是：</p>
         </div>
       )}

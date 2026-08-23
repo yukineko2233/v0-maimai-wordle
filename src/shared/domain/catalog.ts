@@ -122,6 +122,7 @@ export function buildCatalog(
   aliasesData: YuzuChanAliasResponse = { content: [] },
   tagsData: DxRatingTagsResponse = { tags: [], tagGroups: [], tagSongs: [] },
 ): Song[] {
+  const warnedUnknownVersions = new Set<string>()
   // 1. 建立投票索引
   const voteMap = new Map<string, { total: number; down: number }>()
   for (const v of votesData) {
@@ -190,7 +191,15 @@ export function buildCatalog(
 
     const type: SongType = item.type?.toUpperCase() === "DX" ? "DX" : "SD"
     const genre = normalizeGenre(item.basic_info?.genre || "其他游戏")
-    const version = normalizeVersion(item.basic_info?.from || "")
+    const sourceVersion = item.basic_info?.from || ""
+    const version = normalizeVersion(sourceVersion)
+    if (!version) {
+      if (!warnedUnknownVersions.has(sourceVersion)) {
+        warnedUnknownVersions.add(sourceVersion)
+        console.warn(`Skipping songs with unknown source version ${JSON.stringify(sourceVersion)}`)
+      }
+      return
+    }
 
     // Master chart (index 3)
     const masterDs = item.ds && item.ds.length > 3 ? item.ds[3] : 0

@@ -1,8 +1,18 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { ArrowLeft, Flag, ArrowUp, ArrowDown, RefreshCw } from "lucide-react"
 import { toast } from "sonner"
 import type { MultiplayerRoom, Song } from "../../../shared/types"
-import { socket } from "../../services/socket"
+import {
+  clearMultiplayerSession,
+  emitSocketRequest,
+  getMultiplayerPlayerId,
+  getSocketConnectionState,
+  onMultiplayerSessionLost,
+  onMultiplayerSessionRestored,
+  onSocketConnectionState,
+  socket,
+  type SocketConnectionState,
+} from "../../services/socket"
 import SearchBox from "../game/SearchBox"
 import GuessRow from "../game/GuessRow"
 import { SongCover } from "../game/SongCover"
@@ -14,16 +24,49 @@ interface MultiplayerGameProps {
   onExit: () => void
 }
 
+type TimedMultiplayerRoom = MultiplayerRoom & {
+  nextRoundDeadline?: number | null
+  matchDeadline?: number | null
+}
+
+function mergeRoom(current: MultiplayerRoom, update: MultiplayerRoom) {
+  return { ...update, filteredSongs: update.filteredSongs ?? current.filteredSongs }
+}
+
+function connectionLabel(state: SocketConnectionState) {
+  if (state === "connected") return "服务器已连接"
+  if (state === "reconnecting") return "连接中断，正在重连..."
+  if (state === "connecting") return "正在连接服务器..."
+  return "服务器连接已断开"
+}
+
 export default function MultiplayerGame({
   initialRoom,
   onExit,
 }: MultiplayerGameProps) {
   const [room, setRoom] = useState<MultiplayerRoom>(initialRoom)
-  const [remainingTime, setRemainingTime] = useState(initialRoom.settings.timeLimit)
+  const [currentPlayerId, setCurrentPlayerId] = useState(getMultiplayerPlayerId)
+  const [remainingTime, setRemainingTime] = useState(() =>
+    initialRoom.roundDeadline === null
+      ? initialRoom.settings.timeLimit
+      : Math.max(0, Math.ceil((initialRoom.roundDeadline - Date.now()) / 1000)),
+  )
   const [reverseOrder, setReverseOrder] = useState(true)
+  const [pendingAction, setPendingAction] = useState<"guess" | "give_up" | null>(null)
+  const [connectionState, setConnectionState] = useState(getSocketConnectionState)
+  const [nextRoundRemaining, setNextRoundRemaining] = useState(0)
+  const roomRef = useRef(initialRoom)
+  const currentPlayerIdRef = useRef(currentPlayerId)
 
-  const currentPlayer = room.players[socket.id || ""] || {
-    id: socket.id || "",
+  const updateRoom = (update: MultiplayerRoom) => {
+    const merged = mergeRoom(roomRef.current, update)
+    roomRef.current = merged
+    setRoom(merged)
+    return merged
+  }
+
+  const currentPlayer = room.players[currentPlayerId] || {
+    id: currentPlayerId,
     nickname: "你",
     score: 0,
     online: true,
@@ -33,122 +76,189 @@ export default function MultiplayerGame({
   }
 
   useEffect(() => {
-    socket.on("game_updated", ({ room: r }) => {
-      setRoom(r)
-    })
+    const onGameUpdated = ({ room: nextRoom }: { room: MultiplayerRoom }) => updateRoom(nextRoom)
 
-    socket.on("round_ended", ({ room: r, roundWinner, matchWinner, forfeit, message }) => {
-      setRoom(r)
+    const onRoundEnded = ({ room: nextRoom, roundWinner, matchWinner, forfeit, message }: {
+      room: MultiplayerRoom
+      roundWinner?: string | null
+      matchWinner?: string | null
+      forfeit?: boolean
+      message?: string
+    }) => {
+      const merged = updateRoom(nextRoom)
+      setPendingAction(null)
       if (forfeit) {
         toast.info(message || "有玩家离开游戏")
+      } else if (message) {
+        toast.info(message)
       } else if (roundWinner) {
-        const wName = r.players[roundWinner]?.nickname || "玩家"
-        toast.success(`第 ${r.currentRound} 轮结束：${wName} 获胜！🎉`)
+        const wName = merged.players[roundWinner]?.nickname || "玩家"
+        toast.success(`第 ${merged.currentRound} 轮结束：${wName} 获胜！`)
       } else {
-        toast.info(`第 ${r.currentRound} 轮结束：平局！`)
+        toast.info(`第 ${merged.currentRound} 轮结束：平局！`)
       }
 
       if (matchWinner) {
-        const mName = r.players[matchWinner]?.nickname || "玩家"
-        toast.success(`👑 比赛结束！${mName} 赢得了整场胜利！`)
+        const mName = merged.players[matchWinner]?.nickname || "玩家"
+        toast.success(`比赛结束！${mName} 赢得了整场胜利！`)
       }
-    })
+    }
 
-    socket.on("next_round_started", ({ room: r }) => {
-      setRoom(r)
-      setRemainingTime(r.settings.timeLimit)
-      toast.info(`第 ${r.currentRound} 轮开始！`)
-    })
+    const onNextRoundStarted = ({ room: nextRoom }: { room: MultiplayerRoom }) => {
+      const merged = updateRoom(nextRoom)
+      setPendingAction(null)
+      toast.info(`第 ${merged.currentRound} 轮开始！`)
+    }
 
-    socket.on("player_ready", ({ room: r }) => {
-      setRoom(r)
-    })
+    const onPlayerReady = ({ room: nextRoom }: { room: MultiplayerRoom }) => updateRoom(nextRoom)
 
-    socket.on("player_left", ({ room: r, playerName }) => {
-      setRoom(r)
+    const onPlayerLeft = ({ room: nextRoom, playerName }: { room: MultiplayerRoom; playerName: string }) => {
+      updateRoom(nextRoom)
       toast.info(`${playerName} 离开了房间`)
-    })
+    }
 
-    socket.on("reconnected", ({ room: r, sessionToken }) => {
-      setRoom(r)
-      if (sessionToken) {
-        try {
-          sessionStorage.setItem("maimai_multi_token", sessionToken)
-        } catch (e) {}
-      }
+    const unsubscribeRestore = onMultiplayerSessionRestored(({ room: nextRoom, playerId }) => {
+      currentPlayerIdRef.current = playerId
+      setCurrentPlayerId(playerId)
+      updateRoom(nextRoom)
+      setPendingAction(null)
       toast.success("已恢复网络连接！")
     })
 
-    socket.on("player_reconnected", ({ room: r, playerId }) => {
-      setRoom(r)
-      const p = r.players[playerId]
-      if (p && playerId !== socket.id) {
+    const unsubscribeSessionLost = onMultiplayerSessionLost((message) => {
+      toast.error(message)
+      onExit()
+    })
+
+    const unsubscribeConnection = onSocketConnectionState((state) => {
+      setConnectionState(state)
+      if (state !== "connected") setPendingAction(null)
+    })
+
+    const onPlayerDisconnected = ({ room: nextRoom, playerId }: { room: MultiplayerRoom; playerId: string }) => {
+      const merged = updateRoom(nextRoom)
+      const player = merged.players[playerId]
+      if (player && playerId !== currentPlayerIdRef.current) toast.info(`${player.nickname} 已断线，等待重新连接`)
+    }
+
+    const onPlayerReconnected = ({ room: nextRoom, playerId }: { room: MultiplayerRoom; playerId: string }) => {
+      const merged = updateRoom(nextRoom)
+      const p = merged.players[playerId]
+      if (p && playerId !== currentPlayerIdRef.current) {
         toast.info(`${p.nickname} 已重新连线`)
       }
-    })
+    }
 
-    socket.on("guess_error", ({ message }) => {
+    const onGuessError = ({ message }: { message?: string }) => {
+      setPendingAction(null)
       toast.error(message || "猜测错误")
-    })
+    }
+
+    socket.on("game_updated", onGameUpdated)
+    socket.on("round_ended", onRoundEnded)
+    socket.on("next_round_started", onNextRoundStarted)
+    socket.on("player_ready", onPlayerReady)
+    socket.on("player_left", onPlayerLeft)
+    socket.on("player_disconnected", onPlayerDisconnected)
+    socket.on("player_reconnected", onPlayerReconnected)
+    socket.on("guess_error", onGuessError)
 
     return () => {
-      socket.off("game_updated")
-      socket.off("round_ended")
-      socket.off("next_round_started")
-      socket.off("player_ready")
-      socket.off("player_left")
-      socket.off("reconnected")
-      socket.off("player_reconnected")
-      socket.off("guess_error")
+      socket.off("game_updated", onGameUpdated)
+      socket.off("round_ended", onRoundEnded)
+      socket.off("next_round_started", onNextRoundStarted)
+      socket.off("player_ready", onPlayerReady)
+      socket.off("player_left", onPlayerLeft)
+      socket.off("player_disconnected", onPlayerDisconnected)
+      socket.off("player_reconnected", onPlayerReconnected)
+      socket.off("guess_error", onGuessError)
+      unsubscribeRestore()
+      unsubscribeSessionLost()
+      unsubscribeConnection()
     }
-  }, [])
+  }, [onExit])
 
   // 倒计时
   useEffect(() => {
-    let timer: NodeJS.Timeout | null = null
-    if (
-      room.settings.timeLimit > 0 &&
-      remainingTime > 0 &&
-      !currentPlayer.currentRound?.gameOver &&
-      room.status === "playing"
-    ) {
-      timer = setTimeout(() => {
-        setRemainingTime((prev) => {
-          if (prev <= 1) {
-            socket.emit("give_up", { roomId: room.id })
-            return 0
-          }
-          return prev - 1
-        })
-      }, 1000)
+    if (room.roundDeadline === null) {
+      setRemainingTime(room.settings.timeLimit)
+      return
     }
+    let timer: number | undefined
+    const updateRemaining = () => {
+      const next = Math.max(0, Math.ceil((room.roundDeadline! - Date.now()) / 1000))
+      setRemainingTime(next)
+      if (next === 0 && timer !== undefined) {
+        window.clearInterval(timer)
+        timer = undefined
+      }
+    }
+    updateRemaining()
+    if (room.roundDeadline > Date.now()) timer = window.setInterval(updateRemaining, 250)
     return () => {
-      if (timer) clearTimeout(timer)
+      if (timer !== undefined) window.clearInterval(timer)
     }
-  }, [remainingTime, currentPlayer, room.status, room.id, room.settings.timeLimit])
+  }, [room.roundDeadline, room.settings.timeLimit])
 
-  const makeGuess = (song: Song) => {
-    socket.emit("make_guess", {
+  useEffect(() => {
+    const deadline = (room as TimedMultiplayerRoom).nextRoundDeadline
+    if (!deadline || !room.roundSettled || room.status !== "playing") {
+      setNextRoundRemaining(0)
+      return
+    }
+    let timer: number | undefined
+    const updateRemaining = () => {
+      const next = Math.max(0, Math.ceil((deadline - Date.now()) / 1000))
+      setNextRoundRemaining(next)
+      if (next === 0 && timer !== undefined) {
+        window.clearInterval(timer)
+        timer = undefined
+      }
+    }
+    updateRemaining()
+    if (deadline > Date.now()) timer = window.setInterval(updateRemaining, 250)
+    return () => {
+      if (timer !== undefined) window.clearInterval(timer)
+    }
+  }, [room.roundSettled, room.status, (room as TimedMultiplayerRoom).nextRoundDeadline])
+
+  const makeGuess = async (song: Song) => {
+    if (pendingAction || connectionState !== "connected" || (room.settings.timeLimit > 0 && remainingTime <= 0)) return false
+    setPendingAction("guess")
+    const result = await emitSocketRequest("make_guess", {
       roomId: room.id,
       songId: song.id,
     })
+    setPendingAction(null)
+    if (!result.ok) toast.error(result.message || "猜测提交失败，请重试")
+    return result.ok
   }
 
-  const giveUp = () => {
-    socket.emit("give_up", {
+  const giveUp = async () => {
+    if (pendingAction || connectionState !== "connected" || (room.settings.timeLimit > 0 && remainingTime <= 0)) return
+    if (!window.confirm("确定要投降本轮吗？本轮将立即结束，且无法撤销。")) return
+    setPendingAction("give_up")
+    const result = await emitSocketRequest("give_up", {
       roomId: room.id,
     })
+    setPendingAction(null)
+    if (!result.ok) toast.error(result.message || "投降请求失败，请重试")
   }
 
   const readyForNextRound = () => {
+    if (connectionState !== "connected") {
+      toast.error(connectionLabel(connectionState))
+      return
+    }
     socket.emit("ready_next_round", {
       roomId: room.id,
     })
   }
 
   const exitGame = () => {
+    if (!isMatchFinished && !window.confirm("确定退出对战吗？离开可能会让其他玩家直接获胜。")) return
     try {
-      sessionStorage.removeItem("maimai_multi_token")
+      clearMultiplayerSession()
     } catch (e) {}
     if (room && room.id) {
       socket.emit("leave_room", { roomId: room.id })
@@ -156,18 +266,20 @@ export default function MultiplayerGame({
     onExit()
   }
 
-  const isRoundOver =
-    Object.values(room.players).every((p) => p.currentRound?.gameOver) && room.status === "playing"
+  const isRoundOver = room.roundSettled
   const isMatchFinished = room.status === "finished"
+  const localTimeExpired = room.settings.timeLimit > 0 && remainingTime <= 0
+  const canAct = !currentPlayer.currentRound?.gameOver && !isRoundOver && !isMatchFinished
+    && !localTimeExpired && connectionState === "connected" && pendingAction === null
 
   return (
-    <div className="w-full mx-auto bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-white/50 animate-in fade-in duration-200">
+    <div className="motion-page w-full mx-auto bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-white/50">
       {/* 顶栏 */}
       <div className="p-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex justify-between items-center shadow-xs rounded-t-2xl">
         <button
           type="button"
           onClick={exitGame}
-          className="flex items-center gap-1 text-xs font-medium text-white/90 hover:text-white px-2.5 py-1 rounded-lg hover:bg-white/20 transition-colors cursor-pointer"
+          className="min-h-11 flex items-center gap-1 text-xs font-medium text-white/90 hover:text-white px-3 py-2 rounded-lg hover:bg-white/20 transition-colors cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4" />
           退出
@@ -184,6 +296,13 @@ export default function MultiplayerGame({
       </div>
 
       <div className="p-4 md:p-6">
+        <div className={`mb-4 rounded-lg px-3 py-2 text-center text-xs font-medium ${
+          connectionState === "connected"
+            ? "bg-emerald-50 text-emerald-700"
+            : "bg-amber-50 text-amber-800"
+        }`}>
+          {connectionLabel(connectionState)}
+        </div>
         {/* 状态统计 */}
         <div className="mb-4 flex justify-center gap-6 items-center text-xs md:text-sm text-gray-700">
           <div>
@@ -198,7 +317,7 @@ export default function MultiplayerGame({
             {room.settings.timeLimit > 0 ? (
               <span className="font-medium text-indigo-700">{remainingTime} 秒</span>
             ) : (
-              <span className="text-gray-500 font-medium">无限</span>
+              <span className="text-gray-500 font-medium">无限（整场最多 10 分钟）</span>
             )}
           </div>
         </div>
@@ -212,16 +331,17 @@ export default function MultiplayerGame({
               className="flex items-center gap-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium rounded-lg transition-colors cursor-pointer border border-gray-200"
             >
               {reverseOrder ? <ArrowDown className="h-3.5 w-3.5" /> : <ArrowUp className="h-3.5 w-3.5" />}
-              <span>{reverseOrder ? "最新在上" : "最新在下"}</span>
+              <span>{reverseOrder ? "最新在下" : "最新在上"}</span>
             </button>
 
             <button
               type="button"
-              onClick={giveUp}
-              className="flex items-center gap-1 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium rounded-lg transition-colors cursor-pointer border border-red-200"
+              onClick={() => void giveUp()}
+              disabled={!canAct}
+              className="flex items-center gap-1 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium rounded-lg transition-colors cursor-pointer border border-red-200 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Flag className="h-3.5 w-3.5" />
-              投降
+              {pendingAction === "give_up" ? "提交中..." : "投降"}
             </button>
           </div>
         )}
@@ -232,14 +352,16 @@ export default function MultiplayerGame({
             <SearchBox
               songs={room.filteredSongs}
               onSelect={makeGuess}
-              disabled={currentPlayer.currentRound?.gameOver}
+              guessedSongIds={currentPlayer.currentRound?.guesses.map((guess) => guess.song.id)}
+              disabled={!canAct}
             />
+            {localTimeExpired && <p className="mt-2 text-center text-xs text-amber-700">本轮时间已到，等待服务器结算...</p>}
           </div>
         )}
 
         {/* 本轮结束面板 */}
         {isRoundOver && !isMatchFinished && room.targetSong && (
-          <div className="mb-5 p-5 bg-indigo-50/80 border border-indigo-200 rounded-xl text-center shadow-xs animate-in fade-in duration-200">
+          <div className="motion-round mb-5 p-5 bg-indigo-50/80 border border-indigo-200 rounded-xl text-center shadow-xs">
             <h3 className="text-lg font-bold text-gray-900 mb-1">
               {currentPlayer.currentRound?.won ? "🎉 你赢得了这一轮！" : "本轮结束"}
             </h3>
@@ -261,7 +383,7 @@ export default function MultiplayerGame({
             <button
               type="button"
               onClick={readyForNextRound}
-              disabled={currentPlayer.readyForNextRound}
+              disabled={currentPlayer.readyForNextRound || connectionState !== "connected"}
               className={`px-6 py-2.5 text-xs font-bold rounded-lg shadow-xs transition-all cursor-pointer ${
                 currentPlayer.readyForNextRound
                   ? "bg-gray-300 text-gray-700 cursor-not-allowed"
@@ -277,12 +399,15 @@ export default function MultiplayerGame({
                 "准备下一轮！🔥"
               )}
             </button>
+            <p className="mt-2 text-xs text-indigo-700">
+              {nextRoundRemaining > 0 ? `服务器将在 ${nextRoundRemaining} 秒后自动开始下一轮` : "服务器会自动推进下一轮"}
+            </p>
           </div>
         )}
 
         {/* 比赛结算面板 */}
         {isMatchFinished && (
-          <MultiplayerResultScreen room={room} currentPlayerId={socket.id || ""} onExit={exitGame} />
+          <MultiplayerResultScreen room={room} currentPlayerId={currentPlayerId} onExit={exitGame} />
         )}
 
         {/* 猜测记录列表 */}
@@ -300,7 +425,7 @@ export default function MultiplayerGame({
           <PlayerList
             players={room.players}
             hostId={room.host}
-            currentPlayerId={socket.id || ""}
+            currentPlayerId={currentPlayerId}
             playerAvatars={room.playerAvatars}
             isGameStarted={true}
             showReadyStatus={isRoundOver}

@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react"
-import { createPortal } from "react-dom"
+import { useRef, useState } from "react"
+import * as Dialog from "@radix-ui/react-dialog"
 import { Copy, Check, X } from "lucide-react"
 import { toast } from "sonner"
 import type { Guess } from "../../../shared/types"
@@ -20,14 +20,11 @@ export default function DailyShareModal({
   onClose,
 }: DailyShareModalProps) {
   const [copied, setCopied] = useState(false)
-
-  useEffect(() => {
-    const originalStyle = document.body.style.overflow
-    document.body.style.overflow = "hidden"
-    return () => {
-      document.body.style.overflow = originalStyle
-    }
-  }, [])
+  const returnFocusRef = useRef<HTMLElement | null>(
+    typeof document !== "undefined" && document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null,
+  )
 
   const generateShareText = () => {
     const header = `舞萌猜猜呗 每日一首 ${date}\n`
@@ -94,18 +91,29 @@ export default function DailyShareModal({
     }
   }
 
-  const content = (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[99999] p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-5 animate-in fade-in zoom-in-95 duration-200">
+  return (
+    <Dialog.Root open onOpenChange={(open) => !open && onClose()}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="motion-dialog-overlay fixed inset-0 z-[99998] bg-black/60 backdrop-blur-xs" />
+        <Dialog.Content
+          onCloseAutoFocus={(event) => {
+            event.preventDefault()
+            if (returnFocusRef.current?.isConnected) returnFocusRef.current.focus()
+          }}
+          className="motion-dialog fixed left-1/2 top-1/2 z-[99999] max-h-[90vh] w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl focus:outline-none"
+        >
+        <Dialog.Description className="sr-only">查看并复制今日挑战的分享文字。</Dialog.Description>
         <div className="flex justify-between items-center mb-3">
-          <h3 className="font-bold text-gray-900 text-base">分享今日挑战结果</h3>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer"
-          >
-            <X className="h-5 w-5" />
-          </button>
+          <Dialog.Title className="font-bold text-gray-900 text-base">分享今日挑战结果</Dialog.Title>
+          <Dialog.Close asChild>
+            <button
+              type="button"
+              aria-label="关闭分享结果"
+              className="min-h-11 min-w-11 inline-flex items-center justify-center rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 cursor-pointer"
+            >
+              <X aria-hidden="true" className="h-5 w-5" />
+            </button>
+          </Dialog.Close>
         </div>
 
         <div className="bg-gray-100 p-4 rounded-xl font-mono text-xs whitespace-pre-wrap select-all mb-4 text-gray-800 leading-relaxed max-h-60 overflow-y-auto">
@@ -118,25 +126,26 @@ export default function DailyShareModal({
         </div>
 
         <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 cursor-pointer"
-          >
-            关闭
-          </button>
+          <Dialog.Close asChild>
+            <button
+              type="button"
+              className="min-h-11 px-4 py-2 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 cursor-pointer"
+            >
+              关闭
+            </button>
+          </Dialog.Close>
           <button
             type="button"
             onClick={copyToClipboard}
-            className="flex items-center gap-1.5 px-5 py-2 text-xs font-medium text-white bg-gradient-to-r from-green-500 to-teal-500 rounded-lg hover:opacity-90 shadow-xs cursor-pointer"
+            aria-label={copied ? "分享结果已复制" : "复制分享结果文字"}
+            className="min-h-11 flex items-center gap-1.5 px-5 py-2 text-xs font-medium text-white bg-gradient-to-r from-green-500 to-teal-500 rounded-lg hover:opacity-90 shadow-xs cursor-pointer"
           >
-            {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            {copied ? <Check aria-hidden="true" className="h-4 w-4" /> : <Copy aria-hidden="true" className="h-4 w-4" />}
             {copied ? "已复制" : "复制文字"}
           </button>
         </div>
-      </div>
-    </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   )
-
-  return typeof document !== "undefined" ? createPortal(content, document.body) : null
 }

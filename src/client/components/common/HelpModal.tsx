@@ -1,5 +1,5 @@
-import { useEffect } from "react"
-import { createPortal } from "react-dom"
+import * as Dialog from "@radix-ui/react-dialog"
+import { useRef } from "react"
 import { X } from "lucide-react"
 
 interface HelpModalProps {
@@ -7,26 +7,35 @@ interface HelpModalProps {
 }
 
 export default function HelpModal({ onClose }: HelpModalProps) {
-  useEffect(() => {
-    const originalStyle = document.body.style.overflow
-    document.body.style.overflow = "hidden"
-    return () => {
-      document.body.style.overflow = originalStyle
-    }
-  }, [])
+  const returnFocusRef = useRef<HTMLElement | null>(
+    typeof document !== "undefined" && document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null,
+  )
 
-  const content = (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[99999] p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-auto animate-in fade-in zoom-in-95 duration-200">
+  return (
+    <Dialog.Root open onOpenChange={(open) => !open && onClose()}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="motion-dialog-overlay fixed inset-0 z-[99998] bg-black/60 backdrop-blur-xs" />
+        <Dialog.Content
+          onCloseAutoFocus={(event) => {
+            event.preventDefault()
+            if (returnFocusRef.current?.isConnected) returnFocusRef.current.focus()
+          }}
+          className="motion-dialog fixed left-1/2 top-1/2 z-[99999] max-h-[90vh] w-[calc(100%-2rem)] max-w-2xl overflow-auto rounded-2xl bg-white shadow-2xl focus:outline-none"
+        >
+        <Dialog.Description className="sr-only">舞萌猜歌的玩法、反馈规则与数据来源。</Dialog.Description>
         <div className="p-4 border-b flex justify-between items-center bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-t-2xl">
-          <h2 className="text-xl font-bold">玩法与规则说明</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1 rounded-full hover:bg-white/20 transition-colors text-white cursor-pointer"
-          >
-            <X className="h-5 w-5" />
-          </button>
+          <Dialog.Title className="text-xl font-bold">玩法与规则说明</Dialog.Title>
+          <Dialog.Close asChild>
+            <button
+              type="button"
+              aria-label="关闭玩法与规则说明"
+              className="min-h-11 min-w-11 inline-flex items-center justify-center rounded-full hover:bg-white/20 transition-colors text-white cursor-pointer"
+            >
+              <X aria-hidden="true" className="h-5 w-5" />
+            </button>
+          </Dialog.Close>
         </div>
 
         <div className="p-6 space-y-5 text-gray-700 text-sm leading-relaxed">
@@ -70,6 +79,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                     相差<span className="font-bold text-purple-900">一个半级</span>（例如目标为 12+ 时，猜 12 或 13 均判定为接近；定数自 .6 起计为 + 级）；
                   </li>
                   <li>• <span className="font-semibold">版本</span>：相差一个世代（例如 maimai 与 maimai PLUS 互为接近）。</li>
+                  <li>• <span className="font-semibold">Master / Re:Master 谱师</span>：规范化名称后存在至少 4 个连续相同字符。</li>
                 </ul>
               </li>
               <li>
@@ -140,17 +150,17 @@ export default function HelpModal({ onClose }: HelpModalProps) {
         </div>
 
         <div className="p-4 border-t flex justify-end bg-gray-50 rounded-b-2xl">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-5 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
-          >
-            知道了，开始猜歌！
-          </button>
+          <Dialog.Close asChild>
+            <button
+              type="button"
+              className="min-h-11 px-5 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
+            >
+              知道了，开始猜歌！
+            </button>
+          </Dialog.Close>
         </div>
-      </div>
-    </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   )
-
-  return typeof document !== "undefined" ? createPortal(content, document.body) : null
 }

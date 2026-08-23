@@ -26,10 +26,11 @@
 
 ### 环境要求
 - Node.js >= 20
-- pnpm >= 9
+- Corepack（仓库通过 `packageManager` 固定 pnpm 10.8.1）
 
 ### 安装依赖
 ```bash
+corepack enable
 pnpm install
 ```
 
@@ -58,18 +59,37 @@ pnpm build
 
 ## 🐳 Docker 一键部署
 
-在自建 2C2G 服务器上执行以下命令即可启动单容器服务：
+构建并启动前后端一体化单镜像：
 
 ```bash
-docker compose up -d --build
+docker build -t maimai-wordle .
+docker run -d --name maimai-wordle -p 3000:3000 \
+  -e CORS_ORIGINS=https://wordle.example.com \
+  -e DAILY_SECRET=replace-with-a-long-random-secret \
+  maimai-wordle
 ```
 
 - 服务将监听宿主机 `3000` 端口。
 - 前端静态页面与 Socket.IO 实时通信共用单一端口，无需复杂的双端口反代配置。
+- 容器以非 root 用户运行，`/api/health` 仅在曲库成功加载后返回 200，并用于容器健康检查。
+
+### 服务端配置
+
+| 环境变量 | 默认值 | 说明 |
+| --- | --- | --- |
+| `PORT` | 开发环境 `3001`，镜像内 `3000` | HTTP 与 Socket.IO 监听端口 |
+| `CORS_ORIGINS` | 生产环境无跨域来源 | 逗号分隔的允许来源；同源请求无需配置 |
+| `DAILY_SECRET` | 启动时随机生成 | 每日权威题目的 HMAC 密钥；生产环境必须固定配置，否则服务重启后当日题目可能变化 |
+| `ADMIN_REFRESH_TOKEN` | 未设置 | 设置后启用 `POST /api/refresh`；使用 `Authorization: Bearer <token>` 或 `X-Admin-Token` |
+| `REFRESH_COOLDOWN_MS` | `60000` | 管理员手动刷新成功或失败后的最短调用间隔 |
+
+不要把 `.env` 文件加入镜像构建上下文或版本控制。管理员 token 未配置时，手动刷新接口默认禁用；曲库仍会在启动时及每小时自动刷新。
 
 ---
 
 ## 📄 开源致谢与许可
+
+本仓库当前未声明软件许可证。这意味着除法律明确允许的情形外，不自动授予复制、修改或再分发代码的权利；数据源与素材还可能受各自条款约束。在维护者明确选择许可证前，不应假定本项目采用某种开源许可证。
 
 - 曲目数据与封面：[Diving-Fish maimaidx-prober](https://github.com/Diving-Fish/maimaidx-prober)
 - 别名数据：[Yuri-YuzuChaN maimaiDX Alias](https://github.com/Yuri-YuzuChaN/SakuraBotDocs)

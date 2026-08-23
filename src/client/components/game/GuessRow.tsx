@@ -23,14 +23,46 @@ export default function GuessRow({ guess }: GuessRowProps) {
     return "bg-gray-50 text-gray-800 border-gray-200"
   }
 
+  const getDirectionText = (direction: Direction) => {
+    if (direction === "higher") return "目标更低或更早"
+    if (direction === "lower") return "目标更高或更晚"
+    return ""
+  }
+
   const getDirectionIcon = (direction: Direction) => {
-    if (direction === "higher") return <ArrowDown className="h-3.5 w-3.5 text-red-500 inline ml-1 shrink-0" />
-    if (direction === "lower") return <ArrowUp className="h-3.5 w-3.5 text-blue-500 inline ml-1 shrink-0" />
+    if (direction === "higher") return <><ArrowDown aria-hidden="true" className="h-3.5 w-3.5 text-red-500 inline ml-1 shrink-0" /><span className="sr-only">，{getDirectionText(direction)}</span></>
+    if (direction === "lower") return <><ArrowUp aria-hidden="true" className="h-3.5 w-3.5 text-blue-500 inline ml-1 shrink-0" /><span className="sr-only">，{getDirectionText(direction)}</span></>
     return null
   }
 
+  const getStatusText = (status: FeedbackStatus) => {
+    if (status === "exact") return "完全一致"
+    if (status === "close") return "接近"
+    if (status === "absent") return "双方均无属性"
+    return "不一致"
+  }
+
+  const getSummaryDirection = (status: FeedbackStatus, direction: Direction) => {
+    const directionText = getDirectionText(direction)
+    return status === "exact" || status === "absent" || !directionText ? "" : `，${directionText}`
+  }
+
+  const feedbackSummary = [
+    `歌曲 ${song.title}，歌名${getStatusText(result.title.status)}`,
+    `类型${getStatusText(result.type.status)}`,
+    `BPM ${getStatusText(result.bpm.status)}${getSummaryDirection(result.bpm.status, result.bpm.direction)}`,
+    `曲师${getStatusText(result.artist.status)}`,
+    `Master 等级${getStatusText(result.masterLevel.status)}${getSummaryDirection(result.masterLevel.status, result.masterLevel.direction)}`,
+    `Master 谱师${getStatusText(result.masterDesigner.status)}`,
+    `Re:Master 等级${getStatusText(result.remasterLevel.status)}${getSummaryDirection(result.remasterLevel.status, result.remasterLevel.direction)}`,
+    `Re:Master 谱师${getStatusText(result.remasterDesigner.status)}`,
+    `流派${getStatusText(result.genre.status)}`,
+    `版本${getStatusText(result.version.status)}${getSummaryDirection(result.version.status, result.version.direction)}`,
+  ].join("；")
+
   return (
-    <div className="border border-gray-200 rounded-xl overflow-hidden shadow-xs bg-white text-xs md:text-sm">
+    <div className="motion-guess border border-gray-200 rounded-xl overflow-hidden shadow-xs bg-white text-xs md:text-sm" role="group" aria-label={`${song.title} 的猜测反馈`}>
+      <p className="sr-only" aria-live="polite">{feedbackSummary}</p>
       <div className="grid grid-cols-4 md:grid-cols-8 gap-2 p-2.5">
         {/* Cover and Title */}
         <div className="flex items-center gap-2.5 col-span-4">
@@ -44,6 +76,7 @@ export default function GuessRow({ guess }: GuessRowProps) {
           >
             <div className="font-semibold text-sm truncate" title={song.title}>
               {song.title}
+              <span className="sr-only">，{getStatusText(result.title.status)}</span>
             </div>
           </div>
         </div>
@@ -52,6 +85,7 @@ export default function GuessRow({ guess }: GuessRowProps) {
         <div className={`p-2 rounded-lg border flex flex-col justify-center ${getCellClass(result.type.status)}`}>
           <div className="text-2xs text-gray-500 mb-0.5">类型</div>
           <div className="font-medium">{song.type}</div>
+          <span className="sr-only">，{getStatusText(result.type.status)}</span>
         </div>
 
         {/* BPM */}
@@ -64,6 +98,7 @@ export default function GuessRow({ guess }: GuessRowProps) {
           <div className="font-medium flex items-center">
             {song.bpm}
             {result.bpm.status !== "exact" && getDirectionIcon(result.bpm.direction)}
+            <span className="sr-only">，{getStatusText(result.bpm.status)}</span>
           </div>
         </div>
 

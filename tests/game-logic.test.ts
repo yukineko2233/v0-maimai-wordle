@@ -53,6 +53,14 @@ const mockSong2: Song = {
   ],
 }
 
+function songWithDesigners(
+  id: number,
+  masterDesigner: string,
+  remasterDesigner: string | null,
+): Song {
+  return { ...mockSong1, id, sourceIndex: id, masterDesigner, remasterDesigner }
+}
+
 describe("Game Logic & Guess Evaluation", () => {
   it("should evaluate exact match correctly", () => {
     const feedback = evaluateGuess(mockSong1, mockSong1)
@@ -77,6 +85,106 @@ describe("Game Logic & Guess Evaluation", () => {
     expect(feedback.version.status).toBe("miss")
   })
 
+  describe("chart designer feedback", () => {
+    it("keeps complete Master and Re:Master matches exact", () => {
+      const feedback = evaluateGuess(
+        songWithDesigners(200, "Jack", "ロシェ@ペンギン"),
+        songWithDesigners(201, "Jack", "ロシェ@ペンギン"),
+      )
+
+      expect(feedback.masterDesigner.status).toBe("exact")
+      expect(feedback.remasterDesigner.status).toBe("exact")
+    })
+
+    it("marks a shared run of four normalized characters close without making the guess correct", () => {
+      const feedback = evaluateGuess(
+        songWithDesigners(202, "fooABCDbar", "startWXYZend"),
+        songWithDesigners(202, "otherabcdname", "otherwxyzname"),
+      )
+
+      expect(feedback.masterDesigner.status).toBe("close")
+      expect(feedback.masterDesigner.direction).toBe("equal")
+      expect(feedback.remasterDesigner.status).toBe("close")
+      expect(feedback.remasterDesigner.direction).toBe("equal")
+      expect(feedback.correct).toBe(false)
+    })
+
+    it("does not mark a shared run of only three characters close", () => {
+      const feedback = evaluateGuess(
+        songWithDesigners(204, "xxABCyy", "xx猫犬鳥yy"),
+        songWithDesigners(205, "zzabcww", "zz猫犬鳥ww"),
+      )
+
+      expect(feedback.masterDesigner.status).toBe("miss")
+      expect(feedback.remasterDesigner.status).toBe("miss")
+    })
+
+    it("does not combine non-contiguous matching characters", () => {
+      const feedback = evaluateGuess(
+        songWithDesigners(206, "A-x-B-x-C-x-D", "W-1-X-1-Y-1-Z"),
+        songWithDesigners(207, "ABCD", "WXYZ"),
+      )
+
+      expect(feedback.masterDesigner.status).toBe("miss")
+      expect(feedback.remasterDesigner.status).toBe("miss")
+    })
+
+    it("normalizes Unicode width, case, spaces, and common separators", () => {
+      const feedback = evaluateGuess(
+        songWithDesigners(208, "Jack The-Ripper", "ＤＰ ＮＣＳ"),
+        songWithDesigners(209, "ｊａｃｋ_the / ripper", "dp@ncs"),
+      )
+
+      expect(feedback.masterDesigner.status).toBe("close")
+      expect(feedback.remasterDesigner.status).toBe("close")
+    })
+
+    it("handles missing Re:Master designers explicitly", () => {
+      const bothMissing = evaluateGuess(
+        songWithDesigners(210, "Jack", null),
+        songWithDesigners(211, "Jack", null),
+      )
+      const oneMissing = evaluateGuess(
+        songWithDesigners(212, "Jack", null),
+        songWithDesigners(213, "Jack", "SomeDesigner"),
+      )
+
+      expect(bothMissing.remasterDesigner.status).toBe("absent")
+      expect(bothMissing.remasterDesigner.direction).toBe("equal")
+      expect(oneMissing.remasterDesigner.status).toBe("miss")
+      expect(oneMissing.remasterDesigner.direction).toBe("equal")
+    })
+
+    it("never treats differently formatted unknown placeholders as close", () => {
+      const feedback = evaluateGuess(
+        songWithDesigners(214, "UNKNOWN", "未知"),
+        songWithDesigners(215, "unknown", "未知"),
+      )
+
+      expect(feedback.masterDesigner.status).toBe("miss")
+      expect(feedback.remasterDesigner.status).toBe("exact")
+    })
+
+    it("supports continuous Chinese and Japanese character matches", () => {
+      const feedback = evaluateGuess(
+        songWithDesigners(216, "谱师甲乙丙丁", "譜面あいうえ担当"),
+        songWithDesigners(217, "甲乙丙丁さん", "別名あいうえ"),
+      )
+
+      expect(feedback.masterDesigner.status).toBe("close")
+      expect(feedback.remasterDesigner.status).toBe("close")
+    })
+
+    it("counts Unicode code points instead of UTF-16 code units", () => {
+      const feedback = evaluateGuess(
+        songWithDesigners(218, "xx😀😁yy", "same"),
+        songWithDesigners(219, "zz😀😁ww", "same"),
+      )
+
+      expect(feedback.masterDesigner.status).toBe("miss")
+    })
+  })
+
   it("should filter songs by version, genre, and level range", () => {
     const songs = [mockSong1, mockSong2]
     const filtered = filterSongs(songs, {
@@ -94,26 +202,29 @@ describe("Game Logic & Guess Evaluation", () => {
   it("should get consistent daily song for same date", () => {
     const songs = [mockSong1, mockSong2]
     const song1 = getDailySong(songs, "2026-08-20")
-    const song2 = getDailySong(songs, "2026-08-20")
+    const song2 = getDailySong([...songs].reverse(), "2026-08-20")
     expect(song1).toEqual(song2)
   })
 
-  it("should be stable when a new song is added to the catalog (by id sort)", () => {
-    // 原始两首歌
-    const original = [mockSong1, mockSong2]
-    // 添加一首 id 更大的新歌（不会影响旧的 id 排序位置）
-    const newSong = { ...mockSong2, id: 999, title: "New Song" }
-    const expanded = [newSong, mockSong1, mockSong2] // 插入顺序无关
-    // 同一天，相同 id 集合的子集下选出的歌曲不变（取模落在原集合内时）
-    const result1 = getDailySong(original, "2026-01-01")
-    const result2 = getDailySong(expanded, "2026-01-01")
-    // 两个结果都是有效歌曲
-    expect(result1).not.toBeNull()
-    expect(result2).not.toBeNull()
-    // 新歌只加在末尾(id更大)，当 seed % 2 == seed % 3 只在特定值下成立
-    // 关键：同一天的选取结果是确定的（不随机）
-    expect(getDailySong(original, "2026-01-01")).toEqual(getDailySong(original, "2026-01-01"))
-    expect(getDailySong(expanded, "2026-01-01")).toEqual(getDailySong(expanded, "2026-01-01"))
+  it("only remaps rendezvous selection when the selected song leaves the catalog", () => {
+    const songs = [
+      mockSong1,
+      mockSong2,
+      { ...mockSong2, id: 999, title: "New Song" },
+      { ...mockSong2, id: 1000, title: "Another Song" },
+    ]
+
+    for (let day = 1; day <= 31; day++) {
+      const date = `2026-01-${String(day).padStart(2, "0")}`
+      const selected = getDailySong(songs, date)!
+      const nonSelected = songs.find((song) => song.id !== selected.id)!
+      expect(getDailySong(songs.filter((song) => song.id !== nonSelected.id), date)?.id).toBe(selected.id)
+    }
+  })
+
+  it("uses the Shanghai calendar day at the UTC boundary", () => {
+    expect(getShanghaiDate(new Date("2026-08-20T15:59:59.999Z"))).toBe("2026-08-20")
+    expect(getShanghaiDate(new Date("2026-08-20T16:00:00.000Z"))).toBe("2026-08-21")
   })
 
   it("should handle topSongs >= 2000 as unlimited in filterSongs", () => {
@@ -179,4 +290,3 @@ describe("Game Logic & Guess Evaluation", () => {
     expect(catalog[0].remasterDesigner).toBe("RemasterCharter")
   })
 })
-
