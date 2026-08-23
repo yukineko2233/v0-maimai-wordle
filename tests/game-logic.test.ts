@@ -96,10 +96,10 @@ describe("Game Logic & Guess Evaluation", () => {
       expect(feedback.remasterDesigner.status).toBe("exact")
     })
 
-    it("marks a shared run of four normalized characters close without making the guess correct", () => {
+    it("marks a shared run of three normalized characters close without making the guess correct", () => {
       const feedback = evaluateGuess(
-        songWithDesigners(202, "fooABCDbar", "startWXYZend"),
-        songWithDesigners(202, "otherabcdname", "otherwxyzname"),
+        songWithDesigners(202, "fooABCbar", "startWXYend"),
+        songWithDesigners(202, "otherabcname", "otherwxyname"),
       )
 
       expect(feedback.masterDesigner.status).toBe("close")
@@ -109,10 +109,10 @@ describe("Game Logic & Guess Evaluation", () => {
       expect(feedback.correct).toBe(false)
     })
 
-    it("does not mark a shared run of only three characters close", () => {
+    it("does not mark a shared run of only two characters close", () => {
       const feedback = evaluateGuess(
-        songWithDesigners(204, "xxABCyy", "xx猫犬鳥yy"),
-        songWithDesigners(205, "zzabcww", "zz猫犬鳥ww"),
+        songWithDesigners(204, "xxAByy", "xx猫犬yy"),
+        songWithDesigners(205, "zzabww", "zz猫犬ww"),
       )
 
       expect(feedback.masterDesigner.status).toBe("miss")

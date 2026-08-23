@@ -46,7 +46,7 @@ function normalizeDesigner(value: string | null | undefined): string | null {
   return normalized || null
 }
 
-function hasCommonDesignerRun(guess: string, target: string, minimumLength = 4): boolean {
+function hasCommonDesignerRun(guess: string, target: string, minimumLength = 3): boolean {
   const guessCharacters = Array.from(guess)
   const targetCharacters = Array.from(target)
   if (guessCharacters.length < minimumLength || targetCharacters.length < minimumLength) return false

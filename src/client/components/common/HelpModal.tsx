@@ -79,7 +79,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                     相差<span className="font-bold text-purple-900">一个半级</span>（例如目标为 12+ 时，猜 12 或 13 均判定为接近；定数自 .6 起计为 + 级）；
                   </li>
                   <li>• <span className="font-semibold">版本</span>：相差一个世代（例如 maimai 与 maimai PLUS 互为接近）。</li>
-                  <li>• <span className="font-semibold">Master / Re:Master 谱师</span>：规范化名称后存在至少 4 个连续相同字符。</li>
+                  <li>• <span className="font-semibold">Master / Re:Master 谱师</span>：规范化名称后存在至少 3 个连续相同字符。</li>
                 </ul>
               </li>
               <li>

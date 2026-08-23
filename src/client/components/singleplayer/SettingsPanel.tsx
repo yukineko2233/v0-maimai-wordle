@@ -86,7 +86,6 @@ export default function SettingsPanel({
   const hasRangeErrors = Boolean(rangeErrors.versionRange || rangeErrors.masterLevelRange)
   const hasUnappliedChanges = !haveSameSettings(current, settings)
   const allGenres = current.genres.length === 0
-  const allSpecificGenresSelected = GENRE_LIST.every((genre) => current.genres.includes(genre))
 
   const handleApply = () => {
     if (!hasRangeErrors) onApply(current)
@@ -296,27 +295,7 @@ export default function SettingsPanel({
                 <span className="block text-3xs text-gray-500">不限制歌曲流派</span>
               </span>
             </button>
-            <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center sm:gap-3">
-              <p className="text-xs text-gray-500">勾选任一具体流派后，将自动切换为自定义范围。</p>
-              <div className="flex shrink-0 gap-1.5">
-                <button
-                  type="button"
-                  disabled={allSpecificGenresSelected}
-                  onClick={() => setCurrent({ ...current, genres: [...GENRE_LIST] })}
-                  className="min-h-9 rounded-lg border border-gray-300 bg-white px-2.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  一键全选
-                </button>
-                <button
-                  type="button"
-                  disabled={allGenres}
-                  onClick={() => setCurrent({ ...current, genres: [] })}
-                  className="min-h-9 rounded-lg border border-gray-300 bg-white px-2.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  清空回全部
-                </button>
-              </div>
-            </div>
+            <p className="text-xs text-gray-500">只需勾选想保留的流派；取消最后一项会自动恢复为全部流派。</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {GENRE_LIST.map((genre) => {
                 const isChecked = current.genres.includes(genre)
