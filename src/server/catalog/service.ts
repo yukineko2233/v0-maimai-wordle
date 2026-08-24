@@ -8,16 +8,30 @@ class CatalogService {
   private refreshPromise: Promise<Song[]> | null = null
   private lastUpdated: number | null = null
   private lastError: string | null = null
-  private refreshInterval: NodeJS.Timeout | null = null
+  private refreshTimer: NodeJS.Timeout | null = null
 
   async init(): Promise<void> {
-    // 每小时在后台刷新一次
-    this.refreshInterval = setInterval(() => {
-      this.refreshCatalog().catch((err) => {
-        console.error("Scheduled catalog refresh failed:", err)
-      })
-    }, 60 * 60 * 1000)
     await this.refreshCatalog()
+    this.scheduleNextDailyRefresh()
+  }
+
+  private scheduleNextDailyRefresh() {
+    if (this.refreshTimer) clearTimeout(this.refreshTimer)
+    const now = new Date()
+    const shanghaiNow = new Date(now.getTime() + 8 * 60 * 60 * 1000)
+    const nextMidnight = Date.UTC(
+      shanghaiNow.getUTCFullYear(),
+      shanghaiNow.getUTCMonth(),
+      shanghaiNow.getUTCDate() + 1,
+    ) - 8 * 60 * 60 * 1000
+    const delay = Math.max(1_000, nextMidnight - now.getTime())
+    this.refreshTimer = setTimeout(() => {
+      this.refreshCatalog()
+        .catch((err) => {
+          console.error("Scheduled daily catalog refresh failed:", err)
+        })
+        .finally(() => this.scheduleNextDailyRefresh())
+    }, delay)
   }
 
   refreshCatalog(): Promise<Song[]> {
@@ -75,8 +89,8 @@ class CatalogService {
   }
 
   destroy() {
-    if (this.refreshInterval) {
-      clearInterval(this.refreshInterval)
+    if (this.refreshTimer) {
+      clearTimeout(this.refreshTimer)
     }
   }
 }
