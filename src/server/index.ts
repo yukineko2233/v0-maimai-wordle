@@ -272,7 +272,8 @@ app.use((error: unknown, _req: express.Request, res: express.Response, _next: ex
   res.status(status).json({ success: false, error: message, ...(error instanceof DailySessionError ? { code: error.code } : {}) })
 })
 
-const PORT = process.env.PORT || 3001
+const configuredPort = Number(process.env.PORT)
+const PORT = Number.isInteger(configuredPort) && configuredPort > 0 ? configuredPort : 3001
 
 async function startServer() {
   try {
@@ -281,8 +282,8 @@ async function startServer() {
     console.error("Failed to load initial catalog on startup:", err)
   }
 
-  server.listen(PORT, () => {
-    console.log(`maimai Wordle server listening on port ${PORT}`)
+  server.listen(PORT, "0.0.0.0", () => {
+    console.log(`maimai Wordle server listening on 0.0.0.0:${PORT}`)
   })
 }
 
