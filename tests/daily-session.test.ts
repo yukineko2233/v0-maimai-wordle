@@ -47,6 +47,18 @@ describe("DailySessionManager", () => {
     expectSessionError(() => sessions.getOrCreate(songs, "missing_token_000000000000000000000000", now), 401, "INVALID_SESSION")
   })
 
+  it("starts a fresh session when a saved token was lost after a server restart", () => {
+    const firstServer = manager()
+    const saved = firstServer.getOrCreate(songs, undefined, now)
+    const restartedServer = new DailySessionManager(() => "restarted_token_000000000000000000000000")
+
+    const restored = restartedServer.restoreOrCreate(songs, saved.sessionToken, now)
+
+    expect(restored.sessionToken).not.toBe(saved.sessionToken)
+    expect(restored.guesses).toEqual([])
+    expect(restored).not.toHaveProperty("answer")
+  })
+
   it("rejects invalid and duplicate guesses with useful status codes", () => {
     const sessions = manager()
     const created = sessions.getOrCreate(songs, undefined, now)

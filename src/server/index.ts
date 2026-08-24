@@ -77,7 +77,7 @@ app.get("/api/daily/session", (req, res, next) => {
   }
   try {
     res.setHeader("Cache-Control", "no-store")
-    res.json(dailySessionManager.getOrCreate(catalogService.getSongs(), parsed.data.sessionToken))
+    res.json(dailySessionManager.restoreOrCreate(catalogService.getSongs(), parsed.data.sessionToken))
   } catch (error) {
     next(error)
   }
@@ -254,7 +254,6 @@ io.on("connection", (socket) => {
 })
 
 app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error("HTTP request failed:", error)
   if (res.headersSent) return
   const errorStatus = error instanceof DailySessionError
     ? error.status
@@ -262,6 +261,7 @@ app.use((error: unknown, _req: express.Request, res: express.Response, _next: ex
       ? Number(error.status)
       : NaN
   const status = error instanceof SyntaxError ? 400 : errorStatus >= 400 && errorStatus < 500 ? errorStatus : 500
+  if (status >= 500) console.error("HTTP request failed:", error)
   const message = error instanceof DailySessionError
     ? error.message
     : status === 400

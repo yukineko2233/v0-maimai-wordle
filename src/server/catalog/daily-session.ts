@@ -96,6 +96,17 @@ export class DailySessionManager {
     return this.toView(session)
   }
 
+  restoreOrCreate(songs: readonly Song[], token?: string, now = new Date()): DailySessionView {
+    try {
+      return this.getOrCreate(songs, token, now)
+    } catch (error) {
+      if (token && error instanceof DailySessionError && error.code === "INVALID_SESSION") {
+        return this.getOrCreate(songs, undefined, now)
+      }
+      throw error
+    }
+  }
+
   guess(token: string, songId: number, now = new Date()): DailyGuessView {
     const session = this.requireSession(token, now)
     if (session.gameOver) throw new DailySessionError("Daily challenge is already over", 409, "GAME_OVER")
