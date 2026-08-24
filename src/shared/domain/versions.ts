@@ -43,7 +43,7 @@ export const VERSION_SHORT_NAME: Record<VersionName, string> = {
   "舞萌DX 2023": "DX 2023 祭/祝",
   "舞萌DX 2024": "DX 2024 双/宴",
   "舞萌DX 2025": "DX 2025 镜",
-  "舞萌DX 2026": "DX 2026 棱",
+  "舞萌DX 2026": "DX 2026 彩",
 }
 
 const SOURCE_VERSION_MAP: Record<string, VersionName> = {
