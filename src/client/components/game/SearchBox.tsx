@@ -68,7 +68,7 @@ export default function SearchBox({
   onSelect,
   guessedSongIds = EMPTY_GUESSED_SONG_IDS,
   disabled = false,
-  placeholder = "输入歌曲名、曲师或别名以开始...",
+  placeholder = "输入歌曲以猜测...",
 }: SearchBoxProps) {
   const [query, setQuery] = useState("")
   const [results, setResults] = useState<Song[]>([])
@@ -129,7 +129,7 @@ export default function SearchBox({
     setIsOpen(true)
     setResultAnnouncement(
       visibleResults.length > 0
-        ? `显示 ${visibleResults.length} 个结果，共 ${matched.length} 个。请使用上下方向键选择。`
+        ? `显示 ${visibleResults.length} 个结果，共 ${matched.length} 个。`
         : "没有找到可猜的歌曲。",
     )
   }, [guessedSongIdsKey, query, songs])
@@ -333,7 +333,7 @@ export default function SearchBox({
                     <div className="text-2xs text-gray-500 truncate">{song.artist}</div>
                     {aliasText && (
                       <div className="text-3xs text-gray-400 truncate mt-0.5">
-                        别名: {aliasText}
+                        {aliasText}
                       </div>
                     )}
                   </div>

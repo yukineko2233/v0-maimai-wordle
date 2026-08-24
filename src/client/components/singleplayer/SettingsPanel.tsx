@@ -143,7 +143,7 @@ export default function SettingsPanel({
           <Dialog.Close asChild>
             <button
               type="button"
-              aria-label="关闭游戏设置"
+              aria-label="关闭"
               className="min-h-11 min-w-11 inline-flex items-center justify-center rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-200 transition-colors cursor-pointer"
             >
               <X aria-hidden="true" className="h-5 w-5" />
@@ -154,15 +154,15 @@ export default function SettingsPanel({
         <div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-4 text-sm text-gray-800 sm:p-6">
           {/* 预设快速选择 */}
           <div>
-            <h3 className="font-semibold text-gray-900 mb-2.5">常用预设</h3>
+            <h3 className="font-semibold text-gray-900 mb-2.5">预设</h3>
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
                 onClick={() => applyPreset(BEGINNER_PRESET)}
                 className="min-h-11 px-3 py-1.5 rounded-lg border border-pink-300 bg-pink-50 text-pink-700 font-medium hover:bg-pink-100 transition-colors cursor-pointer text-xs"
-                title="版本: 全版本 | 等级: 10+~14+ | 前100首热门"
+                title="前100首热门"
               >
-                🌱 入门推荐 (前100首热门)
+                🌱 入门
               </button>
               <button
                 type="button"
@@ -186,7 +186,7 @@ export default function SettingsPanel({
                 className="min-h-11 px-3 py-1.5 rounded-lg border border-indigo-300 bg-indigo-50 text-indigo-700 font-medium hover:bg-indigo-100 transition-colors cursor-pointer text-xs"
                 title="等级: 10+ 至 13+"
               >
-                🍰 只猜小歌 (10+~13+)
+                🍰 只猜小歌
               </button>
               <button
                 type="button"
@@ -194,7 +194,7 @@ export default function SettingsPanel({
                 className="min-h-11 px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-700 font-medium hover:bg-amber-100 transition-colors cursor-pointer text-xs"
                 title="版本: maimai 至 maimai FiNALE"
               >
-                📼 仅旧框 (FiNALE及之前)
+                📼 仅旧框
               </button>
               <button
                 type="button"
@@ -292,10 +292,9 @@ export default function SettingsPanel({
               </span>
               <span>
                 <span className="block text-xs font-semibold">全部流派</span>
-                <span className="block text-3xs text-gray-500">不限制歌曲流派</span>
               </span>
             </button>
-            <p className="text-xs text-gray-500">只需勾选想保留的流派；取消最后一项会自动恢复为全部流派。</p>
+            <p className="text-xs text-gray-500">或只勾选想猜的流派</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {GENRE_LIST.map((genre) => {
                 const isChecked = current.genres.includes(genre)
@@ -394,7 +393,7 @@ export default function SettingsPanel({
               <label htmlFor="settings-top-songs" className="font-semibold text-gray-900">歌曲热度范围</label>
               <span id="settings-top-songs-value" className="text-pink-600 font-semibold">
                 {current.topSongs >= UNLIMITED_TOP_SONGS
-                  ? "无限制 (所有符合条件的歌曲)"
+                  ? "无限制"
                   : `前 ${current.topSongs} 首热门歌曲`}
               </span>
             </div>
@@ -417,12 +416,6 @@ export default function SettingsPanel({
               }}
               className="min-h-11 w-full accent-pink-500 cursor-pointer"
             />
-            <div className="flex justify-between text-3xs text-gray-400 px-0.5">
-              <span>前50首</span>
-              <span>前200首</span>
-              <span>前500首</span>
-              <span>无限制</span>
-            </div>
           </div>
 
           {/* 猜测次数与时间限制 */}

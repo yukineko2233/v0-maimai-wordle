@@ -183,7 +183,7 @@ export default function GameBoard({ onBack, initialSongs }: GameBoardProps) {
     if (
       gameState.targetSong &&
       !gameState.gameOver &&
-      !window.confirm("应用设置将重新开始新游戏，当前进度会丢失，确定继续吗？")
+      !window.confirm("应用设置将重新开始新游戏，确定继续吗？")
     ) {
       return
     }
@@ -216,7 +216,7 @@ export default function GameBoard({ onBack, initialSongs }: GameBoardProps) {
           <ArrowLeft className="h-5 w-5" />
         </button>
 
-        <h1 className="text-lg font-bold text-center tracking-wide">单人练习模式</h1>
+        <h1 className="text-lg font-bold text-center tracking-wide">单人练习</h1>
 
         <button
           type="button"

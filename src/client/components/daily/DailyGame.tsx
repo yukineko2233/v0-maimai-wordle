@@ -223,7 +223,7 @@ export default function DailyGame({ onBack, initialSongs }: DailyGameProps) {
 
   const giveUp = async () => {
     if (submitting || gameState.gameOver) return
-    if (!window.confirm("投降后将结束今日挑战并公布答案，今天无法重新开始，确定投降吗？")) return
+    if (!window.confirm("投降后今天无法重新开始，确定投降吗？")) return
     if (mode === "online" && sessionToken) {
       mutationVersionRef.current++
       setSubmitting(true)
@@ -265,7 +265,7 @@ export default function DailyGame({ onBack, initialSongs }: DailyGameProps) {
 
       <div className="p-4 md:p-6">
         {dailyLoading ? (
-          <div className="text-center text-gray-500 py-12">正在恢复全服今日挑战...</div>
+          <div className="text-center text-gray-500 py-12">正在加载...</div>
         ) : !ready ? (
           <div className="text-center text-gray-500 py-12">
             {dailyError ? (

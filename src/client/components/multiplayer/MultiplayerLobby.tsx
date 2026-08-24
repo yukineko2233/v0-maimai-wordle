@@ -360,7 +360,7 @@ export default function MultiplayerLobby({
         </button>
 
         <h1 className="text-lg font-bold text-center tracking-wide">
-          {room ? `对战房间 #${room.id}` : "多人联机对战大厅"}
+          {room ? `多人联机房间` : "多人联机"}
         </h1>
 
         {!room ? (
@@ -413,7 +413,7 @@ export default function MultiplayerLobby({
                   onClick={() => setShowSettings(true)}
                   className="text-xs text-indigo-600 hover:text-indigo-800 font-medium cursor-pointer"
                 >
-                  ⚙️ 调整出题范围
+                  ⚙️ 游戏设置
                 </button>
               </div>
 
@@ -425,11 +425,11 @@ export default function MultiplayerLobby({
                     onChange={(e) => setBestOf(Number(e.target.value) as BestOf)}
                     className="w-full h-10 px-3 rounded-lg border border-gray-300 bg-white"
                   >
-                    <option value={1}>抢 1 胜制 (一局定胜负)</option>
-                    <option value={3}>抢 2 胜制 (3局2胜)</option>
-                    <option value={5}>抢 3 胜制 (5局3胜)</option>
-                    <option value={7}>抢 4 胜制 (7局4胜)</option>
-                    <option value={9}>抢 5 胜制 (9局5胜)</option>
+                    <option value={1}>先赢 1 局者胜</option>
+                    <option value={3}>先赢 2 局者胜</option>
+                    <option value={5}>先赢 3 局者胜</option>
+                    <option value={7}>先赢 4 局者胜</option>
+                    <option value={9}>先赢 5 局者胜</option>
                   </select>
                 </div>
 
@@ -458,7 +458,7 @@ export default function MultiplayerLobby({
             <div className="p-5 bg-gray-50 border border-gray-200 rounded-2xl space-y-4">
               <h3 className="font-bold text-sm text-gray-900 flex items-center gap-1.5">
                 <LogIn className="h-4 w-4 text-gray-600" />
-                加入已有房间
+                加入房间
               </h3>
 
               <div className="flex gap-2">
@@ -468,7 +468,7 @@ export default function MultiplayerLobby({
                   maxLength={6}
                   value={roomIdInput}
                   onChange={(e) => setRoomIdInput(e.target.value.toUpperCase())}
-                  className="flex-1 h-11 px-4 rounded-xl border border-gray-300 bg-white font-mono text-sm tracking-widest text-center uppercase focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full h-11 px-4 rounded-xl border border-gray-300 bg-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 />
                 <button
                   type="button"
@@ -507,22 +507,22 @@ export default function MultiplayerLobby({
                 className="flex items-center gap-1 px-3 py-2 bg-white text-indigo-700 border border-indigo-200 rounded-lg text-xs font-medium hover:bg-indigo-100 transition-colors cursor-pointer shadow-2xs"
               >
                 {copiedCode ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
-                {copiedCode ? "已复制" : "复制房号"}
+                {copiedCode ? "已复制" : "复制"}
               </button>
             </div>
 
             {/* 房间信息 */}
             <div className="rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs text-gray-600 space-y-1">
               <div className="font-bold text-gray-800">房间规则</div>
-              <div>赛制: 抢 {Math.floor(room.bestOf / 2) + 1} 胜，平局不计轮数 · 人数: {Object.keys(room.players).length} / 6 · {room.isPublic ? "公开" : "私密"}</div>
-              <div>每轮: {room.settings.maxGuesses} 次猜测 · {room.settings.timeLimit > 0 ? `${room.settings.timeLimit} 秒` : "不限时（整场最多 10 分钟）"} · 候选取前 {room.settings.topSongs} 首</div>
+              <div>先赢 {Math.floor(room.bestOf / 2) + 1} 者胜 · {room.isPublic ? "公开" : "私密"}</div>
+              <div>每轮: {room.settings.maxGuesses} 次猜测 · {room.settings.timeLimit > 0 ? `${room.settings.timeLimit} 秒` : "无限时间"} · 热度前 {room.settings.topSongs} 首</div>
               <div>版本: {room.settings.versionRange.min} 至 {room.settings.versionRange.max}</div>
-              <div>Master: {room.settings.masterLevelRange.min} 至 {room.settings.masterLevelRange.max} · 分类: {room.settings.genres.length ? room.settings.genres.join("、") : "全部"}</div>
+              <div>Master等级: {room.settings.masterLevelRange.min} 至 {room.settings.masterLevelRange.max} · 分类: {room.settings.genres.length ? room.settings.genres.join("、") : "全部"}</div>
             </div>
 
             {/* 玩家列表 */}
             <div className="space-y-2">
-              <h3 className="font-bold text-xs text-gray-700 uppercase tracking-wider">玩家列表</h3>
+              <h3 className="font-bold text-xs text-gray-700 uppercase tracking-wider">玩家列表 {Object.keys(room.players).length} / 6</h3>
               <PlayerList
                 players={room.players}
                 hostId={room.host}
@@ -543,10 +543,10 @@ export default function MultiplayerLobby({
                   className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-sm rounded-xl hover:opacity-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-md cursor-pointer"
                 >
                   {players.length < 2
-                    ? "等待其他玩家加入 (至少2人)..."
+                    ? "等待其他玩家加入..."
                     : !canStart
                       ? "等待所有玩家准备就绪..."
-                      : "开始对战！🚀"}
+                      : "开始对战"}
                 </button>
               ) : (
                 <button
@@ -559,7 +559,7 @@ export default function MultiplayerLobby({
                       : "bg-gradient-to-r from-green-500 to-teal-500 text-white hover:opacity-95"
                   }`}
                 >
-                  {room.players[currentPlayerId]?.isReady ? "取消准备" : "准备就绪！✨"}
+                  {room.players[currentPlayerId]?.isReady ? "取消准备" : "准备就绪"}
                 </button>
               )}
             </div>

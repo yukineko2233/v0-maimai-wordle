@@ -50,11 +50,6 @@ const PRESET_BASE: Pick<GameSettings, "versionRange" | "genres" | "masterLevelRa
  */
 export const BEGINNER_PRESET = {
   ...PRESET_BASE,
-  masterLevelRange: {
-    min: "10+",
-    max: "14+",
-  },
-  genres: [],
   topSongs: 100, // 入门预设无论单人还是多人均固定为 100 首
 }
 

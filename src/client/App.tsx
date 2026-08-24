@@ -148,7 +148,7 @@ export default function App() {
                 </button>
 
                 <h1 className="text-xl md:text-2xl font-black tracking-wider text-center drop-shadow-xs">
-                  舞萌猜猜呗之潘一把
+                  舞萌猜猜呗
                 </h1>
 
                 <button
@@ -186,7 +186,7 @@ export default function App() {
                 >
                   <Calendar className="h-7 w-7 transition-transform group-hover:scale-110" />
                   <span className="text-lg">每日一首</span>
-                  <span className="text-xs font-normal opacity-85">全服每日统一随机挑战</span>
+                  <span className="text-xs font-normal opacity-85">前100热门中随机，每日共6次机会</span>
                 </button>
 
                 <button
@@ -197,7 +197,7 @@ export default function App() {
                 >
                   <User className="h-7 w-7 transition-transform group-hover:scale-110" />
                   <span className="text-lg">单人练习</span>
-                  <span className="text-xs font-normal opacity-85">自由设置出题范围与难度</span>
+                  <span className="text-xs font-normal opacity-85">自由设置难度</span>
                 </button>
 
                 <button
@@ -208,7 +208,7 @@ export default function App() {
                 >
                   <Users className="h-7 w-7 transition-transform group-hover:scale-110" />
                   <span className="text-lg">多人联机</span>
-                  <span className="text-xs font-normal opacity-85">创建房间与朋友实时抢答</span>
+                  <span className="text-xs font-normal opacity-85">创建房间，至多6人联机</span>
                 </button>
               </div>
 

@@ -43,16 +43,19 @@ export default function HelpModal({ onClose }: HelpModalProps) {
             <h3 className="text-base font-bold text-gray-900 mb-2">🎮 游戏玩法</h3>
             <ul className="list-disc pl-5 space-y-1.5">
               <li>
+                <span className="font-semibold ">曲库为当前国服版本</span>，不包含日服独占和已删除歌曲，也不计入宴谱。
+              </li>
+              <li>
                 <span className="font-semibold text-gray-900">调整设置</span>：可按版本、流派、Master等级以及热门度筛选，也可以选择预设难度。
               </li>
               <li>
                 <span className="font-semibold text-gray-900">开始游戏</span>：系统会在选定范围内随机抽取一首歌曲作为目标答案。
               </li>
               <li>
-                <span className="font-semibold text-gray-900">输入猜测</span>：支持搜索曲名、曲师、罗马音或别名。
+                <span className="font-semibold text-gray-900">输入猜测</span>：先进行第一次猜测：支持搜索曲名、曲师或别名。
               </li>
               <li>
-                <span className="font-semibold text-gray-900">获得反馈</span>：每次猜测后，系统会展示各项属性的准确性，助你逐步锁定目标！
+                <span className="font-semibold text-gray-900">获得反馈</span>：每次猜测后，系统会提示反馈，根据信息进一步猜测，锁定目标！
               </li>
             </ul>
           </div>
@@ -76,51 +79,55 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                   <li>
                     • <span className="font-semibold text-purple-800">Master</span> /{" "}
                     <span className="font-semibold text-purple-600">Re:Master</span> 等级：
-                    相差<span className="font-bold text-purple-900">一个半级</span>（例如目标为 12+ 时，猜 12 或 13 均判定为接近；定数自 .6 起计为 + 级）；
+                    相差<span className="font-bold text-purple-900">半级</span>（例如目标为 12+ 时，猜 12 或 13 均判定为接近）；
                   </li>
-                  <li>• <span className="font-semibold">版本</span>：相差一个世代（例如 maimai 与 maimai PLUS 互为接近）。</li>
-                  <li>• <span className="font-semibold">Master / Re:Master 谱师</span>：规范化名称后存在至少 3 个连续相同字符。</li>
+                  <li>
+                    • <span className="font-semibold text-purple-800">Master</span> /{" "}
+                    <span className="font-semibold text-purple-600">Re:Master</span> 谱师：
+                    存在至少<span className="font-bold text-purple-900">3个</span>连续相同字符（例如目标为 Luxizhel 时，猜 サファ太 vs Luxizhel 或 BELiZHEL 均判定为接近；谱师马甲众多，与实际接近不符的情况难以避免）；
+                  </li>
+                  <li>• <span className="font-semibold">版本</span>：相差一个版本（例如 maimai MiLK 与 maimai MiLK PLUS 互为接近）。</li>
                 </ul>
               </li>
               <li>
                 <span className="font-bold text-gray-900">方向箭头</span>：
                 <ul className="list-none pl-4 mt-1 space-y-1 text-xs text-gray-600">
-                  <li>• <span className="text-blue-500 font-bold">↑</span>（向上）：目标值比你猜的<span className="font-semibold text-blue-600">更高 / 更后</span>；</li>
-                  <li>• <span className="text-red-500 font-bold">↓</span>（向下）：目标值比你猜的<span className="font-semibold text-red-600">更低 / 更前</span>。</li>
+                  <li>• <span className="text-blue-500 font-bold">↑</span>（向上）：目标值比你猜的<span className="font-semibold text-blue-600">更高 / 应该往高猜</span>；</li>
+                  <li>• <span className="text-red-500 font-bold">↓</span>（向下）：目标值比你猜的<span className="font-semibold text-red-600">更低 / 应该往低猜</span>。</li>
                 </ul>
               </li>
               <li>
                 <span className="font-bold text-purple-800">Master 标签</span>：
                 <ul className="list-none pl-4 mt-1 space-y-1 text-xs text-gray-600">
-                  <li>• 悬停或点击可查看标签详细释义；当标签与目标曲目一致时显示为<span className="text-green-700 font-bold">绿色高亮</span>。</li>
+                  <li>• 当猜测曲目<span className="font-bold text-purple-900">Master难度</span>标签与目标曲目一致时显示为<span className="text-green-700 font-bold">绿色高亮</span>。</li>
                 </ul>
               </li>
             </ul>
           </div>
 
           <div>
-            <h3 className="text-base font-bold text-gray-900 mb-2">ℹ️ 数据来源与致谢</h3>
+            <h3 className="text-base font-bold text-gray-900 mb-2">ℹ️ 数据来源</h3>
             <ul className="list-disc pl-5 space-y-1 text-xs text-gray-500">
               <li>
                 曲目数据与官方封面：
                 <a
-                  href="https://github.com/Diving-Fish/maimaidx-prober"
+                  href="https://maimai.diving-fish.com/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-500 hover:underline"
                 >
-                  Diving-Fish maimaidx-prober
+                  Diving-Fish 水鱼查分器
                 </a>
               </li>
               <li>
                 曲目别名数据库：
                 <a
-                  href="https://github.com/Yuri-YuzuChaN/SakuraBotDocs"
+                  href="https://www.yuzuchan.moe/maimaidx/aliases"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-500 hover:underline"
                 >
-                  Yuri-YuzuChaN maimaiDX Alias
+                  Yuri-YuzuChaN 柚子的工具箱
                 </a>
               </li>
               <li>
@@ -134,17 +141,6 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                   DXRating.net
                 </a>
               </li>
-              <li>
-                原作者博客：
-                <a
-                  href="https://yukineko2233.top/2025/04/26/maimai-wordle/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-pink-500 hover:underline font-semibold"
-                >
-                  Yukineko's Blog
-                </a>
-              </li>
             </ul>
           </div>
         </div>
@@ -155,7 +151,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
               type="button"
               className="min-h-11 px-5 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
             >
-              知道了，开始猜歌！
+              知道了
             </button>
           </Dialog.Close>
         </div>

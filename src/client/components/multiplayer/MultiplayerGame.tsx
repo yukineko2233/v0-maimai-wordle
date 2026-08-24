@@ -258,7 +258,7 @@ export default function MultiplayerGame({
 
   const giveUp = async () => {
     if (pendingAction || connectionState !== "connected" || (room.settings.timeLimit > 0 && remainingTime <= 0)) return
-    if (!window.confirm("确定要投降本轮吗？你将无法继续作答，其他玩家仍可继续。")) return
+    if (!window.confirm("确定要投降本轮吗？其他玩家仍可继续。")) return
     setPendingAction("give_up")
     const result = await emitSocketRequest("give_up", {
       roomId: room.id,
@@ -278,7 +278,7 @@ export default function MultiplayerGame({
   }
 
   const exitGame = () => {
-    if (!isMatchFinished && !window.confirm("确定退出对战吗？离开可能会让其他玩家直接获胜。")) return
+    if (!isMatchFinished && !window.confirm("确定退出对战吗？")) return
     try {
       clearMultiplayerSession()
     } catch (e) {}
@@ -342,7 +342,7 @@ export default function MultiplayerGame({
             {room.settings.timeLimit > 0 ? (
               <span className="font-medium text-indigo-700">{remainingTime} 秒</span>
             ) : (
-              <span className="text-gray-500 font-medium">无限（整场最多 10 分钟）</span>
+              <span className="text-gray-500 font-medium">无限时间</span>
             )}
           </div>
         </div>
@@ -380,7 +380,7 @@ export default function MultiplayerGame({
               guessedSongIds={currentPlayer.currentRound?.guesses.map((guess) => guess.song.id)}
               disabled={!canAct}
             />
-            {localTimeExpired && <p className="mt-2 text-center text-xs text-amber-700">本轮时间已到，等待服务器结算...</p>}
+            {localTimeExpired && <p className="mt-2 text-center text-xs text-amber-700">本轮时间到，等待结算...</p>}
           </div>
         )}
 
@@ -421,11 +421,11 @@ export default function MultiplayerGame({
                   等待其他玩家就绪...
                 </span>
               ) : (
-                "准备下一轮！🔥"
+                "准备下一轮"
               )}
             </button>
             <p className="mt-2 text-xs text-indigo-700">
-              {nextRoundRemaining > 0 ? `服务器将在 ${nextRoundRemaining} 秒后自动开始下一轮` : "服务器会自动推进下一轮"}
+              {nextRoundRemaining > 0 ? ` ${nextRoundRemaining} 秒后自动开始下一轮` : "自动开始下一轮"}
             </p>
           </div>
         )}
@@ -445,7 +445,7 @@ export default function MultiplayerGame({
         {/* 实时对战玩家状态 */}
         <div className="mt-8 pt-4 border-t border-gray-200">
           <h3 className="font-bold text-xs text-gray-600 uppercase tracking-wider mb-2.5">
-            对战玩家列表
+            玩家列表
           </h3>
           <PlayerList
             players={room.players}

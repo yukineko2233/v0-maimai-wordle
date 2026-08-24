@@ -121,8 +121,7 @@ export default function DailyShareModal({
         </div>
 
         <div className="text-xs text-gray-500 mb-4 space-y-0.5">
-          <p>🟩 完全相同 | 🟨 接近 (BPM±20 / 等级±半级 / 版本±1代)</p>
-          <p>⬇️ 目标更小/更旧 | ⬆️ 目标更大/更后</p>
+          <p>🟩 完全相同 | 🟨 接近 | ⬇️ 目标更低 | ⬆️ 目标更高</p>
         </div>
 
         <div className="flex justify-end gap-2">
