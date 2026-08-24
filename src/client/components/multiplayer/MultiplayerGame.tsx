@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { ArrowLeft, Flag, ArrowUp, ArrowDown, RefreshCw } from "lucide-react"
 import { toast } from "sonner"
 import type { MultiplayerRoom, Song } from "../../../shared/types"
+import { MULTIPLAYER_ROUND_GRACE_MS } from "../../../shared/domain/game"
 import {
   clearMultiplayerSession,
   emitSocketRequest,
@@ -24,11 +25,6 @@ interface MultiplayerGameProps {
   onExit: () => void
 }
 
-type TimedMultiplayerRoom = MultiplayerRoom & {
-  nextRoundDeadline?: number | null
-  matchDeadline?: number | null
-}
-
 function mergeRoom(current: MultiplayerRoom, update: MultiplayerRoom) {
   return { ...update, filteredSongs: update.filteredSongs ?? current.filteredSongs }
 }
@@ -49,7 +45,13 @@ export default function MultiplayerGame({
   const [remainingTime, setRemainingTime] = useState(() =>
     initialRoom.roundDeadline === null
       ? initialRoom.settings.timeLimit
-      : Math.max(0, Math.ceil((initialRoom.roundDeadline - Date.now()) / 1000)),
+      : Math.min(
+          initialRoom.settings.timeLimit,
+          Math.max(
+            0,
+            Math.ceil((initialRoom.roundDeadline + MULTIPLAYER_ROUND_GRACE_MS - initialRoom.serverTime) / 1000),
+          ),
+        ),
   )
   const [reverseOrder, setReverseOrder] = useState(true)
   const [pendingAction, setPendingAction] = useState<"guess" | "give_up" | null>(null)
@@ -57,6 +59,7 @@ export default function MultiplayerGame({
   const [nextRoundRemaining, setNextRoundRemaining] = useState(0)
   const roomRef = useRef(initialRoom)
   const currentPlayerIdRef = useRef(currentPlayerId)
+  const reportedTimeoutRef = useRef<number | null>(null)
 
   const updateRoom = (update: MultiplayerRoom) => {
     const merged = mergeRoom(roomRef.current, update)
@@ -181,34 +184,53 @@ export default function MultiplayerGame({
   // 倒计时
   useEffect(() => {
     if (room.roundDeadline === null) {
+      reportedTimeoutRef.current = null
       setRemainingTime(room.settings.timeLimit)
       return
     }
+    reportedTimeoutRef.current = null
+    const duration = Math.min(
+      room.settings.timeLimit * 1000,
+      Math.max(0, room.roundDeadline + MULTIPLAYER_ROUND_GRACE_MS - room.serverTime),
+    )
+    const localDeadline = performance.now() + duration
     let timer: number | undefined
     const updateRemaining = () => {
-      const next = Math.max(0, Math.ceil((room.roundDeadline! - Date.now()) / 1000))
+      const next = Math.max(0, Math.ceil((localDeadline - performance.now()) / 1000))
       setRemainingTime(next)
+      const latestRoom = roomRef.current
+      const latestPlayer = latestRoom.players[currentPlayerIdRef.current]
+      if (
+        next === 0 &&
+        !latestRoom.roundSettled &&
+        !latestPlayer?.currentRound.gameOver &&
+        reportedTimeoutRef.current !== room.roundDeadline
+      ) {
+        reportedTimeoutRef.current = room.roundDeadline
+        void emitSocketRequest("round_time_expired", { roomId: room.id })
+      }
       if (next === 0 && timer !== undefined) {
         window.clearInterval(timer)
         timer = undefined
       }
     }
     updateRemaining()
-    if (room.roundDeadline > Date.now()) timer = window.setInterval(updateRemaining, 250)
+    if (localDeadline > performance.now()) timer = window.setInterval(updateRemaining, 250)
     return () => {
       if (timer !== undefined) window.clearInterval(timer)
     }
-  }, [room.roundDeadline, room.settings.timeLimit])
+  }, [room.id, room.roundDeadline, room.settings.timeLimit])
 
   useEffect(() => {
-    const deadline = (room as TimedMultiplayerRoom).nextRoundDeadline
+    const deadline = room.nextRoundDeadline
     if (!deadline || !room.roundSettled || room.status !== "playing") {
       setNextRoundRemaining(0)
       return
     }
+    const localDeadline = performance.now() + Math.max(0, deadline - room.serverTime)
     let timer: number | undefined
     const updateRemaining = () => {
-      const next = Math.max(0, Math.ceil((deadline - Date.now()) / 1000))
+      const next = Math.max(0, Math.ceil((localDeadline - performance.now()) / 1000))
       setNextRoundRemaining(next)
       if (next === 0 && timer !== undefined) {
         window.clearInterval(timer)
@@ -216,11 +238,11 @@ export default function MultiplayerGame({
       }
     }
     updateRemaining()
-    if (deadline > Date.now()) timer = window.setInterval(updateRemaining, 250)
+    if (localDeadline > performance.now()) timer = window.setInterval(updateRemaining, 250)
     return () => {
       if (timer !== undefined) window.clearInterval(timer)
     }
-  }, [room.roundSettled, room.status, (room as TimedMultiplayerRoom).nextRoundDeadline])
+  }, [room.id, room.nextRoundDeadline, room.roundSettled, room.status])
 
   const makeGuess = async (song: Song) => {
     if (pendingAction || connectionState !== "connected" || (room.settings.timeLimit > 0 && remainingTime <= 0)) return false
@@ -236,7 +258,7 @@ export default function MultiplayerGame({
 
   const giveUp = async () => {
     if (pendingAction || connectionState !== "connected" || (room.settings.timeLimit > 0 && remainingTime <= 0)) return
-    if (!window.confirm("确定要投降本轮吗？本轮将立即结束，且无法撤销。")) return
+    if (!window.confirm("确定要投降本轮吗？你将无法继续作答，其他玩家仍可继续。")) return
     setPendingAction("give_up")
     const result = await emitSocketRequest("give_up", {
       roomId: room.id,
@@ -271,6 +293,9 @@ export default function MultiplayerGame({
   const localTimeExpired = room.settings.timeLimit > 0 && remainingTime <= 0
   const canAct = !currentPlayer.currentRound?.gameOver && !isRoundOver && !isMatchFinished
     && !localTimeExpired && connectionState === "connected" && pendingAction === null
+  const displayedGuesses = reverseOrder
+    ? [...(currentPlayer.currentRound?.guesses || [])].reverse()
+    : currentPlayer.currentRound?.guesses || []
 
   return (
     <div className="motion-page w-full mx-auto bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-white/50">
@@ -331,7 +356,7 @@ export default function MultiplayerGame({
               className="flex items-center gap-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium rounded-lg transition-colors cursor-pointer border border-gray-200"
             >
               {reverseOrder ? <ArrowDown className="h-3.5 w-3.5" /> : <ArrowUp className="h-3.5 w-3.5" />}
-              <span>{reverseOrder ? "最新在下" : "最新在上"}</span>
+              <span>{reverseOrder ? "最新在上" : "最新在下"}</span>
             </button>
 
             <button
@@ -411,8 +436,8 @@ export default function MultiplayerGame({
         )}
 
         {/* 猜测记录列表 */}
-        <div className={`gap-3 flex ${reverseOrder ? "flex-col" : "flex-col-reverse"}`}>
-          {currentPlayer.currentRound?.guesses.map((guess) => (
+        <div className="flex flex-col gap-3">
+          {displayedGuesses.map((guess) => (
             <GuessRow key={guess.song.id} guess={guess} />
           ))}
         </div>

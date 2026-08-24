@@ -514,7 +514,7 @@ export default function MultiplayerLobby({
             {/* 房间信息 */}
             <div className="rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs text-gray-600 space-y-1">
               <div className="font-bold text-gray-800">房间规则</div>
-              <div>赛制: 抢 {Math.floor(room.bestOf / 2) + 1} 胜，最多 {room.bestOf} 轮 · 人数: {Object.keys(room.players).length} / 6 · {room.isPublic ? "公开" : "私密"}</div>
+              <div>赛制: 抢 {Math.floor(room.bestOf / 2) + 1} 胜，平局不计轮数 · 人数: {Object.keys(room.players).length} / 6 · {room.isPublic ? "公开" : "私密"}</div>
               <div>每轮: {room.settings.maxGuesses} 次猜测 · {room.settings.timeLimit > 0 ? `${room.settings.timeLimit} 秒` : "不限时（整场最多 10 分钟）"} · 候选取前 {room.settings.topSongs} 首</div>
               <div>版本: {room.settings.versionRange.min} 至 {room.settings.versionRange.max}</div>
               <div>Master: {room.settings.masterLevelRange.min} 至 {room.settings.masterLevelRange.max} · 分类: {room.settings.genres.length ? room.settings.genres.join("、") : "全部"}</div>

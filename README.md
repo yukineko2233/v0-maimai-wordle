@@ -65,7 +65,6 @@ pnpm build
 docker build -t maimai-wordle .
 docker run -d --name maimai-wordle -p 3000:3000 \
   -e CORS_ORIGINS=https://wordle.example.com \
-  -e DAILY_SECRET=replace-with-a-long-random-secret \
   maimai-wordle
 ```
 
@@ -79,7 +78,6 @@ docker run -d --name maimai-wordle -p 3000:3000 \
 | --- | --- | --- |
 | `PORT` | 开发环境 `3001`，镜像内 `3000` | HTTP 与 Socket.IO 监听端口 |
 | `CORS_ORIGINS` | 生产环境无跨域来源 | 逗号分隔的允许来源；同源请求无需配置 |
-| `DAILY_SECRET` | 启动时随机生成 | 每日权威题目的 HMAC 密钥；生产环境必须固定配置，否则服务重启后当日题目可能变化 |
 | `ADMIN_REFRESH_TOKEN` | 未设置 | 设置后启用 `POST /api/refresh`；使用 `Authorization: Bearer <token>` 或 `X-Admin-Token` |
 | `REFRESH_COOLDOWN_MS` | `60000` | 管理员手动刷新成功或失败后的最短调用间隔 |
 

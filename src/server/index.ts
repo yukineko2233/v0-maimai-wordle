@@ -242,6 +242,8 @@ io.on("connection", (socket) => {
 
   socket.on("give_up", onValidatedWithAck(socketSchemas.room, (data) => roomManager.giveUp(socket, data)))
 
+  socket.on("round_time_expired", onValidatedWithAck(socketSchemas.room, (data) => roomManager.roundTimeExpired(socket, data)))
+
   socket.on("ready_next_round", onValidated(socketSchemas.room, (data) => roomManager.readyNextRound(socket, data)))
 
   socket.on("leave_room", onValidated(socketSchemas.room, (data) => roomManager.leaveRoom(socket, data)))

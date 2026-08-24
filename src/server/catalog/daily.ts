@@ -1,8 +1,8 @@
-import { createHmac, randomBytes } from "node:crypto"
 import type { GameSettings, Song } from "../../shared/types"
 import {
   DAILY_ALGORITHM_VERSION,
   filterSongs,
+  getDailySong,
   getShanghaiDate,
 } from "../../shared/domain/game"
 
@@ -28,32 +28,15 @@ export interface DailyCatalogResult {
 export class DailyCatalog {
   private locked: DailyCatalogResult | null = null
 
-  constructor(
-    private readonly secret = process.env.DAILY_SECRET?.trim() || randomBytes(32).toString("base64url"),
-  ) {}
-
   getDaily(songs: readonly Song[], now = new Date()): DailyCatalogResult | null {
     const date = getShanghaiDate(now)
     if (this.locked?.date === date) return this.locked
 
-    const target = this.selectSong(filterDailySongs(songs), date)
+    const target = getDailySong(filterDailySongs(songs), date)
     if (!target) return null
 
     this.locked = { date, algorithmVersion: DAILY_ALGORITHM_VERSION, song: target }
     return this.locked
-  }
-
-  private selectSong(songs: readonly Song[], date: string): Song | null {
-    let selected: Song | null = null
-    let highestScore = ""
-    for (const song of songs) {
-      const score = createHmac("sha256", this.secret).update(`${date}:${song.id}`).digest("hex")
-      if (!selected || score > highestScore) {
-        selected = song
-        highestScore = score
-      }
-    }
-    return selected
   }
 }
 

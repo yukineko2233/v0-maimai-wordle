@@ -136,6 +136,12 @@ export interface MultiplayerRoom {
   targetSong: Song | null
   /** Server timestamp in milliseconds. Null when the round has no time limit or is not active. */
   roundDeadline: number | null
+  /** Server timestamp captured when this room snapshot was created. */
+  serverTime: number
+  /** Server timestamp for automatic next-round start. */
+  nextRoundDeadline: number | null
+  /** Server timestamp for the unlimited-match safety limit. */
+  matchDeadline: number | null
   filteredSongs: Song[]
   status: "waiting" | "playing" | "finished"
   /** 当前回合是否已经结算过，防止断线等边缘情况触发重复计分 */

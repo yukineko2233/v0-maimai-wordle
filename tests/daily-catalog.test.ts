@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { DailyCatalog } from "../src/server/catalog/daily"
+import { getDailySong } from "../src/shared/domain/game"
 import type { Song } from "../src/shared/types"
 
 function song(id: number, title: string): Song {
@@ -27,7 +28,7 @@ function song(id: number, title: string): Song {
 
 describe("DailyCatalog", () => {
   it("keeps the authoritative song locked across same-day catalog refreshes", () => {
-    const daily = new DailyCatalog("test-secret")
+    const daily = new DailyCatalog()
     const first = daily.getDaily([song(1, "First")], new Date("2026-08-20T00:00:00Z"))
     const afterRefresh = daily.getDaily([song(2, "Replacement")], new Date("2026-08-20T15:59:59Z"))
 
@@ -36,12 +37,20 @@ describe("DailyCatalog", () => {
   })
 
   it("selects and locks a new song after Shanghai midnight", () => {
-    const daily = new DailyCatalog("test-secret")
+    const daily = new DailyCatalog()
     daily.getDaily([song(1, "First")], new Date("2026-08-20T15:59:59Z"))
     const nextDay = daily.getDaily([song(2, "Second")], new Date("2026-08-20T16:00:00Z"))
 
     expect(nextDay?.date).toBe("2026-08-21")
     expect(nextDay?.song.id).toBe(2)
-    expect(nextDay?.algorithmVersion).toBe(3)
+    expect(nextDay?.algorithmVersion).toBe(4)
+  })
+
+  it("uses the stable date-seeded song selector", () => {
+    const songs = [song(1, "First"), song(2, "Second"), song(3, "Third")]
+    const date = "2026-08-21"
+    const daily = new DailyCatalog().getDaily(songs, new Date("2026-08-20T16:00:00Z"))
+
+    expect(daily?.song.id).toBe(getDailySong(songs, date)?.id)
   })
 })

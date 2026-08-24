@@ -7,7 +7,12 @@ import type {
   PlayerState,
   Song,
 } from "../../shared/types"
-import { filterSongs, getRandomSong, processGuess } from "../../shared/domain/game"
+import {
+  filterSongs,
+  getRandomSong,
+  MULTIPLAYER_ROUND_GRACE_MS,
+  processGuess,
+} from "../../shared/domain/game"
 
 const ROOM_CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 const MAX_ROOM_CAPACITY = 6
@@ -29,11 +34,9 @@ interface ServerPlayerState extends PlayerState {
   sessionToken: string
 }
 
-interface ServerRoom extends Omit<MultiplayerRoom, "players" | "targetSong"> {
+interface ServerRoom extends Omit<MultiplayerRoom, "players" | "targetSong" | "serverTime"> {
   players: Record<string, ServerPlayerState>
   targetSong: Song
-  nextRoundDeadline: number | null
-  matchDeadline: number | null
 }
 
 type IncomingGameSettings = Omit<GameSettings, "versionRange"> & {
@@ -86,6 +89,7 @@ export class RoomManager {
     return {
       ...publicState,
       players,
+      serverTime: Date.now(),
       targetSong: room.roundSettled || room.status === "finished" ? room.targetSong : null,
       ...(includeFilteredSongs ? { filteredSongs } : {}),
     } as MultiplayerRoom
@@ -395,6 +399,7 @@ export class RoomManager {
     room.winner = standings.length === 1 || standings[0]?.[1] > standings[1]?.[1] ? standings[0]?.[0] : undefined
     room.status = "finished"
     room.roundSettled = true
+    room.roundDeadline = null
     room.nextRoundDeadline = null
     const roundTimer = this.roundTimers.get(room.id)
     if (roundTimer) clearTimeout(roundTimer)
@@ -431,7 +436,7 @@ export class RoomManager {
       }
       this.checkRoundEnd(room)
       this.emitRoom(room, "game_updated")
-    }, room.settings.timeLimit * 1000)
+    }, room.settings.timeLimit * 1000 + MULTIPLAYER_ROUND_GRACE_MS)
     this.roundTimers.set(room.id, timer)
   }
 
@@ -441,7 +446,6 @@ export class RoomManager {
     if (!room || room.status !== "playing" || room.roundSettled || !player || player.currentRound.gameOver) {
       return { ok: false, message: "当前回合已结束" }
     }
-    if (room.roundDeadline !== null && Date.now() >= room.roundDeadline) return { ok: false, message: "本轮时间已结束" }
     const song = room.filteredSongs.find((candidate) => candidate.id === data.songId)
     if (!song) return { ok: false, message: "无效的猜测歌曲，请从候选列表中选择" }
     if (player.currentRound.guesses.some((guess) => guess.song.id === song.id)) return { ok: false, message: "你已经猜过这首歌了！" }
@@ -479,11 +483,26 @@ export class RoomManager {
     return { ok: true }
   }
 
+  roundTimeExpired(socket: Socket, data: { roomId: string }): SocketActionResult {
+    const room = this.rooms.get(data?.roomId)
+    const player = room && this.getPlayer(room, socket)
+    if (!room || room.status !== "playing" || room.roundSettled || !player || player.currentRound.gameOver) {
+      return { ok: false, message: "当前回合已结束" }
+    }
+    player.currentRound.gameOver = true
+    player.currentRound.won = false
+    player.currentRound.remainingTime = 0
+    this.checkRoundEnd(room)
+    this.emitRoom(room, "game_updated")
+    return { ok: true }
+  }
+
   private checkRoundEnd(room: ServerRoom) {
     if (room.roundSettled) return
     const players = Object.values(room.players)
     if (!players.length || !players.every((player) => player.currentRound.gameOver)) return
     room.roundSettled = true
+    room.roundDeadline = null
     const timer = this.roundTimers.get(room.id)
     if (timer) clearTimeout(timer)
     this.roundTimers.delete(room.id)
@@ -495,14 +514,8 @@ export class RoomManager {
       this.updateParticipantInfo(room, roundWinner)
     }
     const winsNeeded = Math.floor(room.bestOf / 2) + 1
-    let matchWinner = Object.entries(room.roundsWon).find(([, wins]) => wins >= winsNeeded)?.[0]
-    if (!matchWinner && room.currentRound >= room.maxRounds) {
-      const standings = players
-        .map((player) => [player.id, room.roundsWon[player.id] || 0] as const)
-        .sort((a, b) => b[1] - a[1])
-      if (standings.length === 1 || standings[0][1] > standings[1][1]) matchWinner = standings[0][0]
-    }
-    if (matchWinner || room.currentRound >= room.maxRounds) {
+    const matchWinner = Object.entries(room.roundsWon).find(([, wins]) => wins >= winsNeeded)?.[0]
+    if (matchWinner) {
       room.status = "finished"
       room.winner = matchWinner
       room.nextRoundDeadline = null
@@ -531,11 +544,11 @@ export class RoomManager {
   }
 
   private beginNextRound(room: ServerRoom) {
-    if (room.status !== "playing" || room.currentRound >= room.maxRounds) return
+    if (room.status !== "playing" || !room.roundSettled) return
     const nextRoundTimer = this.nextRoundTimers.get(room.id)
     if (nextRoundTimer) clearTimeout(nextRoundTimer)
     this.nextRoundTimers.delete(room.id)
-    room.currentRound++
+    if (Object.values(room.players).some((player) => player.currentRound.won)) room.currentRound++
     room.roundSettled = false
     room.nextRoundDeadline = null
     room.targetSong = getRandomSong(room.filteredSongs)
@@ -597,6 +610,7 @@ export class RoomManager {
       room.players[winnerId].score = room.roundsWon[winnerId]
       room.status = "finished"
       room.roundSettled = true
+      room.roundDeadline = null
       room.winner = winnerId
       room.nextRoundDeadline = null
       this.updateParticipantInfo(room, winnerId)

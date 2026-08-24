@@ -10,7 +10,8 @@ import type {
 import { compareLevelBands, isLevelInRange } from "./levels"
 import { compareVersions, versionIndex } from "./versions"
 
-export const DAILY_ALGORITHM_VERSION = 3
+export const DAILY_ALGORITHM_VERSION = 4
+export const MULTIPLAYER_ROUND_GRACE_MS = 5_000
 
 function exact<T>(value: T, matches: boolean): FieldFeedback<T> {
   return {

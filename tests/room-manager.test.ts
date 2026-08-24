@@ -113,10 +113,11 @@ describe("RoomManager multiplayer authority", () => {
     joinAndStart(context)
     const playingRoom = latestRoom(context.io, "game_started")
     expect(playingRoom.targetSong).toBeNull()
+    expect(playingRoom.serverTime).toBe(Date.now())
     expect(playingRoom.roundDeadline).toBe(Date.now() + 1000)
     expect(JSON.stringify(playingRoom)).not.toContain(context.created.sessionToken)
 
-    vi.advanceTimersByTime(1000)
+    vi.advanceTimersByTime(6000)
     const endedRoom = latestRoom(context.io, "round_ended")
     expect(endedRoom.targetSong?.id).toBe(song.id)
     expect(endedRoom.roundSettled).toBe(true)
@@ -162,20 +163,42 @@ describe("RoomManager multiplayer authority", () => {
     expect(replay.events.at(-1)?.event).toBe("reconnect_failed")
   })
 
-  it("enforces one room per socket and finishes a tied best-of-one at its round cap", () => {
+  it("enforces one room per socket and replays a tied best-of-one", () => {
     vi.useFakeTimers()
     const context = setup(1)
-    joinAndStart(context)
+    const { guest } = joinAndStart(context)
 
     context.manager.createRoom(context.host as unknown as Socket, { nickname: "Again", settings, bestOf: 1 })
     expect(context.host.events.at(-1)).toMatchObject({ event: "room_error" })
     expect(context.manager.getRoomStats().count).toBe(1)
 
-    vi.advanceTimersByTime(1000)
+    context.manager.roundTimeExpired(context.host as unknown as Socket, { roomId: context.created.roomId })
+    context.manager.roundTimeExpired(guest as unknown as Socket, { roomId: context.created.roomId })
     const room = latestRoom(context.io, "round_ended")
-    expect(room.status).toBe("finished")
+    expect(room.status).toBe("playing")
     expect(room.currentRound).toBe(1)
     expect(room.winner).toBeUndefined()
+    expect(room.roundDeadline).toBeNull()
+
+    vi.advanceTimersByTime(20_000)
+    const replay = latestRoom(context.io, "next_round_started")
+    expect(replay.currentRound).toBe(1)
+    expect(replay.roundDeadline).toBe(Date.now() + 1000)
+  })
+
+  it("accepts a guess during the network grace window", () => {
+    vi.useFakeTimers()
+    const context = setup(1)
+    joinAndStart(context)
+
+    vi.advanceTimersByTime(1001)
+    const result = context.manager.makeGuess(context.host as unknown as Socket, {
+      roomId: context.created.roomId,
+      songId: song.id,
+    })
+
+    expect(result.ok).toBe(true)
+    expect(latestRoom(context.io, "round_ended").winner).toBe(context.created.playerId)
   })
 
   it("keeps roundsWon, player score, and participant score consistent on forfeit", () => {
@@ -245,6 +268,24 @@ describe("RoomManager multiplayer authority", () => {
     expect(latestRoom(context.io, "next_round_started").currentRound).toBe(2)
   })
 
+  it("stops the round timer when every player gives up", () => {
+    vi.useFakeTimers()
+    const context = setup(3, { ...settings, timeLimit: 30 })
+    const { guest } = joinAndStart(context)
+
+    context.manager.giveUp(context.host as unknown as Socket, { roomId: context.created.roomId })
+    expect(context.io.events.filter((entry) => entry.event === "round_ended")).toHaveLength(0)
+    context.manager.giveUp(guest as unknown as Socket, { roomId: context.created.roomId })
+
+    const ended = latestRoom(context.io, "round_ended")
+    expect(ended.roundSettled).toBe(true)
+    expect(ended.roundDeadline).toBeNull()
+    expect(ended.nextRoundDeadline).toBe(Date.now() + 20_000)
+
+    vi.advanceTimersByTime(20_000)
+    expect(latestRoom(context.io, "next_round_started").currentRound).toBe(1)
+  })
+
   it("keeps disconnected sessions for sixty seconds", () => {
     vi.useFakeTimers()
     const context = setup()
@@ -292,7 +333,7 @@ describe("RoomManager multiplayer authority", () => {
     expect(latestRoom(context.io, "game_started").status).toBe("playing")
   })
 
-  it("awards the unique score leader at maxRounds and restores finished rooms", () => {
+  it("ignores draws and finishes only after a player reaches the target wins", () => {
     vi.useFakeTimers()
     const context = setup(3, { ...settings, timeLimit: 0 })
     const { guest } = joinAndStart(context)
@@ -302,14 +343,18 @@ describe("RoomManager multiplayer authority", () => {
     context.manager.readyNextRound(guest as unknown as Socket, { roomId: context.created.roomId })
     context.manager.giveUp(context.host as unknown as Socket, { roomId: context.created.roomId })
     context.manager.giveUp(guest as unknown as Socket, { roomId: context.created.roomId })
+    const draw = latestRoom(context.io, "round_ended")
+    expect(draw.status).toBe("playing")
+    expect(draw.currentRound).toBe(2)
+    expect(draw.roundDeadline).toBeNull()
     context.manager.readyNextRound(context.host as unknown as Socket, { roomId: context.created.roomId })
     context.manager.readyNextRound(guest as unknown as Socket, { roomId: context.created.roomId })
-    context.manager.giveUp(context.host as unknown as Socket, { roomId: context.created.roomId })
-    context.manager.giveUp(guest as unknown as Socket, { roomId: context.created.roomId })
+    expect(latestRoom(context.io, "next_round_started").currentRound).toBe(2)
+    context.manager.makeGuess(context.host as unknown as Socket, { roomId: context.created.roomId, songId: song.id })
 
     const finished = latestRoom(context.io, "round_ended")
     expect(finished.status).toBe("finished")
-    expect(finished.currentRound).toBe(3)
+    expect(finished.currentRound).toBe(2)
     expect(finished.winner).toBe(context.created.playerId)
 
     context.manager.handleDisconnect(context.host as unknown as Socket)
