@@ -19,12 +19,13 @@ class CatalogService {
     if (this.refreshTimer) clearTimeout(this.refreshTimer)
     const now = new Date()
     const shanghaiNow = new Date(now.getTime() + 8 * 60 * 60 * 1000)
-    const nextMidnight = Date.UTC(
+    const nextNoon = Date.UTC(
       shanghaiNow.getUTCFullYear(),
       shanghaiNow.getUTCMonth(),
-      shanghaiNow.getUTCDate() + 1,
+      shanghaiNow.getUTCDate() + (shanghaiNow.getUTCHours() >= 12 ? 1 : 0),
+      12,
     ) - 8 * 60 * 60 * 1000
-    const delay = Math.max(1_000, nextMidnight - now.getTime())
+    const delay = Math.max(1_000, nextNoon - now.getTime())
     this.refreshTimer = setTimeout(() => {
       this.refreshCatalog()
         .catch((err) => {

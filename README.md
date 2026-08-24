@@ -81,7 +81,7 @@ docker run -d --name maimai-wordle -p 3000:3000 \
 | `ADMIN_REFRESH_TOKEN` | 未设置 | 设置后启用 `POST /api/refresh`；使用 `Authorization: Bearer <token>` 或 `X-Admin-Token` |
 | `REFRESH_COOLDOWN_MS` | `60000` | 管理员手动刷新成功或失败后的最短调用间隔 |
 
-不要把 `.env` 文件加入镜像构建上下文或版本控制。管理员 token 未配置时，手动刷新接口默认禁用；曲库仍会在启动时及每小时自动刷新。
+不要把 `.env` 文件加入镜像构建上下文或版本控制。管理员 token 未配置时，手动刷新接口默认禁用；曲库会在启动时及每天上海时间 12:00 自动刷新。
 
 ---
 
