@@ -7,6 +7,11 @@ const CACHE_TIME_KEY = "maimai_wordle_songs_time_v2"
 const CACHE_TTL_MS = 60 * 60 * 1000 // 1 hour
 const CACHE_VERSION = 2
 const API_TIMEOUT_MS = 10000
+const API_BASE_URL = String(import.meta.env.VITE_API_URL || "").replace(/\/$/, "")
+
+function apiUrl(path: string) {
+  return `${API_BASE_URL}${path}`
+}
 
 let inMemorySongs: Song[] | null = null
 let inMemoryIsDegraded = false
@@ -125,7 +130,7 @@ async function fetchSongsInternal(forceRefresh: boolean): Promise<FetchSongsResu
 
   // 2. 尝试从同源服务端 API 拉取
   try {
-    const songs = await fetchJsonWithTimeout("/api/songs")
+    const songs = await fetchJsonWithTimeout(apiUrl("/api/songs"))
     if (isSongList(songs)) {
       saveSongsToCache(songs, true)
       return { songs, isOfflineCache: false }
@@ -258,7 +263,7 @@ function parseDailySession(value: unknown): DailySessionResult {
 }
 
 export async function fetchDailySession(sessionToken?: string): Promise<DailySessionResult> {
-  const value = await fetchJsonWithTimeout("/api/daily/session", {
+  const value = await fetchJsonWithTimeout(apiUrl("/api/daily/session"), {
     headers: sessionToken ? { Authorization: `Bearer ${sessionToken}` } : undefined,
   })
   return parseDailySession(value)
@@ -280,7 +285,7 @@ function dailyPost(path: string, body: object): Promise<unknown> {
 }
 
 export async function submitDailyGuess(sessionToken: string, songId: number): Promise<DailyGuessResult> {
-  const value = await dailyPost("/api/daily/guess", { sessionToken, songId })
+  const value = await dailyPost(apiUrl("/api/daily/guess"), { sessionToken, songId })
   if (!value || typeof value !== "object") throw new Error("Invalid daily guess response")
   const result = value as Record<string, unknown>
   if (
@@ -296,5 +301,5 @@ export async function submitDailyGuess(sessionToken: string, songId: number): Pr
 }
 
 export async function giveUpDaily(sessionToken: string): Promise<DailySessionResult> {
-  return parseDailySession(await dailyPost("/api/daily/give-up", { sessionToken }))
+  return parseDailySession(await dailyPost(apiUrl("/api/daily/give-up"), { sessionToken }))
 }

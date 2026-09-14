@@ -3,6 +3,8 @@ import react from "@vitejs/plugin-react"
 import path from "path"
 
 export default defineConfig({
+  // Toy runs the uploaded bundle under /toy/<slug>/; keep asset URLs relative.
+  base: "./",
   plugins: [react()],
   resolve: {
     alias: {
