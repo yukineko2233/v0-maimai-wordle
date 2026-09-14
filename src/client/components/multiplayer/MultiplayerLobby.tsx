@@ -19,8 +19,6 @@ import SettingsPanel from "../singleplayer/SettingsPanel"
 import PlayerList from "./PlayerList"
 import { useConfirm } from "../common/ConfirmProvider"
 
-const NICKNAME_STORAGE_KEY = "maimai_wordle_nickname"
-
 function mergeRoom(current: MultiplayerRoom | null, update: MultiplayerRoom) {
   if (!current) return update
   return { ...update, filteredSongs: update.filteredSongs ?? current.filteredSongs }
@@ -48,13 +46,7 @@ export default function MultiplayerLobby({
   onRoomChange,
 }: MultiplayerLobbyProps) {
   const requestConfirmation = useConfirm()
-  const [nickname, setNickname] = useState(() => {
-    try {
-      return localStorage.getItem(NICKNAME_STORAGE_KEY) || ""
-    } catch (e) {
-      return ""
-    }
-  })
+  const [profile, setProfile] = useState<ToyUserProfile | null>(null)
   const [roomIdInput, setRoomIdInput] = useState("")
   const [bestOf, setBestOf] = useState<BestOf>(3)
   const [isPublic, setIsPublic] = useState(false)
@@ -83,13 +75,20 @@ export default function MultiplayerLobby({
     onRoomChange?.(null)
   }
 
-  const saveNickname = (name: string) => {
-    const trimmed = name.trim()
-    if (trimmed) {
-      setNickname(trimmed)
-      try {
-        localStorage.setItem(NICKNAME_STORAGE_KEY, trimmed)
-      } catch (e) {}
+  const getToyProfile = async () => {
+    if (profile) return profile
+    if (!window.toy?.getUserProfile) {
+      toast.error("当前环境不支持获取 B站用户信息，请在 Toy 页面中打开")
+      return null
+    }
+    try {
+      const nextProfile = await window.toy.getUserProfile()
+      if (!nextProfile.nickname || !nextProfile.avatar) throw new Error("invalid profile")
+      setProfile(nextProfile)
+      return nextProfile
+    } catch {
+      toast.error("需要授权昵称和头像后才能使用多人模式")
+      return null
     }
   }
 
@@ -242,44 +241,38 @@ export default function MultiplayerLobby({
     }
   }
 
-  const handleCreateRoom = () => {
-    if (!nickname.trim()) {
-      toast.error("请先输入你的玩家昵称")
-      return
-    }
-    saveNickname(nickname)
+  const handleCreateRoom = async () => {
+    const user = await getToyProfile()
+    if (!user) return
     void runLobbyRequest("create_room", {
-      nickname: nickname.trim(),
+      nickname: user.nickname,
+      avatarUrl: user.avatar,
       settings,
       bestOf: Number(bestOf),
       isPublic,
     })
   }
 
-  const handleJoinRoom = () => {
-    if (!nickname.trim()) {
-      toast.error("请先输入你的玩家昵称")
-      return
-    }
+  const handleJoinRoom = async () => {
     if (!roomIdInput.trim()) {
       toast.error("请输入 6 位房间号")
       return
     }
-    saveNickname(nickname)
+    const user = await getToyProfile()
+    if (!user) return
     void runLobbyRequest("join_room", {
       roomId: roomIdInput.trim().toUpperCase(),
-      nickname: nickname.trim(),
+      nickname: user.nickname,
+      avatarUrl: user.avatar,
     })
   }
 
-  const handleJoinRandom = () => {
-    if (!nickname.trim()) {
-      toast.error("请先输入你的玩家昵称")
-      return
-    }
-    saveNickname(nickname)
+  const handleJoinRandom = async () => {
+    const user = await getToyProfile()
+    if (!user) return
     void runLobbyRequest("join_random_room", {
-      nickname: nickname.trim(),
+      nickname: user.nickname,
+      avatarUrl: user.avatar,
     })
   }
 
@@ -400,17 +393,8 @@ export default function MultiplayerLobby({
         {!room ? (
           /* 大厅准备/创建/加入界面 */
           <div className="space-y-6 max-w-xl mx-auto">
-            {/* 昵称输入 */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-gray-700 block">玩家昵称</label>
-              <input
-                type="text"
-                placeholder="输入你的游戏昵称..."
-                maxLength={20}
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
-                className="w-full h-11 px-4 rounded-xl border border-gray-300 bg-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-              />
+            <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-xs text-blue-800">
+              多人模式将使用你授权的 B站昵称和头像，无需手动填写。
             </div>
 
             {/* 创建房间 */}

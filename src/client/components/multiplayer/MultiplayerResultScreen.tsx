@@ -23,6 +23,7 @@ export default function MultiplayerResultScreen({
     isCurrent: p.id === currentPlayerId,
     isWinner: p.id === room.winner,
     avatarId: p.avatarId || 1,
+    avatarUrl: p.avatarUrl,
   }))
 
   allScores.sort((a, b) => b.score - a.score)
@@ -71,7 +72,7 @@ export default function MultiplayerResultScreen({
               <div className="flex items-center gap-2.5">
                 <span className="font-bold text-gray-400 w-4">{rank + 1}</span>
                 <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-gray-200">
-                  <img src={`${import.meta.env.BASE_URL}chara0${p.avatarId}.png`} alt="" className="w-full h-full object-cover" />
+                  <img src={p.avatarUrl || `${import.meta.env.BASE_URL}chara0${p.avatarId}.png`} alt="" className="w-full h-full object-cover" />
                 </div>
                 <span className="truncate max-w-[120px] font-semibold text-gray-900">
                   {p.nickname} {p.isCurrent && <span className="text-pink-600 font-normal">(你)</span>}
