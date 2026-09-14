@@ -24,7 +24,7 @@ export function SongCover({
       onError={(e) => {
         const target = e.target as HTMLImageElement
         target.onerror = null
-        target.src = `/placeholder.png?height=${size}&width=${size}`
+        target.src = `${import.meta.env.BASE_URL}placeholder.png?height=${size}&width=${size}`
       }}
     />
   )

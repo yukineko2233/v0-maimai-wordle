@@ -31,11 +31,11 @@ export default function PlayerAvatar({
         }`}
       >
         <img
-          src={`/chara0${avatarId || 1}.png`}
+          src={`${import.meta.env.BASE_URL}chara0${avatarId || 1}.png`}
           alt="avatar"
           className="w-full h-full object-cover"
           onError={(e) => {
-            ;(e.target as HTMLImageElement).src = "/placeholder.png"
+            ;(e.target as HTMLImageElement).src = `${import.meta.env.BASE_URL}placeholder.png`
           }}
         />
       </div>
