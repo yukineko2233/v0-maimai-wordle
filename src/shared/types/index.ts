@@ -122,6 +122,7 @@ export interface PlayerState {
   currentRound: PlayerRoundState
   isReady: boolean
   readyForNextRound: boolean
+  avatarUrl?: string
 }
 
 export interface MultiplayerRoom {
@@ -156,6 +157,7 @@ export interface MultiplayerRoom {
       nickname: string
       score: number
       avatarId: number
+      avatarUrl?: string
     }
   >
 }

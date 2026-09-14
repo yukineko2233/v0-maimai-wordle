@@ -195,10 +195,11 @@ export class RoomManager {
       nickname: player.nickname,
       score: player.score,
       avatarId: room.playerAvatars[playerId] || 1,
+      avatarUrl: player.avatarUrl,
     }
   }
 
-  private makePlayer(socket: Socket, nickname: string, timeLimit: number): ServerPlayerState {
+  private makePlayer(socket: Socket, nickname: string, timeLimit: number, avatarUrl?: string): ServerPlayerState {
     return {
       id: randomUUID(),
       socketId: socket.id,
@@ -209,6 +210,7 @@ export class RoomManager {
       currentRound: { guesses: [], gameOver: false, won: false, remainingTime: timeLimit },
       isReady: false,
       readyForNextRound: false,
+      ...(avatarUrl ? { avatarUrl } : {}),
     }
   }
 
@@ -219,7 +221,7 @@ export class RoomManager {
     socket.join(room.id)
   }
 
-  createRoom(socket: Socket, data: { nickname: string; settings: IncomingGameSettings; bestOf: BestOf; isPublic?: boolean }): SocketActionResult {
+  createRoom(socket: Socket, data: { nickname: string; avatarUrl?: string; settings: IncomingGameSettings; bestOf: BestOf; isPublic?: boolean }): SocketActionResult {
     if (!this.ensureSocketAvailable(socket)) return { ok: false, message: "当前连接已经在一个房间中，请先退出" }
     if (this.rooms.size >= MAX_SERVER_ROOMS) return this.reject(socket, "服务器房间已满，请稍后再试。")
     if (!data?.settings || !VALID_BEST_OF.has(data.bestOf)) return this.reject(socket, "房间设置无效")
@@ -229,7 +231,7 @@ export class RoomManager {
     if (!filtered.length) return this.reject(socket, "当前设置下没有可用的歌曲，请调整设置。")
 
     const roomId = this.generateRoomCode()
-    const player = this.makePlayer(socket, data.nickname?.trim() || "玩家", settings.timeLimit)
+    const player = this.makePlayer(socket, data.nickname?.trim() || "玩家", settings.timeLimit, data.avatarUrl)
     const room: ServerRoom = {
       id: roomId,
       host: player.id,
@@ -258,7 +260,7 @@ export class RoomManager {
     return { ok: true }
   }
 
-  joinRoom(socket: Socket, data: { roomId: string; nickname: string }): SocketActionResult {
+  joinRoom(socket: Socket, data: { roomId: string; nickname: string; avatarUrl?: string }): SocketActionResult {
     if (!this.ensureSocketAvailable(socket)) return { ok: false, message: "当前连接已经在一个房间中，请先退出" }
     const room = this.rooms.get(data?.roomId?.trim().toUpperCase())
     if (!room) return this.reject(socket, "房间不存在")
@@ -270,7 +272,7 @@ export class RoomManager {
     let avatarId = 1
     while (usedAvatars.includes(avatarId) && avatarId <= 6) avatarId++
     if (avatarId > 6) avatarId = 1
-    const player = this.makePlayer(socket, data.nickname?.trim() || `玩家${currentPlayers.length + 1}`, room.settings.timeLimit)
+    const player = this.makePlayer(socket, data.nickname?.trim() || `玩家${currentPlayers.length + 1}`, room.settings.timeLimit, data.avatarUrl)
     room.players[player.id] = player
     room.playerAvatars[player.id] = avatarId
     this.bindPlayer(socket, room, player)
@@ -305,13 +307,17 @@ export class RoomManager {
     this.emitRoom(room, "player_reconnected", { playerId: player.id })
   }
 
-  joinRandomRoom(socket: Socket, data: { nickname: string }): SocketActionResult {
+  joinRandomRoom(socket: Socket, data: { nickname: string; avatarUrl?: string }): SocketActionResult {
     if (!this.ensureSocketAvailable(socket)) return { ok: false, message: "当前连接已经在一个房间中，请先退出" }
     const available = Array.from(this.rooms.values()).filter(
       (room) => room.isPublic && room.status === "waiting" && Object.keys(room.players).length < MAX_ROOM_CAPACITY,
     )
     if (!available.length) return this.reject(socket, "当前没有可用的公开房间，请创建一个新房间或稍后再试。")
-    return this.joinRoom(socket, { roomId: available[Math.floor(Math.random() * available.length)].id, nickname: data.nickname })
+    return this.joinRoom(socket, {
+      roomId: available[Math.floor(Math.random() * available.length)].id,
+      nickname: data.nickname,
+      avatarUrl: data.avatarUrl,
+    })
   }
 
   toggleReady(socket: Socket, data: { roomId: string }) {
