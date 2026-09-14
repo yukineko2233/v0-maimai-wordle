@@ -47,6 +47,7 @@ export default function MultiplayerLobby({
 }: MultiplayerLobbyProps) {
   const requestConfirmation = useConfirm()
   const [profile, setProfile] = useState<ToyUserProfile | null>(null)
+  const [profileLoading, setProfileLoading] = useState(true)
   const [roomIdInput, setRoomIdInput] = useState("")
   const [bestOf, setBestOf] = useState<BestOf>(3)
   const [isPublic, setIsPublic] = useState(false)
@@ -75,25 +76,29 @@ export default function MultiplayerLobby({
     onRoomChange?.(null)
   }
 
-  const getToyProfile = async () => {
+  const getToyProfile = async (showError = true) => {
     if (profile) return profile
     if (!window.toy?.getUserProfile) {
-      toast.error("当前环境不支持获取 B站用户信息，请在 Toy 页面中打开")
+      if (showError) toast.error("当前环境不支持获取 B站用户信息，请在 Toy 页面中打开")
+      setProfileLoading(false)
       return null
     }
+    setProfileLoading(true)
     try {
       const nextProfile = await window.toy.getUserProfile()
       if (!nextProfile.nickname || !nextProfile.avatar) throw new Error("invalid profile")
       setProfile(nextProfile)
       return nextProfile
     } catch {
-      toast.error("需要授权昵称和头像后才能使用多人模式")
+      if (showError) toast.error("需要授权昵称和头像后才能使用多人模式")
       return null
+    } finally {
+      setProfileLoading(false)
     }
   }
 
   useEffect(() => {
-    void getToyProfile()
+    void getToyProfile(false)
   }, [])
 
   useEffect(() => {
@@ -403,12 +408,25 @@ export default function MultiplayerLobby({
               ) : (
                 <div className="h-12 w-12 rounded-full bg-blue-200" aria-hidden="true" />
               )}
-              <div className="min-w-0 text-xs text-blue-800">
-                <div className="font-semibold">当前玩家</div>
-                <div className="truncate text-sm font-bold text-blue-950">
-                  {profile?.nickname || "正在获取 B站昵称..."}
+              <div className="min-w-0 flex-1 text-xs text-blue-800">
+                {profile ? (
+                  <>
+                    <div className="font-semibold">当前玩家</div>
+                    <div className="truncate text-sm font-bold text-blue-950">{profile.nickname}</div>
+                  </>
+                ) : profileLoading ? (
+                  <div className="font-semibold">正在获取 B站玩家信息...</div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => void getToyProfile()}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+                  >
+                    <LogIn className="h-4 w-4" />
+                    获取玩家信息
+                  </button>
+                )}
                 </div>
-              </div>
             </div>
 
             {/* 创建房间 */}
