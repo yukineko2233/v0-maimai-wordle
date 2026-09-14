@@ -1,6 +1,7 @@
 import type { Song, SongTag, SongType } from "../types"
 import { dsToLevel } from "./levels"
 import { normalizeVersion } from "./versions"
+import bundledTags from "../../../public/tags.json"
 
 export interface DivingFishSong {
   id: string
@@ -105,16 +106,7 @@ export async function fetchRawCatalogData() {
         return { content: [] } as YuzuChanAliasResponse
       },
     ),
-    fetchWithTimeout<DxRatingTagsResponse>("https://miruku.dxrating.net/api/v1/tags").catch(async (err) => {
-      // Toy/WebView may be blocked by DXRating's CORS policy; use the bundled snapshot.
-      console.warn("Failed to fetch tags, trying bundled snapshot:", err.message)
-      try {
-        return await fetchWithTimeout<DxRatingTagsResponse>("./tags.json")
-      } catch (cacheError) {
-        console.warn("Failed to fetch bundled tags snapshot, defaulting to empty:", cacheError instanceof Error ? cacheError.message : cacheError)
-        return { tags: [], tagGroups: [], tagSongs: [] } as DxRatingTagsResponse
-      }
-    }),
+    Promise.resolve(bundledTags as DxRatingTagsResponse),
   ])
 
   return { musicData, votesData, aliasesData, tagsData }
