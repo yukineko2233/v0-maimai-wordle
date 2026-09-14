@@ -93,6 +93,10 @@ export default function MultiplayerLobby({
   }
 
   useEffect(() => {
+    void getToyProfile()
+  }, [])
+
+  useEffect(() => {
     const onRoomCreated = ({ roomId, room: nextRoom, sessionToken, playerId }: {
       roomId: string
       room: MultiplayerRoom
@@ -393,8 +397,19 @@ export default function MultiplayerLobby({
         {!room ? (
           /* 大厅准备/创建/加入界面 */
           <div className="space-y-6 max-w-xl mx-auto">
-            <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-xs text-blue-800">
-              多人模式将使用你授权的 B站昵称和头像，无需手动填写。
+            <div className="flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3">
+              {profile ? (
+                <img src={profile.avatar} alt="当前账号头像" className="h-12 w-12 rounded-full object-cover" />
+              ) : (
+                <div className="h-12 w-12 rounded-full bg-blue-200" aria-hidden="true" />
+              )}
+              <div className="min-w-0 text-xs text-blue-800">
+                <div className="font-semibold">当前账号</div>
+                <div className="truncate text-sm font-bold text-blue-950">
+                  {profile?.nickname || "正在获取 B站昵称..."}
+                </div>
+                <div className="mt-0.5">多人模式将使用该昵称和头像，无需手动填写。</div>
+              </div>
             </div>
 
             {/* 创建房间 */}
