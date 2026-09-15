@@ -8,6 +8,7 @@ import SearchBox from "../game/SearchBox"
 import GuessRow from "../game/GuessRow"
 import SettingsPanel from "./SettingsPanel"
 import ResultScreen, { type ResultEndReason } from "./ResultScreen"
+import { useConfirm } from "../common/ConfirmProvider"
 
 interface GameBoardProps {
   onBack: () => void
@@ -38,6 +39,7 @@ function isGameSettings(value: unknown): value is GameSettings {
 }
 
 export default function GameBoard({ onBack, initialSongs }: GameBoardProps) {
+  const requestConfirmation = useConfirm()
   const [songs] = useState<Song[]>(initialSongs)
   const [settings, setSettings] = useState<GameSettings>(() => {
     try {
@@ -128,8 +130,13 @@ export default function GameBoard({ onBack, initialSongs }: GameBoardProps) {
     [filteredSongs, settings.timeLimit],
   )
 
-  const handleNewGameClick = () => {
-    if (!gameState.gameOver && !window.confirm("开始新游戏会丢失当前进度，确定继续吗？")) return
+  const handleNewGameClick = async () => {
+    if (!gameState.gameOver && !(await requestConfirmation({
+      title: "开始新游戏？",
+      message: "开始新游戏会丢失当前进度，确定继续吗？",
+      confirmLabel: "开始新游戏",
+      destructive: true,
+    }))) return
     setSpinKey((k) => k + 1)
     startNewGame()
   }
@@ -173,17 +180,26 @@ export default function GameBoard({ onBack, initialSongs }: GameBoardProps) {
     return () => window.cancelAnimationFrame(frame)
   }, [gameState.guesses.length])
 
-  const giveUp = () => {
-    if (!window.confirm("投降后本局将立即结束，确定投降吗？")) return
+  const giveUp = async () => {
+    if (!(await requestConfirmation({
+      title: "确认投降",
+      message: "投降后本局将立即结束，确定投降吗？",
+      confirmLabel: "确认投降",
+      destructive: true,
+    }))) return
     setEndReason("give-up")
     setGameState((prev) => ({ ...prev, gameOver: true }))
   }
 
-  const applySettings = (newSettings: GameSettings) => {
+  const applySettings = async (newSettings: GameSettings) => {
     if (
       gameState.targetSong &&
       !gameState.gameOver &&
-      !window.confirm("应用设置将重新开始新游戏，确定继续吗？")
+      !(await requestConfirmation({
+        title: "应用新设置？",
+        message: "应用设置将重新开始新游戏，确定继续吗？",
+        confirmLabel: "应用并重开",
+      }))
     ) {
       return
     }

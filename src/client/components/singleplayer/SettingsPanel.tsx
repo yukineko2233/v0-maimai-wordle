@@ -18,6 +18,7 @@ import {
   UNLIMITED_TOP_SONGS,
   applyPresetSettings,
 } from "../../../shared/domain/presets"
+import { useConfirm } from "../common/ConfirmProvider"
 
 interface SettingsPanelProps {
   settings: GameSettings
@@ -75,6 +76,7 @@ export default function SettingsPanel({
   onClose,
   isMultiplayer = false,
 }: SettingsPanelProps) {
+  const requestConfirmation = useConfirm()
   const [current, setCurrent] = useState<GameSettings>({ ...settings })
   const returnFocusRef = useRef<HTMLElement | null>(
     typeof document !== "undefined" && document.activeElement instanceof HTMLElement
@@ -111,13 +113,18 @@ export default function SettingsPanel({
     return 0
   })()
 
-  const requestClose = () => {
-    if (hasUnappliedChanges && !window.confirm("设置尚未应用，确定放弃这些更改吗？")) return
+  const requestClose = async () => {
+    if (hasUnappliedChanges && !(await requestConfirmation({
+      title: "放弃设置更改？",
+      message: "设置尚未应用，确定放弃这些更改吗？",
+      confirmLabel: "放弃更改",
+      destructive: true,
+    }))) return
     onClose()
   }
 
   return (
-    <Dialog.Root open onOpenChange={(open) => !open && requestClose()}>
+    <Dialog.Root open onOpenChange={(open) => { if (!open) void requestClose() }}>
       <Dialog.Portal>
         <Dialog.Overlay className="motion-dialog-overlay fixed inset-0 z-[99998] bg-black/60 backdrop-blur-xs" />
         <Dialog.Content

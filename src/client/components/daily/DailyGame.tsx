@@ -8,6 +8,7 @@ import SearchBox from "../game/SearchBox"
 import GuessRow from "../game/GuessRow"
 import ResultScreen, { type ResultEndReason } from "../singleplayer/ResultScreen"
 import DailyShareModal from "./DailyShareModal"
+import { useConfirm } from "../common/ConfirmProvider"
 
 const DAILY_SETTINGS: GameSettings = {
   versionRange: { min: "maimai", max: "舞萌DX 2026" },
@@ -42,6 +43,7 @@ interface DailyGameProps {
 type DailyMode = "loading" | "online"
 
 export default function DailyGame({ onBack, initialSongs }: DailyGameProps) {
+  const requestConfirmation = useConfirm()
   const [todayDate, setTodayDate] = useState(() => getShanghaiDate())
   const todayDateRef = useRef(todayDate)
   const modeRef = useRef<DailyMode>("loading")
@@ -223,7 +225,12 @@ export default function DailyGame({ onBack, initialSongs }: DailyGameProps) {
 
   const giveUp = async () => {
     if (submitting || gameState.gameOver) return
-    if (!window.confirm("投降后今天无法重新开始，确定投降吗？")) return
+    if (!(await requestConfirmation({
+      title: "确认投降",
+      message: "投降后今天无法重新开始，确定投降吗？",
+      confirmLabel: "确认投降",
+      destructive: true,
+    }))) return
     if (mode === "online" && sessionToken) {
       mutationVersionRef.current++
       setSubmitting(true)

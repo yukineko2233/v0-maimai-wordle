@@ -17,6 +17,7 @@ import {
 } from "../../services/socket"
 import SettingsPanel from "../singleplayer/SettingsPanel"
 import PlayerList from "./PlayerList"
+import { useConfirm } from "../common/ConfirmProvider"
 
 const NICKNAME_STORAGE_KEY = "maimai_wordle_nickname"
 
@@ -46,6 +47,7 @@ export default function MultiplayerLobby({
   initialRoom = null,
   onRoomChange,
 }: MultiplayerLobbyProps) {
+  const requestConfirmation = useConfirm()
   const [nickname, setNickname] = useState(() => {
     try {
       return localStorage.getItem(NICKNAME_STORAGE_KEY) || ""
@@ -291,15 +293,25 @@ export default function MultiplayerLobby({
     socket.emit("start_game", { roomId: room.id })
   }
 
-  const handleRemovePlayer = (playerId: string) => {
+  const handleRemovePlayer = async (playerId: string) => {
     if (!room) return
     const nickname = room.players[playerId]?.nickname || "该玩家"
-    if (!window.confirm(`确定将 ${nickname} 移出房间吗？`)) return
+    if (!(await requestConfirmation({
+      title: "移出玩家？",
+      message: `确定将 ${nickname} 移出房间吗？`,
+      confirmLabel: "移出房间",
+      destructive: true,
+    }))) return
     socket.emit("remove_player", { roomId: room.id, playerId })
   }
 
-  const handleLeaveRoom = () => {
-    if (room && !window.confirm("确定离开当前房间吗？")) return
+  const handleLeaveRoom = async () => {
+    if (room && !(await requestConfirmation({
+      title: "离开房间？",
+      message: "确定离开当前房间吗？",
+      confirmLabel: "离开房间",
+      destructive: true,
+    }))) return
     if (room) {
       socket.emit("leave_room", { roomId: room.id })
     }

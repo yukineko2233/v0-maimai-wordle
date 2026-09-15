@@ -19,6 +19,7 @@ import GuessRow from "../game/GuessRow"
 import { SongCover } from "../game/SongCover"
 import PlayerList from "./PlayerList"
 import MultiplayerResultScreen from "./MultiplayerResultScreen"
+import { useConfirm } from "../common/ConfirmProvider"
 
 interface MultiplayerGameProps {
   initialRoom: MultiplayerRoom
@@ -40,6 +41,7 @@ export default function MultiplayerGame({
   initialRoom,
   onExit,
 }: MultiplayerGameProps) {
+  const requestConfirmation = useConfirm()
   const [room, setRoom] = useState<MultiplayerRoom>(initialRoom)
   const [currentPlayerId, setCurrentPlayerId] = useState(getMultiplayerPlayerId)
   const [remainingTime, setRemainingTime] = useState(() =>
@@ -258,7 +260,12 @@ export default function MultiplayerGame({
 
   const giveUp = async () => {
     if (pendingAction || connectionState !== "connected" || (room.settings.timeLimit > 0 && remainingTime <= 0)) return
-    if (!window.confirm("确定要投降本轮吗？其他玩家仍可继续。")) return
+    if (!(await requestConfirmation({
+      title: "确认投降",
+      message: "确定要投降本轮吗？其他玩家仍可继续。",
+      confirmLabel: "确认投降",
+      destructive: true,
+    }))) return
     setPendingAction("give_up")
     const result = await emitSocketRequest("give_up", {
       roomId: room.id,
@@ -277,8 +284,13 @@ export default function MultiplayerGame({
     })
   }
 
-  const exitGame = () => {
-    if (!isMatchFinished && !window.confirm("确定退出对战吗？")) return
+  const exitGame = async () => {
+    if (!isMatchFinished && !(await requestConfirmation({
+      title: "退出对战？",
+      message: "确定退出对战吗？",
+      confirmLabel: "退出对战",
+      destructive: true,
+    }))) return
     try {
       clearMultiplayerSession()
     } catch (e) {}

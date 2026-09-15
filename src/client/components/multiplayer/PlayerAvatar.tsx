@@ -2,6 +2,7 @@ import { Crown } from "lucide-react"
 
 interface PlayerAvatarProps {
   avatarId: number
+  avatarUrl?: string
   nickname: string
   isHost: boolean
   isCurrentPlayer: boolean
@@ -11,6 +12,7 @@ interface PlayerAvatarProps {
 
 export default function PlayerAvatar({
   avatarId,
+  avatarUrl,
   nickname,
   isHost,
   isCurrentPlayer,
@@ -31,7 +33,7 @@ export default function PlayerAvatar({
         }`}
       >
         <img
-          src={`${import.meta.env.BASE_URL}chara0${avatarId || 1}.png`}
+          src={avatarUrl || `${import.meta.env.BASE_URL}chara0${avatarId || 1}.png`}
           alt="avatar"
           className="w-full h-full object-cover"
           onError={(e) => {

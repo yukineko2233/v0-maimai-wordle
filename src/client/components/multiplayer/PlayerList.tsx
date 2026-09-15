@@ -38,6 +38,7 @@ export default function PlayerList({
           >
             <PlayerAvatar
               avatarId={playerAvatars[player.id] || 1}
+              avatarUrl={player.avatarUrl}
               nickname={player.nickname}
               isHost={isPlayerHost}
               isCurrentPlayer={isSelf}
